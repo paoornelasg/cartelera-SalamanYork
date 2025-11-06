@@ -3,53 +3,55 @@
     <div class="footer-columns">
       <div class="column">
         <h4 class="footer-title">
-          Links
+          Enlaces
         </h4>
         <NuxtLink to="/Home" class="footer-link">
-          Home
+          Inicio
         </NuxtLink>
         <NuxtLink to="/shop" class="footer-link">
-          Shop
+          Cartelera
         </NuxtLink>
         <NuxtLink to="/about" class="footer-link">
-          About
+          Acerca
         </NuxtLink>
         <NuxtLink to="/contact" class="footer-link">
-          Contact
+          Contacto
         </NuxtLink>
       </div>
 
       <div class="column">
         <h4 class="footer-title">
-          Help
+          Ayuda
         </h4>
         <NuxtLink to="/Home" class="footer-link">
-          Payment options
+          Trabaja con Nosotros
         </NuxtLink>
         <NuxtLink to="/Home" class="footer-link">
-          Returns
+          Renta una Sala
         </NuxtLink>
         <NuxtLink to="/Home" class="footer-link">
-          Privacy Policies
+          Política de Privacidad
         </NuxtLink>
       </div>
 
       <div class="column">
         <h4 class="footer-title">
-          Bulletin
+          Boletín
         </h4>
-        <form @submit.prevent="handleSubscribe" class="subscription-form">
+        <form class="subscription-form" @submit.prevent="handleSubscribe">
           <input
             v-model="email"
             type="email"
-            placeholder="Insert your email"
+            placeholder="Ingresa tu correo electrónico"
             required
           >
           <button type="submit">
-            SUBSCRIBE
+            SUSCRIBIRSE
           </button>
         </form>
-        <p v-if="mensajeSubscripcion" class="subscription-message">{{ mensajeSubscripcion }}</p>
+        <p v-if="mensajeSubscripcion" class="subscription-message">
+          {{ mensajeSubscripcion }}
+        </p>
       </div>
     </div>
   </footer>
@@ -70,20 +72,20 @@ export default {
     handleSubscribe () {
       if (this.validarEmail(this.email)) {
         // Simular suscripción
-        this.mensajeSubscripcion = '¡Gracias por suscribirte!';
-        this.email = '';
+        this.mensajeSubscripcion = '¡Gracias por suscribirte!'
+        this.email = ''
       } else {
-        this.mensajeSubscripcion = 'Por favor ingresa un correo válido.';
+        this.mensajeSubscripcion = 'Por favor ingresa un correo válido.'
       }
 
       // Borrar mensaje después de 4 segundos
       setTimeout(() => {
-        this.mensajeSubscripcion = '';
-      }, 4000);
+        this.mensajeSubscripcion = ''
+      }, 4000)
     },
     validarEmail (correo) {
-      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return regex.test(correo);
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      return regex.test(correo)
     }
   }
 }

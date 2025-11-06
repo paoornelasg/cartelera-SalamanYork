@@ -13,16 +13,16 @@
 
       <div class="header-buttons-container">
         <NuxtLink to="/Home" class="header-button">
-          Home
+          Inicio
         </NuxtLink>
         <NuxtLink to="/shop" class="header-button">
-          Shop
+          Cartelera
         </NuxtLink>
         <NuxtLink to="/about" class="header-button">
-          About
+          Acerca
         </NuxtLink>
         <NuxtLink to="/contact" class="header-button">
-          Contact
+          Contacto
         </NuxtLink>
       </div>
 
