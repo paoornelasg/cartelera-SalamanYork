@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar color="#fbebb5" app class="text-black" elevation="0">
+    <v-app-bar app class="text-black nav-transparent" elevation="0">
+      <!-- NavBAr-->
       <v-app-bar-nav-icon
         class="d-sm-none"
         @click="drawer = !drawer"
@@ -12,16 +13,16 @@
 
         <div class="header-buttons-container d-none d-sm-flex">
           <NuxtLink to="/Home" class="header-button">
-            Home
+            Inicio
           </NuxtLink>
           <NuxtLink to="/shop" class="header-button">
-            Shop
+            Cartelera
           </NuxtLink>
           <NuxtLink to="/about" class="header-button">
-            About
+            Acerca
           </NuxtLink>
           <NuxtLink to="/contact" class="header-button">
-            Contact
+            Contacto
           </NuxtLink>
         </div>
 
@@ -49,7 +50,7 @@
           </v-btn>
         </div>
       </div>
-    </v-app-bar>
+    </v-app-bar> <!-- Fin NavBAr-->
 
     <v-navigation-drawer
       v-model="drawer"
@@ -59,91 +60,112 @@
     >
       <v-list dense>
         <v-list-item link to="/Home">
-          <v-list-item-title>Home</v-list-item-title>
+          <v-list-item-title>Inicio</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/shop">
-          <v-list-item-title>Shop</v-list-item-title>
+          <v-list-item-title>Cartelera</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/about">
-          <v-list-item-title>About</v-list-item-title>
+          <v-list-item-title>Acerca</v-list-item-title>
         </v-list-item>
         <v-list-item link to="/contact">
-          <v-list-item-title>Contact</v-list-item-title>
+          <v-list-item-title>Contacto</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
     <v-main>
+      <!-- Primera Seccion-->
       <div class="main-section">
         <div class="main-section-content">
           <div class="main-section-text">
             <h1 class="main-section-title">
-              Rocket single seater
+              Cartelera · Estrenos
             </h1>
-            <NuxtLink to="/shop" class="main-section-button">
-              Shop
-            </NuxtLink>
+            <p class="main-section-subtitle">
+              Las mejores películas y estrenos disponibles ahora
+            </p>
+            <div class="main-section-buttons">
+              <NuxtLink to="/shop" class="main-section-button">
+                Cartelera
+              </NuxtLink>
+            </div>
           </div>
-          <img class="main-sofa" src="../public/images/01_Sofa.png" alt="Sofa">
         </div>
       </div>
-      <div class="secondary-section">
-        <div class="secondary-section-content">
-          <img class="secondary-table" src="../public/images/02_MiniTable.png" alt="Table">
-          <p class="secondary-section-text">
-            Side Table
-          </p>
-          <NuxtLink to="/shop" class="main-section-button">
-            View More
-          </NuxtLink>
-        </div>
-        <div class="secondary-section-content">
-          <img class="secondary-sofa" src="../public/images/03_WhiteSofa.png" alt="Table">
-          <p class="secondary-section-text">
-            White Sofa
-          </p>
-          <NuxtLink to="/shop" class="main-section-button">
-            View More
-          </NuxtLink>
-        </div>
-      </div>
+
+      <!-- Segunda Seccion-->
       <div class="top-picks-section">
-        <div class="top-picks-section-content">
-          <h2>
-            Top Picks
-          </h2>
+        <div class="top-picks-section-header">
+          <h2>Estrenos</h2>
           <p class="top-picks-section-text">
-            We’ve selected our favorite furniture just for you — comfort, style, and quality all in one place.
+            Observa lo último en cartelera
           </p>
         </div>
         <div class="top-picks-section-furniture">
-          <div
-            v-for="producto in productos"
-            :key="producto.id"
-            class="top-picks-section-sub-furniture"
+          <v-carousel
+            height="350"
+            show-arrows-on-hover
+            cycle
+            hide-delimiter-background
+            delimiter-icon="mdi-minus"
+            class="billboard-carousel"
           >
-            <NuxtLink :to="`/product/${producto.id}`">
-              <img
-                class="sub-furniture"
-                :src="producto.image"
-                :alt="producto.name"
-                @click="abrirModal(producto)"
-              >
-            </NuxtLink>
-            <NuxtLink :to="`/product/${producto.id}`" class="furniture-name">
-              <p class="furniture-name" @click="abrirModal(producto)">
-                {{ producto.name }}
-              </p>
-            </NuxtLink>
-            <p class="furniture-price">
-              $ {{ Number(producto.price || 0).toFixed(2) }}
-            </p>
-          </div>
-        </div>
-        <div class="top-picks-view-more-container">
-          <NuxtLink to="/shop" class="main-section-button">
-            View More
-          </NuxtLink>
+            <v-carousel-item
+              v-for="movie in movies"
+              :key="movie.id"
+              class="carousel-item-container"
+            >
+              <v-img
+                :src="movie.image"
+                height="100%"
+                cover
+                class="carousel-background-image"
+              />
+
+              <div class="carousel-content-wrapper d-flex flex-column justify-center align-center fill-height">
+                <v-container>
+                  <v-row align="center" justify="center">
+                    <v-col cols="12" md="3" class="d-flex justify-center justify-md-end">
+                      <v-img
+                        :src="movie.image"
+                        max-height="280"
+                        max-width="180"
+                        contain
+                        class="elevation-6 rounded"
+                      />
+                    </v-col>
+
+                    <v-col cols="12" md="6" class="text-white text-center text-md-left">
+                      <div class="text-h3 font-weight-bold mb-2 white-text-no-shadow">
+                        {{ movie.title }}
+                      </div>
+                      <div class="text-h6 font-weight-light mb-4 white-text-no-shadow">
+                        {{ movie.duration }}
+                      </div>
+                      <v-btn
+                        color="yellow"
+                        class="text-black mb-2"
+                        size="large"
+                        elevation="2"
+                        @click.stop="goToMovieDetails(movie.id)"
+                      >
+                        Comprar entradas
+                      </v-btn>
+                      <div class="d-flex align-center justify-center justify-md-start text-subtitle-1 white-text-no-shadow">
+                        <NuxtLink to="/home" class="router-link-white">
+                          <span class="font-weight-medium">Home</span>
+                        </NuxtLink>
+                        <span class="ml-2">
+                          <v-icon size="small" color="white">mdi-chevron-right</v-icon> <span>Cartelera</span>
+                        </span>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </div>
+            </v-carousel-item>
+          </v-carousel>
         </div>
       </div>
       <div class="new-arrivals-section">
@@ -161,51 +183,6 @@
             <button class="new-arrivals-section-button">
               Order Now
             </button>
-          </div>
-        </div>
-      </div>
-      <div class="blogs-section">
-        <div class="top-picks-section-content">
-          <h2>
-            Our Blogs
-          </h2>
-          <p class="top-picks-section-text">
-            Explore our articles and discover ideas, tips, and trends to transform your home with style.
-          </p>
-        </div>
-        <div class="posts-container">
-          <div class="blog-post-container">
-            <NuxtLink to="/Blog">
-              <img class="blog-image" src="../public/images/09_Blog.jpg" alt="Blog">
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="blog-post-text">
-              Take Advantage of Our Offers
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="main-section-button">
-              Read More
-            </NuxtLink>
-          </div>
-          <div class="blog-post-container">
-            <NuxtLink to="/Blog">
-              <img class="blog-image" src="../public/images/10_Blog.jpg" alt="Blog">
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="blog-post-text">
-              Learn More About Us
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="main-section-button">
-              Read More
-            </NuxtLink>
-          </div>
-          <div class="blog-post-container">
-            <NuxtLink to="/Blog">
-              <img class="blog-image" src="../public/images/11_Blog.jpg" alt="Blog">
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="blog-post-text">
-              Discover the Latest Furniture Trends
-            </NuxtLink>
-            <NuxtLink to="/Blog" class="main-section-button">
-              Read More
-            </NuxtLink>
           </div>
         </div>
       </div>
@@ -244,18 +221,34 @@ export default {
       drawer: false,
       productos: [],
       productoSeleccionado: {},
-      showCart: false
+      showCart: false,
+
+      movies: [
+        { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A' },
+        { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
+        { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15' },
+        { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', releaseDate: '2025-10-31', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
+        { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B' },
+        { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', releaseDate: '2025-11-01', language: 'Inglés', format: 'Tradicional', classification: 'B' },
+        { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', releaseDate: '2025-10-24', language: 'Inglés', format: 'Premium', classification: 'B' },
+        { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Tradicional', classification: 'B' },
+        { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', releaseDate: '2025-10-31', language: 'Español', format: 'Tradicional', classification: 'B' },
+        { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15' },
+        { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15' },
+        { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15' }
+      ]
     }
   },
   mounted () {
     axios.get('http://localhost:5020/api/products')
       .then((res) => {
-        // Odena los productos más nuevos y deja los primeros tres
+        // Ordena las peliculas de estreno y deja las primeras tres
         const todos = res.data
-        this.productos = todos.slice(-4).reverse()
+        this.productos = todos.slice(-3).reverse()
       })
-      .catch((err) => {
-        console.error('Error loading products:', err)
+      .catch(() => {
+        // Si hay error al cargar productos, dejamos la lista vacía (evita uso de console.error por linter)
+        this.productos = []
       })
   }
 }
@@ -317,36 +310,59 @@ export default {
   }
 
 .header-button {
-  color: black;
+  color: #ffffff;
+  background-color: #a6a5a5;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
   .header-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     text-decoration: none;
+  }
+
+  /* Estilos para los botones de iconos y acciones en la cabecera */
+  .header-icons-container .v-btn {
+    background-color: #a6a5a5 !important;
+    color: black !important;
+    border-radius: 8px !important;
+    margin-left: 8px;
+  }
+
+  .header-icons-container .v-btn .v-icon {
+    color: #ffffff !important;
+  }
+
+  /* Icono del drawer en pantallas pequeñas */
+  .v-app-bar-nav-icon {
+    background-color: #a6a5a5 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
   }
 
   .main-section {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    background-color: #fbebb5;
-    padding: 0 5vw;
+    justify-content: flex-start; /* Texto en la izquierda */
+    align-items: flex-end; /* Texto en la parte inferior */
+    width: 100%;
+    height: 60vh; /* un ajuste para que no sea cuadrado y pase a ser rectangular */
+    background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.40)), url('../public/images/Imagen_de_Fondo.jpg') center/cover no-repeat;
+    padding: 2rem; /* separación */
     box-sizing: border-box;
   }
 
   .main-section-content {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-end;
+    width: 100%;
+    max-width: 1200px;
   }
 
   .secondary-section {
@@ -396,24 +412,38 @@ export default {
   .main-section-title {
     font-weight: 500;
     font-size: clamp(1.5rem, 4vw, 3rem);
-    color: black;
+    color: #fff; /* texto claro sobre imagen */
     text-align: center;
     margin-top: 20px;
   }
 
   .main-section-text {
-    color: black;
+    color: white;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Alinear a la izquierda */
     flex-direction: column;
+    text-align: left;
+    padding: 1rem;
+    margin: 0;
   }
 
   .main-section-button {
-    font-weight: 500;
-    font-size: clamp(1rem, 3vw, 1.5rem);
-    color: black;
+    display: inline-block;
+    font-weight: 600;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    color: #ebebeb;
+    background: rgba(243, 95, 95, 0.95);
     padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .main-section-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
   }
 
   .secondary-section-content {
@@ -1023,6 +1053,98 @@ export default {
     margin-top: 0;
     position: relative;
     z-index: 0;
+  }
+
+  /* NavBar transparente */
+  .nav-transparent {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Botón para ver los horarios */
+  .ver-horarios-button {
+    background-color: #f63f3f;
+    color: #000000;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+    margin-top: 8px;
+  }
+
+  .ver-horarios-button:hover {
+    background-color: #f17e7e;
+    color: black;
+  }
+
+  /* Estilos para los product-cards en Home (basados en shop.vue) */
+  .product-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    width: 100%;
+    margin: auto;
+    border-radius: 10px;
+    box-shadow: none;
+    border: 1px solid transparent;
+  }
+
+  .product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  }
+
+  .product-image {
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .product-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Carousel/content wrapper styles copied from shop.vue for consistency */
+  .carousel-item-container {
+    position: relative;
+  }
+
+  .carousel-background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .carousel-content-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 20px 0;
+  }
+
+  .white-text-no-shadow {
+    color: white;
+    text-shadow: none;
+  }
+
+  .router-link-white {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
   }
 </style>
 
