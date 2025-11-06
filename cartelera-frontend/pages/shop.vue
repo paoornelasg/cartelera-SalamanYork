@@ -3,53 +3,125 @@
     <AppHeader />
 
     <v-main>
-      <ProductImage title="Shop" />
-      <div class="hero-section">
-        <div class="hero-overlay" />
-      </div>
+      <v-carousel
+        height="450"
+        show-arrows-on-hover
+        cycle
+        hide-delimiter-background
+        delimiter-icon="mdi-minus"
+        class="billboard-carousel"
+      >
+        <v-carousel-item
+          v-for="movie in movies"
+          :key="movie.id"
+          class="carousel-item-container"
+        >
+          <v-img
+            :src="movie.image"
+            height="100%"
+            cover
+            class="carousel-background-image"
+          />
 
+          <div class="carousel-content-wrapper d-flex flex-column justify-center align-center fill-height">
+            <v-container>
+              <v-row align="center" justify="center">
+                <v-col cols="12" md="3" class="d-flex justify-center justify-md-end">
+                  <v-img
+                    :src="movie.image"
+                    max-height="280"
+                    max-width="180"
+                    contain
+                    class="elevation-6 rounded"
+                  />
+                </v-col>
+
+                <v-col cols="12" md="6" class="text-white text-center text-md-left">
+                  <div class="text-h3 font-weight-bold mb-2 white-text-no-shadow">
+                    {{ movie.title }}
+                  </div>
+                  <div class="text-h6 font-weight-light mb-4 white-text-no-shadow">
+                    {{ movie.duration }}
+                  </div>
+                  <v-btn
+                    color="yellow"
+                    class="text-black mb-2"
+                    size="large"
+                    elevation="2"
+                    @click.stop="goToMovieDetails(movie.id)"
+                  >
+                    Comprar entradas
+                  </v-btn>
+                  <div class="d-flex align-center justify-center justify-md-start text-subtitle-1 white-text-no-shadow">
+                    <NuxtLink to="/home" class="router-link-white">
+                      <span class="font-weight-medium">Home</span>
+                    </NuxtLink>
+                    <span class="ml-2">
+                      <v-icon size="small" color="white">mdi-chevron-right</v-icon> <span>Cartelera</span>
+                    </span>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-container>
+          </div>
+        </v-carousel-item>
+      </v-carousel>
       <v-container class="top-filters-bar" fluid>
-        <v-row class="align-center justify-space-between top-filters-bar" style="max-width: 1400px; margin: auto;">
-          <v-col cols="12" md="6" class="d-flex align-center gap-4 flex-wrap justify-start justify-md-start">
-            <div class="d-flex align-center filters-label" style="cursor: pointer;" @click="drawerFilters = !drawerFilters">
+        <v-row
+          class="align-center justify-space-between top-filters-bar"
+          style="max-width: 1400px; margin: auto;"
+        >
+          <v-col
+            cols="12"
+            md="6"
+            class="d-flex align-center gap-4 flex-wrap justify-start justify-md-start"
+          >
+            <div
+              class="d-flex align-center filters-label"
+              style="cursor: pointer;"
+              @click="drawerFilters = !drawerFilters"
+            >
               <v-icon class="mr-1 filters-icon">
                 mdi-tune
               </v-icon>
-              <span class="filters-text">Filters</span>
+              <span class="filters-text">Filtrar</span>
             </div>
 
             <v-icon>mdi-view-grid</v-icon>
-            <v-icon>mdi-view-agenda</v-icon>
 
             <span class="filters-text font-weight-medium hidden-sm-and-down">
-              Showing {{ shownCount }}–{{ shownCount + paginatedProducts.length - 1 }} of {{ totalProducts }} results
+              Mostrando {{ shownCount }}–{{ Math.min(shownCount + paginatedMovies.length - 1, totalMovies) }} de {{ totalMovies }} resultados
             </span>
           </v-col>
 
-          <v-col cols="12" md="6" class="d-flex align-center justify-start justify-md-end gap-4 flex-wrap">
+          <v-col
+            cols="12"
+            md="6"
+            class="d-flex align-center justify-start justify-md-end gap-4 flex-wrap"
+          >
             <div class="d-flex align-center gap-2">
-              <span class="filters-text font-weight-medium">Showㅤ</span>
+              <span class="filters-text font-weight-medium">Mostrarㅤ</span>
               <v-text-field
-                v-model="itemsPerPage"
+                v-model.number="itemsPerPage"
                 type="number"
                 min="1"
                 max="50"
                 hide-details
                 solo
                 class="input-flat"
-                style="max-width: 50px; font-size: 14px;"
+                style="max-width: 70px; font-size: 14px;"
               />
             </div>
 
             <div class="d-flex align-center gap-2">
-              <span class="filters-text font-weight-medium">Sort byㅤ</span>
+              <span class="filters-text font-weight-medium">Ordenar porㅤ</span>
               <v-select
                 v-model="sortOption"
-                :items="['Default', 'Price: Low to High', 'Price: High to Low']"
+                :items="sortItems"
                 solo
                 hide-details
                 class="input-flat"
-                style="max-width: 120px; font-size: 14px;"
+                style="max-width: 180px; font-size: 14px;"
               />
             </div>
           </v-col>
@@ -59,23 +131,68 @@
       <v-dialog v-model="drawerFilters" max-width="400px">
         <v-card>
           <v-card-title class="headline">
-            Filters
+            Filtrar por
           </v-card-title>
 
           <v-card-text>
-            <v-select v-model="category" label="Category" :items="categories" />
-            <v-select v-model="priceRange" label="Price" :items="priceRanges" />
-            <v-select v-model="color" label="Color" :items="colors" />
-            <v-text-field v-model="searchQuery" label="Search product" prepend-inner-icon="mdi-magnify" />
+            <v-text-field
+              v-model="searchQuery"
+              label="Buscar película..."
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              density="compact"
+              class="mb-3"
+            />
+            <v-select
+              v-model="genre"
+              label="Género"
+              :items="genreItems"
+              variant="outlined"
+              density="compact"
+              class="mb-3"
+            />
+            <v-select
+              v-model="language"
+              label="Idioma"
+              :items="languageItems"
+              variant="outlined"
+              density="compact"
+              class="mb-3"
+            />
+            <v-select
+              v-model="format"
+              label="Formato"
+              :items="formatItems"
+              variant="outlined"
+              density="compact"
+              class="mb-3"
+            />
+            <v-text-field
+              v-model="date"
+              label="Fecha"
+              type="date"
+              variant="outlined"
+              density="compact"
+            />
           </v-card-text>
 
-          <v-card-actions>
-            <v-spacer />
-            <v-btn text color="black" @click="drawerFilters = false">
-              Close
+          <v-card-actions class="d-flex justify-center pa-4 pt-0">
+            <v-btn
+              text
+              color="black"
+              variant="outlined"
+              class="mr-4"
+              @click="clearFilters"
+            >
+              Limpiar
             </v-btn>
-            <v-btn color="#d4a02b" dark @click="applyFilters">
-              Apply
+            <v-btn
+              color="#d4a02b"
+              dark
+              flat
+              @click="applyFilters"
+            >
+              Aplicar
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -84,52 +201,62 @@
       <v-container class="products-container">
         <v-row justify="center" align="stretch" class="product-grid">
           <v-col
-            v-for="(product, index) in paginatedProducts"
-            :key="index"
+            v-for="movie in paginatedMovies"
+            :key="movie.id"
             cols="12"
             sm="6"
             md="4"
             lg="3"
           >
-            <v-card class="product-card elevation-0" @click="goToProduct(product.id)">
+            <v-card class="product-card elevation-0" @click="goToMovieDetails(movie.id)">
               <v-img
-                :src="product.image"
-                height="250"
+                :src="movie.image"
+                height="400"
+                cover
                 class="product-image"
               />
 
-              <v-card-title class="product-title">
-                {{ product.name }}
-              </v-card-title>
+              <v-card-text class="pa-4">
+                <div class="d-flex align-center mb-2">
+                  <v-chip
+                    color="yellow"
+                    label
+                    small
+                    class="font-weight-bold text-black"
+                  >
+                    {{ movie.classification }}
+                  </v-chip>
+                  <span class="text-body-2 text-grey-darken-1 ml-2">
+                    {{ movie.duration }}
+                  </span>
+                </div>
 
-              <v-card-subtitle class="product-price">
-                ${{ product.price.toLocaleString() }}
-              </v-card-subtitle>
+                <div class="product-title text-h6 mb-1">
+                  {{ movie.title }}
+                </div>
+
+                <div class="text-body-2 text-grey-darken-2">
+                  {{ movie.genre }}
+                </div>
+              </v-card-text>
 
               <v-card-actions>
-                <v-btn class="add-to-cart-btn" text @click.stop="addToCart(product)">
+                <v-btn class="add-to-cart-btn" text @click.stop="goToMovieDetails(movie.id)">
                   <v-icon left color="#d4a02b">
-                    mdi-cart-plus
+                    mdi-ticket
                   </v-icon>
-                  <span style="color: #d4a02b;">Add to cart</span>
-                </v-btn>
-
-                <v-spacer />
-
-                <v-btn icon @click.stop="toggleFavorite(product)">
-                  <v-icon :color="product.favorite ? 'red' : 'grey'">
-                    mdi-heart
-                  </v-icon>
+                  <span style="color: #d4a02b;">Ver Detalles / Entradas</span>
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
 
-        <div class="text- mt-8">
+        <div class="text-center mt-8">
           <v-pagination v-model="page" :length="totalPages" square color="#d4a02b" @input="changePage" />
         </div>
       </v-container>
+
       <RoseSection />
       <PageFooter />
     </v-main>
@@ -137,176 +264,200 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
-import ProductImage from '~/components/ProductImage.vue'
+// import ProductImage from '~/components/ProductImage.vue'
 import RoseSection from '~/components/RoseSection.vue'
 import AppHeader from '~/components/PageHeader.vue'
 
 export default {
   components: {
     PageFooter,
-    ProductImage,
+    // ProductImage,
     RoseSection,
     AppHeader
   },
   data () {
     return {
-      icons: [
-        'mdi-account-alert-outline',
-        'mdi-magnify',
-        'mdi-heart-outline',
-        'mdi-cart-outline'
+      movies: [
+        { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A' },
+        { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
+        { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15' },
+        { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', releaseDate: '2025-10-31', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
+        { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B' },
+        { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', releaseDate: '2025-11-01', language: 'Inglés', format: 'Tradicional', classification: 'B' },
+        { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', releaseDate: '2025-10-24', language: 'Inglés', format: 'Premium', classification: 'B' },
+        { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Tradicional', classification: 'B' },
+        { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', releaseDate: '2025-10-31', language: 'Español', format: 'Tradicional', classification: 'B' },
+        { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15' },
+        { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15' },
+        { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15' }
       ],
-      category: 'All',
-      categories: ['All', 'Chairs', 'Tables', 'Sofas', 'Beds', 'Stools', 'Dining'],
-      priceRange: 'All',
-      priceRanges: ['All', 'Under $100', '$100-$300', '$300-$500', 'Over $500'],
-      color: 'All',
-      colors: ['All', 'White', 'Black', 'Wood', 'Gray'],
+
+      genre: 'Todos',
+      language: 'Todos',
+      format: 'Todos',
+      date: null,
       searchQuery: '',
+
       page: 1,
-      itemsPerPage: 8,
-      products: [],
+      itemsPerPage: 12,
       drawerFilters: false,
       sortOption: 'Default',
-      sortOptions: ['Default', 'Price: Low to High', 'Price: High to Low']
+      sortItems: ['Default', 'Título (A-Z)', 'Título (Z-A)', 'Fecha (más reciente)', 'Fecha (más antigua)']
     }
   },
 
   computed: {
-    filteredProducts () {
-      let filtered = this.products
+    genreItems () {
+      const genres = new Set(['Todos'])
+      this.movies.forEach((movie) => {
+        movie.genre.split(',').map(g => g.trim()).forEach(g => genres.add(g))
+      })
+      return Array.from(genres).sort()
+    },
+    languageItems () {
+      const languages = new Set(['Todos'])
+      this.movies.forEach(movie => languages.add(movie.language))
+      return Array.from(languages).sort()
+    },
+    formatItems () {
+      const formats = new Set(['Todos'])
+      this.movies.forEach(movie => formats.add(movie.format))
+      return Array.from(formats).sort()
+    },
 
-      if (this.category !== 'All') {
-        filtered = filtered.filter(p => p.category?.toLowerCase() === this.category.toLowerCase())
+    filteredMovies () {
+      let filtered = [...this.movies]
+
+      if (this.genre !== 'Todos') {
+        filtered = filtered.filter(movie => movie.genre.includes(this.genre))
       }
-
-      if (this.priceRange !== 'All') {
-        const [min, max] = this.parsePriceRange(this.priceRange)
-        filtered = filtered.filter((p) => {
-          if (min === null) { return p.price <= max }
-          if (max === null) { return p.price >= min }
-          return p.price >= min && p.price <= max
-        })
+      if (this.language !== 'Todos') {
+        filtered = filtered.filter(movie => movie.language === this.language)
       }
-
-      if (this.color !== 'All') {
-        filtered = filtered.filter(p => p.color?.toLowerCase() === this.color.toLowerCase())
+      if (this.format !== 'Todos') {
+        filtered = filtered.filter(movie => movie.format === this.format)
       }
-
+      if (this.date) {
+        filtered = filtered.filter(movie => movie.releaseDate === this.date)
+      }
       if (this.searchQuery.trim()) {
         const query = this.searchQuery.trim().toLowerCase()
-        filtered = filtered.filter((p) => {
-          const name = p.name?.toString().toLowerCase() || ''
-          const category = p.category?.toString().toLowerCase() || ''
-          return name.includes(query) || category.includes(query)
-        })
+        filtered = filtered.filter(movie => movie.title.toLowerCase().includes(query))
       }
 
-      if (this.sortOption === 'Price: Low to High') {
-        filtered = filtered.sort((a, b) => a.price - b.price)
-      }
-      if (this.sortOption === 'Price: High to Low') {
-        filtered = filtered.sort((a, b) => b.price - a.price)
+      if (this.sortOption === 'Título (A-Z)') {
+        filtered.sort((a, b) => a.title.localeCompare(b.title))
+      } else if (this.sortOption === 'Título (Z-A)') {
+        filtered.sort((a, b) => b.title.localeCompare(a.title))
+      } else if (this.sortOption === 'Fecha (más reciente)') {
+        filtered.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
+      } else if (this.sortOption === 'Fecha (más antigua)') {
+        filtered.sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate))
       }
 
       return filtered
     },
 
-    paginatedProducts () {
+    paginatedMovies () {
       const start = (this.page - 1) * this.itemsPerPage
-      return this.filteredProducts.slice(start, start + this.itemsPerPage)
+      return this.filteredMovies.slice(start, start + this.itemsPerPage)
     },
 
     shownCount () {
-      return this.filteredProducts.length === 0 ? 0 : (this.page - 1) * this.itemsPerPage + 1
+      return this.filteredMovies.length === 0 ? 0 : (this.page - 1) * this.itemsPerPage + 1
     },
 
-    totalProducts () {
-      return this.filteredProducts.length
+    totalMovies () {
+      return this.filteredMovies.length
     },
 
     totalPages () {
-      return Math.ceil(this.filteredProducts.length / this.itemsPerPage)
+      return Math.ceil(this.filteredMovies.length / this.itemsPerPage)
     }
   },
 
   mounted () {
-    axios.get('http://localhost:5020/api/products')
-      .then((res) => {
-        this.products = res.data
-        console.log('Productos cargados:', res.data)
-      })
-      .catch((err) => {
-        console.error('Error loading products:', err)
-      })
   },
 
   methods: {
-    changPage (page) {
-      this.page = page
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    },
-    isActive (route) {
-      return this.$route.path === route
-    },
-
-    parsePriceRange (range) {
-      if (range === 'Under $100') { return [0, 100] }
-      if (range === '$100-$300') { return [100, 300] }
-      if (range === '$300-$500') { return [300, 500] }
-      if (range === 'Over $500') { return [500, null] }
-      return [null, null]
-    },
-
-    goToProduct (id) {
-      this.$router.push(`/product/${id}`)
-    },
-
-    addToCart (product) {
-      const carrito = JSON.parse(localStorage.getItem('carrito')) || []
-      const existente = carrito.find(p => p.id === product.id)
-
-      if (existente) {
-        existente.quantity += 1
-      } else {
-        carrito.push({ ...product, quantity: 1 })
-      }
-
-      localStorage.setItem('carrito', JSON.stringify(carrito))
-
-      this.showAlert(`${product.name} added to cart`, 'success')
-    },
-
-    toggleFavorite (product) {
-      product.favorite = !product.favorite
-      const action = product.favorite ? 'Added to favorites' : 'Removed from favorites'
-      this.showAlert(`${product.name} ${action}`, 'info')
-    },
-
     changePage (page) {
       this.page = page
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
 
-    showAlert (message, type) {
-      this.$store.dispatch('alert/triggerAlert', { message, type })
+    isActive (route) {
+      return this.$route.path === route
     },
 
     applyFilters () {
       this.drawerFilters = false
       this.page = 1
+    },
+
+    clearFilters () {
+      this.genre = 'Todos'
+      this.language = 'Todos'
+      this.format = 'Todos'
+      this.date = null
+      this.searchQuery = ''
+      this.page = 1
+      this.drawerFilters = false
+    },
+
+    goToMovieDetails (id) {
+    },
+
+    showAlert (message, type) {
+      this.$store.dispatch('alert/triggerAlert', { message, type })
     }
   }
 }
 </script>
 
 <style scoped>
+/* Estilos nuevos */
+.carousel-item-container {
+  position: relative;
+}
+
+.carousel-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.carousel-content-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.white-text-no-shadow {
+  color: white;
+  text-shadow: none;
+}
+
+.router-link-white {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+.router-link-white:hover {
+  text-decoration: underline;
+}
+/* Fin de nuevos estilos */
+
 .main-header-container {
   display: flex;
   width: 100%;
@@ -362,7 +513,7 @@ export default {
 }
 
 .products-container {
-   padding: 0 10px 50px;
+  padding: 0 10px 50px;
 }
 
 .product-grid {
@@ -383,7 +534,7 @@ export default {
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
 .product-image {
@@ -401,7 +552,7 @@ export default {
 .product-price {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #2c3e50 !important;
+  color: #2c3e50;
   padding-top: 0;
 }
 
@@ -413,19 +564,19 @@ export default {
 
 .product-card {
   border-radius: 10px;
-  box-shadow: none !important;
+  box-shadow: none;
   transition: 0.2s ease-in-out;
   border: 1px solid transparent;
 }
 
 .product-card:hover {
   transform: translateY(-3px);
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .top-filters-bar {
   background-color: #fef2f2;
-  padding: 0 8px !important;
+  padding: 0 8px;
   margin: 12px auto 20px auto;
   border-radius: 0 0 8px 8px;
 }
@@ -436,7 +587,7 @@ export default {
 }
 
 .input-flat .v-input__control {
-  min-height: 32px !important;
+  min-height: 32px;
   padding: 0 4px;
 }
 

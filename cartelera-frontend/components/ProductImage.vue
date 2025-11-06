@@ -5,7 +5,9 @@
         {{ title }}
       </h1>
       <div class="breadcrumb">
-        <NuxtLink to="/Home">Home</NuxtLink>
+        <NuxtLink to="/Home">
+          Home
+        </NuxtLink>
         <span>›</span>
         <span class="current">{{ title }}</span>
       </div>
@@ -42,7 +44,7 @@ export default {
   height: 500px;
 /*   border: 1px solid cadetblue; */
   background-color: #f4f4f4;
-  background-image: url('../public/images/HeaderImage.png');  
+  background-image: url('../public/images/HeaderImage.png');
   opacity: 0.7;
 }
 

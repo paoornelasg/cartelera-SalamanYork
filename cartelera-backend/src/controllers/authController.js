@@ -7,8 +7,6 @@ export default class authController {
 
     async login (req, res, next) {
         try {
-            console.log('📥 Incoming body:', req.body)
-
             const { usernameOrEmail, password, rememberMe } = req.body || {}
 
             if (!usernameOrEmail || !password) {
@@ -19,7 +17,7 @@ export default class authController {
             res.status(200).json({ token, user })
 
         } catch (error) {
-            console.error('❌ Login error:', error)
+            console.error('Error de inicio de sesión:', error)
             next(error)
         }
     }
