@@ -3,15 +3,14 @@
     <PageHeader />
     <!-- Contenido Principal -->
     <v-main>
-      <ProductImage title="Contact" />
+      <ProductImage title="Contacto" />
 
       <div class="main-text-container">
         <h1 style="font-size: 2rem; text-align: center; margin: 1rem 0; padding: 0 1rem;">
-          Get In Touch With Us
+          Contáctanos
         </h1>
         <p style="color: gray; font-size: 1rem; text-align: center; max-width: 600px; margin: 0 auto; padding: 0 1rem;">
-          For More Information About Our Products & Services. Please Feel Free to Drop Us An Email.
-          Our Staff Always Be There To Help You Out. Do Not Hesitate!
+          Para más información sobre nuestras funciones, servicios o asistencia, comunícate con nosotros por correo o mediante el formulario. Nuestro equipo te atenderá con gusto.
         </p>
       </div>
 
@@ -24,10 +23,10 @@
                 <v-icon large left color="black">
                   mdi-map-marker
                 </v-icon>
-                Adress
+                Dirección
               </v-card-title>
               <v-card-text class="contact-content">
-                236 5th SE Avenue, New York, NY 10000, United States
+                Salamanca, Guanajuato, México
               </v-card-text>
             </v-card>
 
@@ -36,7 +35,7 @@
                 <v-icon large left color="black">
                   mdi-phone
                 </v-icon>
-                Phone
+                Teléfono
               </v-card-title>
               <v-card-text class="contact-content">
                 <div>+1 234 567 890</div>
@@ -49,11 +48,11 @@
                 <v-icon large left color="black">
                   mdi-clock-outline
                 </v-icon>
-                Working Time
+                Horario
               </v-card-title>
               <v-card-text class="contact-content">
-                <div>Monday–Friday: 9:00 - 22:00</div>
-                <div>Saturday-Sunday: 8:00 - 21:00</div>
+                <div>Lunes–Viernes: 9:00 - 22:00</div>
+                <div>Sábado-Domingo: 8:00 - 21:00</div>
               </v-card-text>
             </v-card>
           </div>
@@ -62,11 +61,11 @@
           <div class="contact-form">
             <v-card class="contact-form-card" flat>
               <v-card-title class="form-title">
-                Name
+                Nombre
               </v-card-title>
               <v-text-field
                 v-model="name"
-                label="Full name"
+                label="Nombre Completo"
                 outlined
                 class="form-field"
               />
@@ -80,28 +79,28 @@
                 class="form-field"
               />
               <v-card-title class="form-title">
-                Subject
+                Asunto
               </v-card-title>
               <v-text-field
                 v-model="subject"
-                label="Subject (optional)"
+                label="Asunto (opcional)"
                 outlined
                 class="form-field"
               />
 
               <v-card-title class="form-title">
-                Message
+                Mensaje
               </v-card-title>
               <v-textarea
                 v-model="message"
-                label="Write your message here"
+                label="Escribe tu mensaje aquí"
                 outlined
                 rows="3"
                 class="form-field"
               />
 
               <button class="send-button">
-                Submit
+                Enviar
               </button>
             </v-card>
           </div>

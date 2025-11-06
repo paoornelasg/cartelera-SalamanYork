@@ -1,29 +1,26 @@
 <template>
   <div class="rose-container">
     <div class="rose-box">
-      <h1>Free Delivery</h1>
+      <h1>Compra Fácil</h1>
       <div class="rose-box-text">
         <p>
-          For all orders over $2,000 MXN, enjoy completely free shipping.
-          Get your favorite furniture delivered to your home at no extra cost.
+          Adquiere tus boletos en línea de forma rápida y sencilla. Disfruta tus películas favoritas sin filas ni complicaciones.
         </p>
       </div>
     </div>
     <div class="rose-box">
-      <h1>90 Days Return</h1>
+      <h1>Cambios y Reembolsos</h1>
       <div class="rose-box-text">
         <p>
-          If you're not completely satisfied with your purchase, you can return it hassle-free
-          within the first 90 days. Your peace of mind is our priority!
+          ¿Tuviste un inconveniente con tu compra? Podrás cambiar o solicitar reembolso de tus boletos. Queremos que disfrutes sin preocupaciones.
         </p>
       </div>
     </div>
     <div class="rose-box">
-      <h1>Secure Payment</h1>
+      <h1>Pago Seguro</h1>
       <div class="rose-box-text">
         <p>
-          We offer 100% secure payment methods to protect your personal and financial information.
-          Shop with complete confidence and security.
+          Tus datos están protegidos con métodos de pago 100% seguros. Compra tus boletos con total confianza y tranquilidad.
         </p>
       </div>
     </div>

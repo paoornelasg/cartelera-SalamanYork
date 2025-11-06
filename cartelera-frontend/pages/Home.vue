@@ -168,37 +168,44 @@
           </v-carousel>
         </div>
       </div>
+
+      <!-- Tercera Seccion-->
       <div class="new-arrivals-section">
         <div class="new-arrivals-main-furniture-container">
-          <NuxtLink to="/shop">
-            <img class="new-arrivals-furniture" src="../public/images/08_SofaWithBureau.png" alt="Sofa">
-          </NuxtLink>
           <div class="new-arrivals-section-text">
-            <h2 style="text-align: center;">
-              New Arrivals
-            </h2>
-            <h1 class="main-section-title">
-              Modern Sofa
+            <h1 class="main-section-title" style="text-align: center; white-space: nowrap; color: black;">
+              Quiénes Somos
             </h1>
-            <button class="new-arrivals-section-button">
-              Order Now
-            </button>
+            <h3>
+              Vive una experiencia cinematográfica única: estrenos exclusivos, salas modernas y atención personalizada <br><br>Cada visita está pensada para que disfrutes el cine como nunca antes
+            </h3>
+            <NuxtLink to="/about">
+              <button class="new-arrivals-section-button">
+                Descúbrenos
+              </button>
+            </NuxtLink>
+          </div>
+          <div>
+            <img class="new-arrivals-furniture" src="https://media.istockphoto.com/id/1478374885/es/foto/familia-alegre-viendo-pel%C3%ADculas-en-el-cine.jpg?s=612x612&w=0&k=20&c=j5bmy244GCq9-rRCqiHOhVEDx0F11NykqkB4i4LDpFE=" alt="Cine">
           </div>
         </div>
       </div>
+
+      <!-- Cuarta Seccion-->
       <div class="instagram-section">
         <div class="instagram-section-content">
           <h1 class="instagram-title">
-            Our Instagram
+            Contacto
           </h1>
-          <h3>
-            Follow our account to see more furniture and decor
+          <h3 style="text-align: center;">
+            ¿Tienes dudas sobre tus boletos o quieres saber más sobre nuestras funciones?<br>
+            Nuestro equipo está listo para ayudarte
           </h3>
-          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+          <NuxtLink to="/contact">
             <button class="instagram-button">
-              Follow Us on Instagram
+              Escríbenos
             </button>
-          </a>
+          </NuxtLink>
         </div>
       </div>
       <PageFooter />
@@ -587,7 +594,7 @@ export default {
     width: 100%;
     height: auto;
     transform: scale(1.25);
-    margin-left: -40px;
+    margin-right: -40px;
     object-fit: contain;
   /*   border: 1px solid cadetblue; */
   }
@@ -595,7 +602,7 @@ export default {
   .new-arrivals-section-text {
     display: flex;
     flex: 0 0 35%;
-    padding-left: 60px;
+    padding-right: 60px;
     flex-direction: column;
     align-items: center;
     justify-content: center;

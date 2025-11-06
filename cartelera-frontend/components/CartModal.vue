@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="cart-modal-container">
     <div class="cart-header">
-      <h3>Shopping Cart</h3>
+      <h3>Carrito de Compras</h3>
       <v-icon class="close-icon" @click="$emit('update:isOpen', false)">
         mdi-close
       </v-icon>
@@ -11,7 +11,7 @@
 
     <div class="cart-body">
       <div v-if="cart.length === 0" class="empty-cart-message">
-        Your cart is empty
+        Tu carrito está vacío
       </div>
       <div v-else>
         <div v-for="(item, index) in cart" :key="index" class="cart-item">
@@ -40,10 +40,10 @@
       </div>
       <div class="cart-buttons">
         <v-btn outlined class="view-cart" @click="$router.push('/cart')">
-          View Cart
+          Ver Carrito
         </v-btn>
         <v-btn color="black" dark class="checkout" @click="handleCheckout">
-          Checkout
+          Pagar
         </v-btn>
       </div>
     </div>

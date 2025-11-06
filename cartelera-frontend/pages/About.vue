@@ -3,7 +3,7 @@
     <PageHeader />
     <!-- Main Content -->
     <v-main>
-      <ProductImage title="About" />
+      <ProductImage title="Acerca" />
 
       <!-- History Section -->
       <v-container class="about-container">
@@ -14,16 +14,16 @@
                 <v-icon large color="amber-darken-3" class="mr-3">
                   mdi-home-heart
                 </v-icon>
-                Our Story
+                Nuestra Historia
               </v-card-title>
 
               <v-card-text class="about-text">
                 <p class="highlight-text">
-                  Founded in 2025, the company was established by Paola Ornelas, Karlos Flores, and Jose Angel, with a shared vision of honoring traditional craftsmanship and adapting it to contemporary living spaces.
+                  Fundado en 2025, nació gracias a una visión compartida de quienes buscaban reinventar la experiencia cinematográfica combinando tecnología, confort y emoción.
                 </p>
 
                 <p>
-                  Born from a deep appreciation for timeless design and fine craftsmanship, this project blends tradition and innovation to create furniture pieces that elevate everyday living with character and durability.
+                  Inspirado en la pasión por el séptimo arte, este proyecto fusiona la esencia del cine tradicional con un enfoque moderno e innovador, creando un espacio donde cada función se vive con calidad, estilo y una atención excepcional.
                 </p>
 
                 <v-divider class="my-5" />
@@ -33,18 +33,18 @@
                     <h3>
                       <v-icon color="amber-darken-3">
                         mdi-bullseye-arrow
-                      </v-icon>ㅤMission
+                      </v-icon>ㅤMisión
                     </h3>
-                    <p>Design functional and elegant furniture that reflects cultural richness, crafted with sustainable materials and guided by ethical processes.</p>
+                    <p>Ofrecer experiencias cinematográficas únicas que combinen entretenimiento, comodidad y tecnología, promoviendo la cultura del cine con un servicio accesible, moderno y de calidad.</p>
                   </div>
 
                   <div class="vision">
                     <h3>
                       <v-icon color="amber-darken-3">
                         mdi-eye-outline
-                      </v-icon>ㅤVision
+                      </v-icon>ㅤVisión
                     </h3>
-                    <p>To become a benchmark in artisanal furniture design by 2030, recognized internationally for our quality, innovation, and timeless craftsmanship.</p>
+                    <p>Consolidarnos como un cine referente en innovación y experiencia audiovisual, reconocido por la calidad de nuestros servicios, la tecnología de vanguardia y el compromiso con brindar momentos inolvidables a cada espectador.</p>
                   </div>
                 </div>
               </v-card-text>
@@ -56,7 +56,7 @@
         <v-row justify="center" class="mt-10">
           <v-col cols="12">
             <h2 class="section-title text-center mb-6">
-              Our Values
+              Nuestros Valores
             </h2>
 
             <v-row>
@@ -102,23 +102,23 @@ export default {
       values: [
         {
           icon: 'mdi-hand-heart',
-          title: 'Craftsmanship',
-          text: 'Each piece is created with traditional techniques by master carpenters.'
+          title: 'Calidad',
+          text: 'Cada función está diseñada con dedicación y detalle, combinando lo mejor del cine tradicional con la tecnología moderna para ofrecer momentos inolvidables.'
         },
         {
           icon: 'mdi-leaf',
-          title: 'Sustainability',
-          text: 'We use certified wood and eco-friendly processes.'
+          title: 'Sostenibilidad',
+          text: 'Nos comprometemos con un entretenimiento sostenible, cuidando el planeta mientras disfrutas del mejor cine.'
         },
         {
           icon: 'mdi-account-group',
-          title: 'Community',
-          text: 'We support local artisans and family workshops.'
+          title: 'Comunidad',
+          text: 'Colaboramos con proyectos culturales y educativos que promueven el amor por el cine en nuestra comunidad.'
         },
         {
           icon: 'mdi-star',
-          title: 'Quality',
-          text: '5-year warranty on all our products.'
+          title: 'Calidad',
+          text: 'Garantizamos proyecciones de alto nivel, servicios confiables y una experiencia de entretenimiento que supera las expectativas en cada visita.'
         }
       ]
     }
