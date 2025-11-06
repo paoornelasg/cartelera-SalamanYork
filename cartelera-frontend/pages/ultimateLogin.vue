@@ -292,8 +292,8 @@ export default {
   padding:0 22px;
   border-radius:10px;
   border:0;
-  background:#ffd400;
-  color:#111;
+  background:#c22f2f;
+  color:#ffffff;
   font-weight:800;
   letter-spacing:.2px;
   box-shadow:0 10px 24px rgba(0,0,0,.15);
