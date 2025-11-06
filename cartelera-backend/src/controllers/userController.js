@@ -37,9 +37,10 @@ export default class UserController {
     async create (req, res, next) {
         try {
             const newUser = await this.userService.create(req.body)
-            res.json(newUser)
+            res.status(201).json(newUser)
         } catch (error) {
-            next(error)
+            const code = error.statusCode || 500
+            res.status(code).json({ message: error.message })
         }
     }
 
