@@ -5,9 +5,7 @@
         {{ title }}
       </h1>
       <div class="breadcrumb">
-        <NuxtLink to="/Home">
-          Home
-        </NuxtLink>
+        <NuxtLink to="/cartelera">Cartelera</NuxtLink>
         <span>›</span>
         <span class="current">{{ title }}</span>
       </div>
@@ -29,7 +27,7 @@ export default {
     },
     title: {
       type: String,
-      default: 'My Account'
+      default: 'Mi cuenta'
     }
   }
 }
@@ -37,6 +35,7 @@ export default {
 
 <style scoped>
 .product-image-container {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,89 +45,58 @@ export default {
   background-color: #f4f4f4;
   background-image: url('../public/images/HeaderImage.png');
   opacity: 0.7;
+  height: 420px;
+  background: url('../public/images/HeaderImage.png') center/cover no-repeat;
+}
+.product-image-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.35));
 }
 
-.product-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  opacity: 0.5;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 8px;
+.text-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 16px;
 }
 
 .product-image-title {
   font-size: 3rem;
-  color: black;
-  text-align: center;
+  color: #fff;
   margin: 0;
-  padding: 20px;
-  opacity: 1;
+  line-height: 1.1;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
 }
 
 .breadcrumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
   gap: 8px;
   margin-top: 10px;
-  color: #444;
+  font-size: 1.05rem;
+  color: rgba(255,255,255,.9);
 }
-
 .breadcrumb a {
   text-decoration: none;
-  color: #000;
-  font-weight: bold;
+  color: #fff;
+  font-weight: 600;
 }
-
-.breadcrumb a:hover {
-  text-decoration: underline;
-}
-
-.breadcrumb span {
-  font-weight: bold;
-}
-
-.breadcrumb .current {
-  font-weight: normal;
-  color: #666;
-}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { font-weight: 600; color: rgba(255,255,255,.85); }
+.breadcrumb .current { font-weight: 400; color: rgba(255,255,255,.8); }
 
 @media (max-width: 768px) {
-  .product-image-container {
-    height: 300px;
-    background-size: cover;
-    background-position: center;
-    padding: 0 20px;
-  }
-
-  .product-image-title {
-    font-size: 2rem;
-    padding: 10px;
-  }
-
-  .breadcrumb {
-    flex-direction: row;
-    flex-wrap: wrap;
-    font-size: 0.95rem;
-    text-align: center;
-    gap: 5px;
-  }
+  .product-image-container { height: 300px; }
+  .product-image-title { font-size: 2.1rem; }
+  .breadcrumb { font-size: .95rem; flex-wrap: wrap; }
 }
 
 @media (max-width: 480px) {
-  .product-image-container {
-    height: 250px;
-    padding: 0 15px;
-  }
-
-  .product-image-title {
-    font-size: 1.6rem;
-  }
-
-  .breadcrumb {
-    font-size: 0.85rem;
-  }
+  .product-image-container { height: 240px; }
+  .product-image-title { font-size: 1.7rem; }
+  .breadcrumb { font-size: .85rem; }
 }
-
 </style>
