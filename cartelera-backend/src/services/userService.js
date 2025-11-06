@@ -22,7 +22,7 @@ export default class UserService {
     }
 
     async create (user) {
-        const usuario = user.usernameOrEmail // alias recibido en el body
+        const usuario = user.usernameOrEmail || user.usuario// alias recibido en el body
 
         if (!usuario || !user.password || !user.rol) {
             throw { statusCode: 400, message: 'Faltan campos requeridos' }
