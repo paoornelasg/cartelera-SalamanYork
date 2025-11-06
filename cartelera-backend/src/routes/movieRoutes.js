@@ -1,23 +1,23 @@
 import express from 'express'
 import multer from 'multer'
-import ProductController from '../controllers/productController.js'
+import MovieController from '../controllers/movieController.js'
 
-// Define las rutas para el manejo de productos
+// Define las rutas para el manejo de películas
 const router = express.Router()
-const controller = new ProductController()
+const controller = new MovieController()
 const upload = multer({ storage: multer.memoryStorage() })
 
-const productRoutes = [
+const movieRoutes = [
   {
     method: 'post',
     path: '/create',
-    middleware: [upload.single('image')],
+    middleware: [upload.single('poster')],
     handler: 'create'
   },
   {
     method: 'put',
     path: '/update/:id',
-    middleware: [upload.single('image')],
+    middleware: [upload.single('poster')],
     handler: 'update'
   },
   {
@@ -33,8 +33,23 @@ const productRoutes = [
   },
   {
     method: 'get',
-    path: '/category/:category',
-    handler: 'getByCategory'
+    path: '/genre/:genre',
+    handler: 'getByGenre'
+  },
+  {
+    method: 'get',
+    path: '/recent',
+    handler: 'getRecent'
+  },
+  {
+    method: 'get',
+    path: '/recent/:days',
+    handler: 'getRecent'
+  },
+  {
+    method: 'get',
+    path: '/billboard',
+    handler: 'getBillboard'
   },
   {
     method: 'get',
@@ -43,7 +58,7 @@ const productRoutes = [
   }
 ]
 
-productRoutes.forEach(route => {
+movieRoutes.forEach(route => {
   router[route.method](
     route.path,
     ...(route.middleware || []),

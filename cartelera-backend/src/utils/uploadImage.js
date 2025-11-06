@@ -5,7 +5,7 @@ import { bucket } from '../config/firebase.js';
 export async function uploadImageToStorage(file) {
   if (!file) throw { statusCode: 400, message: 'No se proporcionó ninguna imagen' };
 
-  const fileName = `products/${Date.now()}-${file.originalname}`;
+  const fileName = `movies/${Date.now()}-${file.originalname}`;
   const blob = bucket.file(fileName);
 
     const token = uuidv4()
