@@ -67,4 +67,17 @@ html, body, #__nuxt, #__layout, .v-application, .v-main {
   box-sizing: border-box !important;
   overflow-x: hidden !important;
 }
+
+.v-application,
+.v-application--wrap,
+.v-main {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-toolbar__content {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 </style>
