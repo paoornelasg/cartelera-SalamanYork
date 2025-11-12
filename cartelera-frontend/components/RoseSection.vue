@@ -2,6 +2,7 @@
   <div class="rose-container">
     <div class="rose-box">
       <h1>Compra Fácil</h1>
+      <h1>Compra Fácil</h1>
       <div class="rose-box-text">
         <p>
           Adquiere tus boletos en línea de forma rápida y sencilla. Disfruta tus películas favoritas sin filas ni complicaciones.
@@ -10,6 +11,7 @@
     </div>
     <div class="rose-box">
       <h1>Cambios y Reembolsos</h1>
+      <h1>Cambios y Reembolsos</h1>
       <div class="rose-box-text">
         <p>
           ¿Tuviste un inconveniente con tu compra? Podrás cambiar o solicitar reembolso de tus boletos. Queremos que disfrutes sin preocupaciones.
@@ -17,6 +19,7 @@
       </div>
     </div>
     <div class="rose-box">
+      <h1>Pago Seguro</h1>
       <h1>Pago Seguro</h1>
       <div class="rose-box-text">
         <p>
@@ -41,7 +44,7 @@ export default {
   flex-wrap: wrap;
   gap: 5rem;
   padding: 5rem;
-  background-color: #faf4f4;
+  background-color: #2c2c2c;
   width: 100%;
   box-sizing: border-box;
 }
@@ -58,6 +61,7 @@ export default {
   margin: 0;
   font-size: clamp(1.3rem, 2.2vw, 2rem);
   font-weight: 600;
+  color: white;
 }
 
 .rose-box-text {
@@ -66,7 +70,7 @@ export default {
 
 .rose-box p {
   font-size: clamp(1rem, 1.6vw, 1.15rem);
-  color: #555;
+  color: white;
 }
 
 @media (max-width: 768px) {

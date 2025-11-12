@@ -96,7 +96,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f2f2f2; /* o el que prefieras */
+  background-color: #db133b;
   padding: 2rem 5%;
   width: 100vw;
   min-height: 200px;
@@ -118,7 +118,7 @@ export default {
 }
 
 .column h4 {
-  color: #2d3436;
+  color: white;
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
@@ -199,6 +199,7 @@ form button:hover {
   border: none;
   cursor: pointer;
   transition: opacity 0.3s;
+  color: white;
 }
 
 .signup-btn {
@@ -216,13 +217,13 @@ form button:hover {
 }
 
 .footer-link {
-  color: black;
+  color: white;
   text-decoration: none;
   font-weight: 400;
 }
 
 .footer-title {
-  color: crimson;
+  color: white;
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
@@ -254,6 +255,11 @@ form button:hover {
 
 .subscription-form button:hover {
   background-color: #333;
+}
+
+.subscription-form input::placeholder {
+  color: white;
+  opacity: 1;
 }
 
 .subscription-message {

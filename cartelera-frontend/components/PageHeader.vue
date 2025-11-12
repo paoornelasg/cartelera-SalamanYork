@@ -2,7 +2,7 @@
   <v-app-bar color="white" app flat>
     <div class="main-header-container">
       <v-btn icon class="hamburger" @click="drawer = true">
-        <v-icon color="black">
+        <v-icon color="white">
           mdi-menu
         </v-icon>
       </v-btn>
@@ -28,22 +28,22 @@
 
       <div class="header-icons-container">
         <v-btn icon link to="/ultimateLogin">
-          <v-icon color="black">
+          <v-icon color="white">
             mdi-account-alert-outline
           </v-icon>
         </v-btn>
         <v-btn icon>
-          <v-icon color="black">
+          <v-icon color="white">
             mdi-magnify
           </v-icon>
         </v-btn>
         <v-btn icon>
-          <v-icon color="black">
+          <v-icon color="white">
             mdi-heart-outline
           </v-icon>
         </v-btn>
         <v-btn icon @click="showCart = true">
-          <v-icon color="black">
+          <v-icon color="white">
             mdi-cart-outline
           </v-icon>
         </v-btn>
@@ -104,6 +104,7 @@ export default {
   gap: 8px;
   height: 64px;
   overflow: hidden;
+  background-color: #db133b;
 }
 
 .logo-container {
@@ -136,6 +137,7 @@ export default {
   padding: 8px 12px;
   border-radius: 6px;
   transition: background-color 0.2s ease;
+  color: white;
 }
 
 .header-button:hover {
