@@ -1,17 +1,56 @@
 import OrderService from '../services/orderService.js'
 
-// Realizar el checkout y crear la orden del usuario
 export default class OrderController {
     constructor () {
         this.orderService = new OrderService()
     }
 
+    async addToCart (req, res, next) {
+        try {
+            const result = await this.orderService.addToCart(req.body, req.user) // req.user si usas auth
+            res.status(201).json(result)
+        } catch (e) {
+        res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
+    async getCart (req, res, next) {
+        try {
+            const userId = req.params.userId || req.user?.id
+            const items = await this.orderService.getCart(userId)
+            res.json(items)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
+    async updateItem (req, res, next) {
+        try {
+            const { id } = req.params
+            const result = await this.orderService.updateItem(id, req.body)
+            res.json(result)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
+    async removeItem (req, res, next) {
+        try {
+            const { id } = req.params
+            const result = await this.orderService.removeItem(id)
+            res.json(result)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
     async checkout (req, res, next) {
         try {
-            const result = await this.orderService.createOrder(req.body)
-            res.status(201).json({ message: 'Orden creada', orderId: result.id })
-        } catch (error) {
-            next(error)
+            const userId = req.body.userId || req.user?.id
+            const result = await this.orderService.checkout(userId)
+            res.json(result)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
         }
     }
 }
