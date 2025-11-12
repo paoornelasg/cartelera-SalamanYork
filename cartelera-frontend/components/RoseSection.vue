@@ -59,6 +59,7 @@ export default {
   font-size: clamp(1.3rem, 2.2vw, 2rem);
   font-weight: 600;
   color: white;
+  color: white;
 }
 
 .rose-box-text {
