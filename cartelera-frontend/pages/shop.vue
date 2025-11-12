@@ -407,6 +407,7 @@ export default {
     },
 
     goToMovieDetails (id) {
+      this.$router.push(`/product/${id}`)
     },
 
     showAlert (message, type) {
