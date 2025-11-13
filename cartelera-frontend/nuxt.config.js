@@ -4,7 +4,7 @@ export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     /* titleTemplate: '%s - ecommerce-frontend', */
-    title: 'Lunara Living',
+    title: 'Cartelera SY',
     htmlAttrs: {
       lang: 'en'
     },
@@ -15,7 +15,7 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon_2.ico' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon_4.ico' }
     ]
   },
 

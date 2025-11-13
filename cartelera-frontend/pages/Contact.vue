@@ -3,20 +3,20 @@
     <PageHeader />
     <!-- Contenido Principal -->
     <v-main>
-      <ProductImage title="Contacto" />
+      <!-- <ProductImage title="Contacto" /> -->
 
       <div class="main-text-container">
-        <h1 style="font-size: 2rem; text-align: center; margin: 1rem 0; padding: 0 1rem;">
-          Contáctanos
+        <h1 style="font-size: 2.5rem; text-align: center; margin: 1rem 0; padding: 0 1rem; margin-top: 25px;">
+          Servicio de Atención
         </h1>
         <p style="color: gray; font-size: 1rem; text-align: center; max-width: 600px; margin: 0 auto; padding: 0 1rem;">
           Para más información sobre nuestras funciones, servicios o asistencia, comunícate con nosotros por correo o mediante el formulario. Nuestro equipo te atenderá con gusto.
         </p>
       </div>
 
-      <v-container class="contact-container" fluid>
+      <v-container class="contact-container pa-10" fluid>
         <div class="contact-content-wrapper">
-          <!-- Columna Izquierda: Información -->
+          <!-- Columna: Información -->
           <div class="contact-info">
             <v-card flat>
               <v-card-title class="contact-title">
@@ -55,46 +55,82 @@
                 <div>Sábado-Domingo: 8:00 - 21:00</div>
               </v-card-text>
             </v-card>
+
+            <div class="contact-content-wrapper">
+              <v-card flat>
+                <v-card-title class="contact-title pa-0" style="font-size: 1.5rem; margin-top: 3rem; margin-bottom: 1rem;">
+                  Síguenos en Nuestras Redes Sociales
+                </v-card-title>
+                <v-card-text class="contact-content">
+                  <div>
+                    <v-btn href="https://www.facebook.com/" target="_blank" rel="noopener" small>
+                      <v-icon left>
+                        mdi-facebook
+                      </v-icon>
+                      Facebook
+                    </v-btn>
+
+                    <v-btn href="https://www.instagram.com/" target="_blank" rel="noopener" small>
+                      <v-icon left>
+                        mdi-instagram
+                      </v-icon>
+                      Instagram
+                    </v-btn>
+
+                    <v-btn href="https://twitter.com/" target="_blank" rel="noopener" small>
+                      <v-icon left>
+                        mdi-twitter
+                      </v-icon>
+                      Twitter
+                    </v-btn>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </div>
           </div>
 
-          <!-- Columna Derecha: Formulario -->
+          <!-- Columna: Formulario -->
           <div class="contact-form">
-            <v-card class="contact-form-card" flat>
-              <v-card-title class="form-title">
+            <v-card class="contact-form-card pa-2" flat>
+              <v-card-title class="form-title pa-0">
                 Nombre
               </v-card-title>
               <v-text-field
                 v-model="name"
                 label="Nombre Completo"
                 outlined
+                dense
                 class="form-field"
               />
-              <v-card-title class="form-title">
+              <v-card-title class="form-title pa-0">
                 Email
               </v-card-title>
               <v-text-field
                 v-model="email"
                 label="Email"
                 outlined
+                dense
                 class="form-field"
               />
-              <v-card-title class="form-title">
+              <v-card-title class="form-title pa-0">
                 Asunto
               </v-card-title>
               <v-text-field
                 v-model="subject"
                 label="Asunto (opcional)"
                 outlined
+                dense
                 class="form-field"
               />
 
-              <v-card-title class="form-title">
+              <v-card-title class="form-title pa-0">
                 Mensaje
               </v-card-title>
               <v-textarea
                 v-model="message"
                 label="Escribe tu mensaje aquí"
                 outlined
+                dense
                 rows="3"
                 class="form-field"
               />
@@ -114,13 +150,13 @@
 
 <script>
 import PageHeader from '~/components/PageHeader.vue'
-import ProductImage from '~/components/ProductImage.vue'
+/* import ProductImage from '~/components/ProductImage.vue' */
 import RoseSection from '~/components/RoseSection.vue'
 import PageFooter from '~/components/PageFooter.vue'
 
 export default {
   components: {
-    ProductImage,
+    /* ProductImage, */
     RoseSection,
     PageFooter,
     PageHeader
@@ -197,6 +233,7 @@ export default {
 /* Contenedor principal dividido en columnas */
 .contact-content-wrapper {
   display: flex;
+  flex-direction: row-reverse;
   gap: 8rem;
   justify-content: center;
   align-items: flex-start;
@@ -204,7 +241,10 @@ export default {
 }
 
 .contact-info {
-  flex: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* permitir que el texto de redes ocupe una nueva fila debajo de las tarjetas */
+  align-items: flex-start;
   min-width: 200px;
   max-width: 750px;
 }
@@ -226,7 +266,7 @@ export default {
 }
 
 .contact-title {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #2c3e50;
   padding-left: 0;
@@ -234,17 +274,17 @@ export default {
 }
 
 .contact-content {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #555;
-  padding-left: 56px;
+  padding-left: 20px;
 }
 
 .form-title {
-margin-bottom: 0.5rem;
+margin-bottom: 0.1rem;
 }
 
 .form-field {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.1rem;
 }
 
 .submit-btn {
@@ -272,6 +312,18 @@ margin-bottom: 0.5rem;
   align-items: center;
   text-align: center;
   margin-top: 50px;
+  background-color: #2C2C2C;
+  padding: 2rem 1rem; /* espacio interior */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-text-container h1 {
+  color: #ffffff; /* título en blanco */
+}
+
+.main-text-container p {
+  color: #e6e6e6 !important; /* texto claro, !important para sobrescribir inline */
 }
 
 /* Responsive */

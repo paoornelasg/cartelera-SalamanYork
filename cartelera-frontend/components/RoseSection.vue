@@ -2,28 +2,25 @@
   <div class="rose-container">
     <div class="rose-box">
       <h1>Compra Fácil</h1>
-      <h1>Compra Fácil</h1>
       <div class="rose-box-text">
         <p>
-          Adquiere tus boletos en línea de forma rápida y sencilla. Disfruta tus películas favoritas sin filas ni complicaciones.
+          Adquiere tus boletos en línea de forma rápida y sencilla.
         </p>
       </div>
     </div>
     <div class="rose-box">
       <h1>Cambios y Reembolsos</h1>
-      <h1>Cambios y Reembolsos</h1>
       <div class="rose-box-text">
         <p>
-          ¿Tuviste un inconveniente con tu compra? Podrás cambiar o solicitar reembolso de tus boletos. Queremos que disfrutes sin preocupaciones.
+          Si tuviste un inconveniente podrás cambiar o solicitar reembolso de tus boletos.
         </p>
       </div>
     </div>
     <div class="rose-box">
       <h1>Pago Seguro</h1>
-      <h1>Pago Seguro</h1>
       <div class="rose-box-text">
         <p>
-          Tus datos están protegidos con métodos de pago 100% seguros. Compra tus boletos con total confianza y tranquilidad.
+          Tus datos están protegidos con métodos de pago 100% seguros.
         </p>
       </div>
     </div>
@@ -42,9 +39,9 @@ export default {
   justify-content: center;
   align-items: stretch;
   flex-wrap: wrap;
-  gap: 5rem;
-  padding: 5rem;
-  background-color: #2c2c2c;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: #0A0A0A;
   width: 100%;
   box-sizing: border-box;
 }
@@ -59,18 +56,18 @@ export default {
 
 .rose-box h1 {
   margin: 0;
-  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
   font-weight: 600;
   color: white;
   color: white;
 }
 
 .rose-box-text {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .rose-box p {
-  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  font-size: clamp(0.95rem, 1.6vw, .75rem);
   color: white;
 }
 

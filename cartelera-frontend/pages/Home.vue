@@ -1,7 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar app class="text-black nav-transparent" elevation="0">
-      <!-- NavBAr-->
+    <PageHeader />
+    <!-- <v-app-bar app class="text-black nav-transparent" elevation="0">
+
       <v-app-bar-nav-icon
         class="d-sm-none"
         @click="drawer = !drawer"
@@ -50,7 +51,7 @@
           </v-btn>
         </div>
       </div>
-    </v-app-bar> <!-- Fin NavBAr-->
+    </v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
@@ -72,7 +73,7 @@
           <v-list-item-title>Contacto</v-list-item-title>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </v-navigation-drawer> -->
 
     <v-main>
       <!-- Primera Seccion-->
@@ -173,14 +174,14 @@
       <div class="new-arrivals-section">
         <div class="new-arrivals-main-furniture-container">
           <div class="new-arrivals-section-text">
-            <h1 class="main-section-title" style="text-align: center; white-space: nowrap; color: black;">
+            <h1 class="main-section-title" style="text-align: center; white-space: nowrap; color: white;">
               Quiénes Somos
             </h1>
             <h3>
               Vive una experiencia cinematográfica única: estrenos exclusivos, salas modernas y atención personalizada <br><br>Cada visita está pensada para que disfrutes el cine como nunca antes
             </h3>
             <NuxtLink to="/about">
-              <button class="new-arrivals-section-button">
+              <button class="new-arrivals-section-button" style="color: white;">
                 Descúbrenos
               </button>
             </NuxtLink>
@@ -216,12 +217,14 @@
 <script>
 import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
-import CartModal from '~/components/CartModal.vue'
+/* import CartModal from '~/components/CartModal.vue' */
+import PageHeader from '~/components/PageHeader.vue'
 
 export default {
   components: {
-    PageFooter,
-    CartModal
+    PageHeader,
+    PageFooter/* ,
+    CartModal */
   },
   data () {
     return {
@@ -354,6 +357,7 @@ export default {
   }
 
   .main-section {
+    margin-top: 64px; /* Altura del header */
     display: flex;
     justify-content: flex-start; /* Texto en la izquierda */
     align-items: flex-end; /* Texto en la parte inferior */
@@ -402,8 +406,9 @@ export default {
   .new-arrivals-section {
     padding: 100px 0;
     height: auto;
-    min-height: 700px;
-    background-color: #fff9e6;
+    min-height: 500px;
+    background-color: #2C2C2C;
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
