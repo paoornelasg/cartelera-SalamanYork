@@ -44,8 +44,8 @@
                     {{ movie.duration }}
                   </div>
                   <v-btn
-                    color="yellow"
-                    class="text-black mb-2"
+                    color="#db133b"
+                    class="mb-2 btn-text-white"
                     size="large"
                     elevation="2"
                     @click.stop="goToMovieDetails(movie.id)"
@@ -66,10 +66,10 @@
           </div>
         </v-carousel-item>
       </v-carousel>
-      <v-container class="top-filters-bar" fluid>
+      <v-container class="top-filters-bar" fluid style="background-color: #2c2c2c;">
         <v-row
           class="align-center justify-space-between top-filters-bar"
-          style="max-width: 1400px; margin: auto;"
+          style="max-width: 1400px; margin: auto; background-color: #2c2c2c; color: white;"
         >
           <v-col
             cols="12"
@@ -219,10 +219,11 @@
               <v-card-text class="pa-4">
                 <div class="d-flex align-center mb-2">
                   <v-chip
-                    color="yellow"
+                    color="#db133b"
+                    text-color="white"
                     label
                     small
-                    class="font-weight-bold text-black"
+                    class="font-weight-bold"
                   >
                     {{ movie.classification }}
                   </v-chip>
@@ -242,10 +243,10 @@
 
               <v-card-actions>
                 <v-btn class="add-to-cart-btn" text @click.stop="goToMovieDetails(movie.id)">
-                  <v-icon left color="#d4a02b">
+                  <v-icon left color="#db133b">
                     mdi-ticket
                   </v-icon>
-                  <span style="color: #d4a02b;">Ver Detalles / Entradas</span>
+                  <span style="color: #db133b;">Ver Detalles / Entradas</span>
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -253,7 +254,7 @@
         </v-row>
 
         <div class="text-center mt-8">
-          <v-pagination v-model="page" :length="totalPages" square color="#d4a02b" @input="changePage" />
+          <v-pagination v-model="page" :length="totalPages" square color="#db133b" @input="changePage" />
         </div>
       </v-container>
 
