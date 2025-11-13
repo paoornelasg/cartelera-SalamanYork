@@ -89,7 +89,7 @@
                   <v-icon left>
                     mdi-play-circle
                   </v-icon>
-                  Ver tráiler
+                  Detalles y tráiler
                 </v-btn>
               </v-col>
             </v-row>
@@ -97,106 +97,8 @@
         </div>
       </v-sheet>
 
-      <v-sheet
-        v-if="movie"
-        class="details-and-related-wrapper"
-        color="white"
-      >
-        <v-container
-          class="details my-10"
-          style="max-width: 1200px;"
-        >
-          <v-row class="justify-center">
-            <v-col
-              cols="12"
-              md="5"
-              class="left-column d-flex flex-column align-start"
-            >
-              <div class="info-block">
-                <h3 class="info-title">
-                  DIRECCIÓN
-                </h3>
-                <div class="info-item">
-                  <v-icon
-                    class="info-icon"
-                    size="45"
-                    color="#001f54"
-                  >
-                    mdi-account-circle
-                  </v-icon>
-                  <span class="info-name">{{ movie.director.name }}</span>
-                </div>
-              </div>
-
-              <div class="info-block">
-                <h3 class="info-title">
-                  ACTORES
-                </h3>
-                <div
-                  v-for="actor in movie.actors"
-                  :key="actor.name"
-                  class="info-item"
-                >
-                  <v-icon
-                    class="info-icon"
-                    size="45"
-                    color="#001f54"
-                  >
-                    mdi-account-circle
-                  </v-icon>
-                  <span class="info-name">{{ actor.name }}</span>
-                </div>
-              </div>
-            </v-col>
-
-            <v-col
-              cols="12"
-              md="7"
-              class="right-column d-flex flex-column justify-start"
-            >
-              <div class="info-block">
-                <h3 class="info-title">
-                  SINOPSIS
-                </h3>
-                <p class="info-text">
-                  {{ movie.sinopsis }}
-                </p>
-              </div>
-
-              <v-row no-gutters>
-                <v-col cols="6">
-                  <h3 class="info-title">
-                    CLASIFICACIÓN
-                  </h3>
-                  <p class="info-value">
-                    {{ movie.classification }}
-                  </p>
-                </v-col>
-                <v-col cols="6">
-                  <h3 class="info-title">
-                    DURACIÓN
-                  </h3>
-                  <p class="info-value">
-                    {{ movie.duration }}
-                  </p>
-                </v-col>
-              </v-row>
-              <v-row no-gutters>
-                <v-col cols="12">
-                  <hr class="section-divider-light">
-                  <h3
-                    class="info-title text-h4 font-weight-bold text-uppercase"
-                    style="color: #001f54;"
-                  >
-                    {{ movie.genre.split(',')[0] }}
-                  </h3>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-sheet>
       <hr class="section-divider">
+
       <div
         v-if="relatedProducts.length"
         class="related-products-section"
@@ -237,6 +139,7 @@
           </v-row>
         </v-container>
       </div>
+
       <div
         v-if="isAdmin"
         class="buttons"
@@ -452,21 +355,24 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
       <v-dialog
         v-model="showTrailerModal"
         width="90%"
         max-width="1100px"
+        content-class="movie-details-dialog"
         @click:outside="showTrailerModal = false"
       >
-        <v-card
-          dark
-          color="black"
-        >
+        <v-card color="white">
           <v-toolbar
             dense
             flat
-            color="black"
+            color="#db133b"
+            dark
           >
+            <v-toolbar-title class="text-h6 font-weight-bold">
+              {{ movie ? movie.title : 'Detalles de la película' }}
+            </v-toolbar-title>
             <v-spacer />
             <v-btn
               text
@@ -478,16 +384,141 @@
               </v-icon>
             </v-btn>
           </v-toolbar>
-          <v-responsive :aspect-ratio="16/9">
-            <iframe
-              :src="videoSrc"
-              width="100%"
-              height="100%"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            />
-          </v-responsive>
+
+          <v-card-text v-if="movie">
+            <v-row>
+              <v-col
+                cols="12"
+                md="4"
+              >
+                <v-img
+                  :src="movie.image"
+                  aspect-ratio="2/3"
+                  class="mb-4"
+                />
+                <h3 class="info-title">
+                  DIRECCIÓN
+                </h3>
+                <div class="info-item">
+                  <v-icon
+                    class="info-icon"
+                    size="32"
+                    color="#001f54"
+                  >
+                    mdi-account-circle
+                  </v-icon>
+                  <span class="info-name">{{ movie.director.name }}</span>
+                </div>
+                <h3 class="info-title">
+                  ACTORES
+                </h3>
+                <div
+                  v-for="actor in movie.actors"
+                  :key="actor.name + '-modal'"
+                  class="info-item"
+                >
+                  <v-icon
+                    class="info-icon"
+                    size="28"
+                    color="#001f54"
+                  >
+                    mdi-account-circle
+                  </v-icon>
+                  <span class="info-name">{{ actor.name }}</span>
+                </div>
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="8"
+              >
+                <h3 class="info-title">
+                  SINOPSIS
+                </h3>
+                <p class="info-text">
+                  {{ movie.sinopsis }}
+                </p>
+
+                <v-row>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      CLASIFICACIÓN
+                    </h3>
+                    <p class="info-value">
+                      {{ movie.classification }}
+                    </p>
+                  </v-col>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      DURACIÓN
+                    </h3>
+                    <p class="info-value">
+                      {{ movie.duration }}
+                    </p>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      FORMATO
+                    </h3>
+                    <p class="info-name">
+                      {{ movie.format }}
+                    </p>
+                  </v-col>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      IDIOMA
+                    </h3>
+                    <p class="info-name">
+                      {{ movie.language }}
+                    </p>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      FECHA DE ESTRENO
+                    </h3>
+                    <p class="info-name">
+                      {{ movie.releaseDate }}
+                    </p>
+                  </v-col>
+                  <v-col cols="6">
+                    <h3 class="info-title">
+                      GÉNERO
+                    </h3>
+                    <p class="info-name">
+                      {{ movie.genre }}
+                    </p>
+                  </v-col>
+                </v-row>
+
+                <h3 class="info-title">
+                  TRÁILER
+                </h3>
+                <v-responsive :aspect-ratio="16/9">
+                  <iframe
+                    :src="videoSrc"
+                    width="100%"
+                    height="100%"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                  />
+                </v-responsive>
+
+                <h3 class="info-title mt-4">
+                  INFORMACIÓN ADICIONAL
+                </h3>
+                <p class="info-text">
+                  Más detalles de la película estarán disponibles próximamente.
+                </p>
+              </v-col>
+            </v-row>
+          </v-card-text>
         </v-card>
       </v-dialog>
     </v-main>
@@ -501,20 +532,19 @@ import axios from 'axios'
 import AppHeader from '~/components/PageHeader.vue'
 import PageFooter from '~/components/PageFooter.vue'
 
-// Lista de películas
 const allMovies = [
-  { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', classification: 'A', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', sinopsis: 'TRON: ARES sigue a un sofisticado Programa, Ares, que es enviado desde el mundo digital al mundo real en una peligrosa misión, marcando el primer encuentro de la humanidad con seres de Inteligencia Artificial.', director: { name: 'Joachim Rønning' }, actors: [{ name: 'Jared Leto' }, { name: 'Evan Peters' }, { name: 'Greta Lee' }], trailerUrl: 'https://www.youtube.com/embed/zvahPW14Qos?si=nmS2z4q0BqBOi5cr' },
-  { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', sinopsis: 'Finney, Ahora De 17 Años, Lucha Con Las Secuelas De Su Cautiverio Mientras Su Hermana Comienza A Recibir Llamadas En Sueños Desde El Teléfono Negro Y Visiones Inquietantes De Tres Chicos Acechados En Un Campamento De Invierno Llamado Alpine Lake.', director: { name: 'Scott Derrickson' }, actors: [{ name: 'Ethan Hawke' }, { name: 'Mason Thames' }, { name: 'Madeleine Mcgraw' }], trailerUrl: 'https://www.youtube.com/embed/YvqwkLg9o6k?si=Jv2NKR1KF9HUbLxg' },
-  { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', classification: 'B-15', format: '3D', language: 'Japonés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', sinopsis: 'Por primera vez, Chainsaw Man llega a la gran pantalla en una épica aventura cargada de acción que continúa la exitosa serie de anime. Denji trabajaba como Cazador de Demonios para los yakuza, intentando saldar la deuda que heredó de sus padres, hasta que fue traicionado y asesinado por ellos. Al borde de la muerte, su querido perro-demonio con motosierra, Pochita, hizo un pacto con él y le salvó la vida. Esto los fusionó, dando origen al imparable Chainsaw Man. Ahora, en medio de una guerra brutal entre demonios, cazadores y enemigos ocultos, una misteriosa chica llamada Reze entra en su vida, y Denji se enfrenta a la batalla más peligrosa hasta ahora, impulsado por el amor en un mundo donde la supervivencia no tiene reglas.', director: { name: 'Tatsuya Yoshihara' }, actors: [{ name: 'Kikunosuke Toya' }, { name: 'Reina Ueda' }, { name: 'Tomori Kusunoki' }], trailerUrl: 'https://www.youtube.com/embed/eRXMdJoXRGQ?si=_0l14TZw40KBZ-R0' },
-  { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', sinopsis: 'Una profesora universitaria se encuentra en una encrucijada personal y profesional cuando una alumna estrella lanza una acusación contra uno de sus colegas y un oscuro secreto de su propio pasado amenaza con salir a la luz.', director: { name: 'Luca Guadagnino' }, actors: [{ name: 'Julia Roberts' }, { name: 'Andrew Garfield' }, { name: 'Ayo Edebiri' }], trailerUrl: 'https://www.youtube.com/embed/2yNBkz7ULtY?si=A57Wh14fAV6o_-QY' },
-  { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', sinopsis: 'Basada en el libro superventas, A PESAR DE TI presenta al público a Morgan Grant (Allison Williams) y su hija Clara (Mckenna Grace). Ellas exploran lo que queda tras un accidente devastador que revela una traición impactante y les obliga a afrontar secretos familiares, redefinir el amor y redescubrirse. A PESAR DE TI es una historia de crecimiento, resiliencia y autodescubrimiento tras una tragedia, también protagonizada por Dave Franco y Mason Thames, junto a Scott Eastwood y Willa Fitzgerald.', director: { name: 'Josh Boone' }, actors: [{ name: 'Allison Williams' }, { name: 'Mckenna Grace' }, { name: 'Dave Franco' }], trailerUrl: 'https://www.youtube.com/embed/tJql7yk5r00?si=s2IVVlHF-hU8jP45' },
-  { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-11-01', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', sinopsis: 'Representación del proceso creativo de Bruce Springsteen detrás de su álbum Nebraska de 1982, mientras grababa Born in the USA con la E Street Band. Basado en el libro de Warren Zanes.', director: { name: 'Scott Cooper' }, actors: [{ name: 'Jeremy Allen White' }, { name: 'Jeremy Strong' }, { name: 'Grace Gummer' }], trailerUrl: 'https://www.youtube.com/embed/oQXdM3J33No?si=Wk8AXhbPPKg7AYcM' },
-  { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', classification: 'B', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', sinopsis: 'Un perro leal se muda con su dueño, Todd, a una casa familiar en el campo, donde descubre fuerzas sobrenaturales que acechan en las sombras. Cuando entidades oscuras amenazan a su compañero humano, el valiente animal deberá enfrentarse a ellas para proteger al ser que más ama.', director: { name: 'Ben Leonberg' }, actors: [{ name: 'Arielle Friedman' }, { name: 'Shane Jensen' }, { name: 'Larry Fessenden' }], trailerUrl: 'https://www.youtube.com/embed/q4-CRkd_74g?si=qs431GVrG6cojcs5' },
-  { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', sinopsis: 'Dallas, una estudiante determinada que sueña con entrar a la mejor escuela de danza del país, se cruza con Drayton, el mariscal de campo estrella que duda sobre su futuro. La química entre ellos es innegable, pero sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.', director: { name: 'Justin Wu' }, actors: [{ name: 'Siena Agudong' }, { name: 'Noah Beck' }, { name: 'Drew Ray Tanner' }], trailerUrl: 'https://www.youtube.com/embed/-3itEzH1-EI?si=GExfUA6Ccl52C5ox' },
-  { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', sinopsis: 'Cuando Gabriel (Keanu Reeves) un ángel guardián bien intencionado pero inepto interviene en la vida Arj (Aziz Ansari) -un desempleado que vive en su coche- intercambiando su vida con la del adinerado Jeff (Seth Rogen) descubre que la buena fortuna trae problemas en esta comedia social de enredos celestiales y tacos al pastor.​​ Gabriel desea demostrarle a Arj que la riqueza no arregla todos sus problemas…¿o sí?', director: { name: 'Aziz Ansari' }, actors: [{ name: 'Seth Rogen' }, { name: 'Sandra Oh' }, { name: 'Keanu Reeves' }], trailerUrl: 'https://www.youtube.com/embed/EuRwBSnO_wA?si=q7DV0QYPJf2dFphK' },
-  { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', classification: 'B-15', format: '3D', language: 'Inglés', releaseDate: '1996-10-31', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', sinopsis: 'Una recién llegada a una escuela católica entabla relación con un trío de adolescentes marginadas que practican brujería y evocan hechizos y maldiciones contra quienes las enfadan.', director: { name: 'Andrew Fleming' }, actors: [{ name: 'Robin Tunney' }, { name: 'Fairuza Balk' }, { name: 'Neve Campbell' }], trailerUrl: 'https://www.youtube.com/embed/SxEqB--5ToI?si=gFx1lE76x_YDBDr5' },
-  { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-11-07', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', sinopsis: 'Carla, una joven desesperada por pertenecer socialmente, intenta destacar en el mundo digital. Para aumentar sus seguidores, se muda a un famoso edificio embrujado. Comienza a fingir apariciones fantasmales, pero pronto invoca una verdadera entidad maligna que se apodera de su vida hasta que nadie sabrá distinguir entre lo real y lo falso.', director: { name: 'Ximena García Lecuona' }, actors: [{ name: 'Yankel Stevan' }, { name: ' Karla Coronado' }, { name: 'Julia Maqueo' }], trailerUrl: 'https://www.youtube.com/embed/SFYeLyqis_o?si=E0y3Ztn_8Y_vad0x' },
-  { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', sinopsis: 'La joven reportera Si-kyung se infiltra en un culto religioso secreto. Lo que comienza como una investigación encubierta pronto se convierte en una pesadilla indescriptible, cuando es invitada a presenciar un ritual prohibido en el que cada miembro pide un deseo y ofrece un sacrificio. Uno a uno, los fieles narran la aterradora historia de cómo lo consiguieron… cada relato es más escalofriante y sangriento que el anterior. Cuando llega el turno de Si-kyung, descubre con horror que todos los sacrificios deben ser partes del cuerpo humano. Esas ofrendas no son simples pruebas de fe, sino piezas de un plan macabro: dar vida a una entidad ancestral, un ser que aguarda en las sombras para reclamar la carne y el alma de todos los presentes. El ritual ha comenzado… y con él, el despertar del mal absoluto.', director: { name: 'Won-kyung Choe' }, actors: [{ name: 'Kim Chae-eun' }, { name: 'Kim Min-seok' }, { name: 'Kwon Ah Reum' }], trailerUrl: 'https://www.youtube.com/embed/pC5NSEsMNb8?si=u_4Y1_bPZY3lVJGi' }
+  { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', classification: 'A', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', sinopsis: 'TRON: ARES sigue a un sofisticado Programa, Ares, que es enviado desde el mundo digital al mundo real en una peligrosa misión, marcando el primer encuentro de la humanidad con seres de Inteligencia Artificial.', director: { name: 'Joachim Rønning' }, actors: [{ name: 'Jared Leto' }, { name: 'Evan Peters' }, { name: 'Greta Lee' }], trailerUrl: 'https://www.youtube.com/embed/zvahPW14Qos' },
+  { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', sinopsis: 'Finney, Ahora De 17 Años, Lucha Con Las Secuelas De Su Cautiverio Mientras Su Hermana Comienza A Recibir Llamadas En Sueños Desde El Teléfono Negro Y Visiones Inquietantes De Tres Chicos Acechados En Un Campamento De Invierno Llamado Alpine Lake.', director: { name: 'Scott Derrickson' }, actors: [{ name: 'Ethan Hawke' }, { name: 'Mason Thames' }, { name: 'Madeleine Mcgraw' }], trailerUrl: 'https://www.youtube.com/embed/YvqwkLg9o6k' },
+  { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', classification: 'B-15', format: '3D', language: 'Japonés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', sinopsis: 'Por primera vez, Chainsaw Man llega a la gran pantalla en una épica aventura cargada de acción que continúa la exitosa serie de anime. Denji trabajaba como Cazador de Demonios para los yakuza, intentando saldar la deuda que heredó de sus padres, hasta que fue traicionado y asesinado por ellos. Al borde de la muerte, su querido perro-demonio con motosierra, Pochita, hizo un pacto con él y le salvó la vida. Esto los fusionó, dando origen al imparable Chainsaw Man. Ahora, en medio de una guerra brutal entre demonios, cazadores y enemigos ocultos, una misteriosa chica llamada Reze entra en su vida, y Denji se enfrenta a la batalla más peligrosa hasta ahora, impulsado por el amor en un mundo donde la supervivencia no tiene reglas.', director: { name: 'Tatsuya Yoshihara' }, actors: [{ name: 'Kikunosuke Toya' }, { name: 'Reina Ueda' }, { name: 'Tomori Kusunoki' }], trailerUrl: 'https://www.youtube.com/embed/eRXMdJoXRGQ' },
+  { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', sinopsis: 'Una profesora universitaria se encuentra en una encrucijada personal y profesional cuando una alumna estrella lanza una acusación contra uno de sus colegas y un oscuro secreto de su propio pasado amenaza con salir a la luz.', director: { name: 'Luca Guadagnino' }, actors: [{ name: 'Julia Roberts' }, { name: 'Andrew Garfield' }, { name: 'Ayo Edebiri' }], trailerUrl: 'https://www.youtube.com/embed/2yNBkz7ULtY' },
+  { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', sinopsis: 'Basada en el libro superventas, A PESAR DE TI presenta al público a Morgan Grant (Allison Williams) y su hija Clara (Mckenna Grace). Ellas exploran lo que queda tras un accidente devastador que revela una traición impactante y les obliga a afrontar secretos familiares, redefinir el amor y redescubrirse. A PESAR DE TI es una historia de crecimiento, resiliencia y autodescubrimiento tras una tragedia, también protagonizada por Dave Franco y Mason Thames, junto a Scott Eastwood y Willa Fitzgerald.', director: { name: 'Josh Boone' }, actors: [{ name: 'Allison Williams' }, { name: 'Mckenna Grace' }, { name: 'Dave Franco' }], trailerUrl: 'https://www.youtube.com/embed/tJql7yk5r00' },
+  { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-11-01', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', sinopsis: 'Representación del proceso creativo de Bruce Springsteen detrás de su álbum Nebraska de 1982, mientras grababa Born in the USA con la E Street Band. Basado en el libro de Warren Zanes.', director: { name: 'Scott Cooper' }, actors: [{ name: 'Jeremy Allen White' }, { name: 'Jeremy Strong' }, { name: 'Grace Gummer' }], trailerUrl: 'https://www.youtube.com/embed/oQXdM3J33No' },
+  { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', classification: 'B', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', sinopsis: 'Un perro leal se muda con su dueño, Todd, a una casa familiar en el campo, donde descubre fuerzas sobrenaturales que acechan en las sombras. Cuando entidades oscuras amenazan a su compañero humano, el valiente animal deberá enfrentarse a ellas para proteger al ser que más ama.', director: { name: 'Ben Leonberg' }, actors: [{ name: 'Arielle Friedman' }, { name: 'Shane Jensen' }, { name: 'Larry Fessenden' }], trailerUrl: 'https://www.youtube.com/embed/q4-CRkd_74g' },
+  { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', sinopsis: 'Dallas, una estudiante determinada que sueña con entrar a la mejor escuela de danza del país, se cruza con Drayton, el mariscal de campo estrella que duda sobre su futuro. La química entre ellos es innegable, pero sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.', director: { name: 'Justin Wu' }, actors: [{ name: 'Siena Agudong' }, { name: 'Noah Beck' }, { name: 'Drew Ray Tanner' }], trailerUrl: 'https://www.youtube.com/embed/-3itEzH1-EI' },
+  { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', sinopsis: 'Cuando Gabriel (Keanu Reeves) un ángel guardián bien intencionado pero inepto interviene en la vida Arj (Aziz Ansari) -un desempleado que vive en su coche- intercambiando su vida con la del adinerado Jeff (Seth Rogen) descubre que la buena fortuna trae problemas en esta comedia social de enredos celestiales y tacos al pastor.​​ Gabriel desea demostrarle a Arj que la riqueza no arregla todos sus problemas…¿o sí?', director: { name: 'Aziz Ansari' }, actors: [{ name: 'Seth Rogen' }, { name: 'Sandra Oh' }, { name: 'Keanu Reeves' }], trailerUrl: 'https://www.youtube.com/embed/EuRwBSnO_wA' },
+  { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', classification: 'B-15', format: '3D', language: 'Inglés', releaseDate: '1996-10-31', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', sinopsis: 'Una recién llegada a una escuela católica entabla relación con un trío de adolescentes marginadas que practican brujería y evocan hechizos y maldiciones contra quienes las enfadan.', director: { name: 'Andrew Fleming' }, actors: [{ name: 'Robin Tunney' }, { name: 'Fairuza Balk' }, { name: 'Neve Campbell' }], trailerUrl: 'https://www.youtube.com/embed/SxEqB--5ToI' },
+  { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-11-07', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', sinopsis: 'Carla, una joven desesperada por pertenecer socialmente, intenta destacar en el mundo digital. Para aumentar sus seguidores, se muda a un famoso edificio embrujado. Comienza a fingir apariciones fantasmales, pero pronto invoca una verdadera entidad maligna que se apodera de su vida hasta que nadie sabrá distinguir entre lo real y lo falso.', director: { name: 'Ximena García Lecuona' }, actors: [{ name: 'Yankel Stevan' }, { name: ' Karla Coronado' }, { name: 'Julia Maqueo' }], trailerUrl: 'https://www.youtube.com/embed/SFYeLyqis_o' },
+  { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', sinopsis: 'La joven reportera Si-kyung se infiltra en un culto religioso secreto. Lo que comienza como una investigación encubierta pronto se convierte en una pesadilla indescriptible, cuando es invitada a presenciar un ritual prohibido en el que cada miembro pide un deseo y ofrece un sacrificio. Uno a uno, los fieles narran la aterradora historia de cómo lo consiguieron… cada relato es más escalofriante y sangriento que el anterior. Cuando llega el turno de Si-kyung, descubre con horror que todos los sacrificios deben ser partes del cuerpo humano. Esas ofrendas no son simples pruebas de fe, sino piezas de un plan macabro: dar vida a una entidad ancestral, un ser que aguarda en las sombras para reclamar la carne y el alma de todos los presentes. El ritual ha comenzado… y con él, el despertar del mal absoluto.', director: { name: 'Won-kyung Choe' }, actors: [{ name: 'Kim Chae-eun' }, { name: 'Kim Min-seok' }, { name: 'Kwon Ah Reum' }], trailerUrl: 'https://www.youtube.com/embed/pC5NSEsMNb8' }
 ]
 
 export default {
@@ -552,7 +582,11 @@ export default {
   computed: {
     videoSrc () {
       if (this.movie && this.movie.trailerUrl && this.showTrailerModal) {
-        return this.movie.trailerUrl + '?autoplay=1'
+        const base = this.movie.trailerUrl
+        if (base.includes('?')) {
+          return base + '&autoplay=1'
+        }
+        return base + '?autoplay=1'
       }
       return ''
     }
@@ -695,7 +729,6 @@ export default {
 </script>
 
 <style scoped>
-/*ESTILOS PARA LA PÁGINA DE PELÍCULA*/
 .hero-section {
   position: relative;
   height: 100vh;
@@ -743,10 +776,11 @@ export default {
   color: white;
   text-shadow: none;
 }
+
 .details-section {
   padding: 20px;
 }
-/*ESTILOS PARA LA SECCIÓN DE DETALLES*/
+
 .details-and-related-wrapper {
   background-color: white;
   z-index: 3;
@@ -813,7 +847,6 @@ export default {
   width: 68%;
 }
 
-/* Estilos para el responsive de la sección de detalles */
 @media (max-width: 960px) {
   .left-column {
     border-right: none;
@@ -884,5 +917,19 @@ html, body, #__nuxt, #__layout, .v-application, .v-main {
   max-width: 100vw;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+.movie-details-dialog {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+}
+
+.movie-details-dialog .v-card {
+  margin-right: 16px;
+}
+
+.movie-details-dialog .v-toolbar__title {
+  padding-left: 16px;
 }
 </style>
