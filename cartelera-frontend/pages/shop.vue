@@ -208,7 +208,14 @@
             md="4"
             lg="3"
           >
-            <v-card class="product-card elevation-0" @click="goToMovieDetails(movie.id)">
+            <!--
+              Tarjeta de producto modificada para abrir el modal de detalle rapido.
+              - Antes redirigía al hacer click en la tarjeta; ahora abrimos el modal
+                con la función `openModal(movie)` para mostrar el panel derecho.
+              - El botón `.add-to-cart-btn` mantiene la redirección y usa
+                `@click.stop` para evitar que su click abra el modal.
+            -->
+            <v-card class="product-card elevation-0" @click="openModal(movie)">
               <v-img
                 :src="movie.image"
                 height="400"
@@ -258,6 +265,70 @@
         </div>
       </v-container>
 
+      <v-dialog v-model="modalOpen" max-width="420" content-class="right-modal">
+        <v-card>
+          <v-img :src="selectedMovie && selectedMovie.image" height="40vh" contain class="modal-image" />
+
+          <v-card-title class="font-weight-bold">
+            {{ selectedMovie && selectedMovie.title }}
+          </v-card-title>
+
+          <v-card-text>
+            <div class="mb-4">
+              {{ getShortSynopsis(selectedMovie) }}
+            </div>
+
+            <!-- Tabla -->
+            <table style="width:100%; border-collapse: collapse;">
+              <tbody>
+                <tr>
+                  <td style="padding:6px 8px; font-weight:600; width:45%">
+                    Clasificación
+                  </td>
+                  <td style="padding:6px 8px">
+                    {{ (selectedMovie && selectedMovie.classification) || '—' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; font-weight:600">
+                    Género
+                  </td>
+                  <td style="padding:6px 8px">
+                    {{ (selectedMovie && selectedMovie.genre) || '—' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; font-weight:600">
+                    Duración
+                  </td>
+                  <td style="padding:6px 8px">
+                    {{ (selectedMovie && selectedMovie.duration) || '—' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:6px 8px; font-weight:600">
+                    Director
+                  </td>
+                  <td style="padding:6px 8px">
+                    {{ (selectedMovie && (selectedMovie.director && (selectedMovie.director.name || selectedMovie.director))) || 'Desconocido' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </v-card-text>
+
+          <!-- Acciones: quedan en la parte inferior del panel -->
+          <v-card-actions class="v-card__actions d-flex justify-end">
+            <v-btn text @click="closeModal">
+              Cerrar
+            </v-btn>
+            <v-btn color="#db133b" dark @click.stop="goToMovieDetails(selectedMovie && selectedMovie.id)">
+              Ver Detalles / Entradas
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <RoseSection />
       <PageFooter />
     </v-main>
@@ -281,18 +352,18 @@ export default {
   data () {
     return {
       movies: [
-        { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A' },
-        { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
-        { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15' },
-        { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', releaseDate: '2025-10-31', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
-        { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B' },
-        { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', releaseDate: '2025-11-01', language: 'Inglés', format: 'Tradicional', classification: 'B' },
-        { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', releaseDate: '2025-10-24', language: 'Inglés', format: 'Premium', classification: 'B' },
-        { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Tradicional', classification: 'B' },
-        { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', releaseDate: '2025-10-31', language: 'Español', format: 'Tradicional', classification: 'B' },
-        { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15' },
-        { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15' },
-        { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15' }
+        { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A', sinopsis: 'TRON: ARES sigue a un sofisticado Programa, Ares, que es enviado desde el mundo digital al mundo real en una peligrosa misión, marcando el primer encuentro de la humanidad con seres de Inteligencia Artificial.' },
+        { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15', sinopsis: 'Finney, ahora de 17 años, lucha con las secuelas de su cautiverio mientras su hermana comienza a recibir llamadas en sueños desde el teléfono negro y visiones inquietantes.' },
+        { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15', sinopsis: 'Por primera vez, Chainsaw Man llega a la gran pantalla en una épica aventura cargada de acción que continúa la exitosa serie de anime. Denji y Pochita se enfrentan a una guerra brutal entre demonios mientras una misteriosa chica llamada Reze cambia el rumbo de todo.' },
+        { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', releaseDate: '2025-10-31', language: 'Inglés', format: 'Tradicional', classification: 'B-15', sinopsis: 'Una profesora universitaria enfrenta una acusación que destapa oscuros secretos del pasado y pone en riesgo su carrera y su vida personal.' },
+        { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B', sinopsis: 'Basada en el libro superventas, A PESAR DE TI presenta a Morgan Grant y su hija Clara en una historia de crecimiento y resiliencia tras una tragedia que revela traiciones familiares.' },
+        { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', releaseDate: '2025-11-01', language: 'Inglés', format: 'Tradicional', classification: 'B', sinopsis: 'Representación del proceso creativo de Bruce Springsteen detrás de su álbum Nebraska de 1982, junto a la E Street Band.' },
+        { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', releaseDate: '2025-10-24', language: 'Inglés', format: 'Premium', classification: 'B', sinopsis: 'Un perro leal y su dueño se enfrentan a fuerzas sobrenaturales cuando fuerzas oscuras amenazan su hogar, y el valiente animal debe proteger a su familia.' },
+        { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Tradicional', classification: 'B', sinopsis: 'Dallas, una estudiante determinada, se cruza con Drayton, una estrella deportiva, y sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.' },
+        { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', releaseDate: '2025-10-31', language: 'Español', format: 'Tradicional', classification: 'B', sinopsis: 'Gabriel, un ángel guardián inepto, intercambia la vida de un joven con la de un adinerado, demostrando que la fortuna no arregla todos los problemas.' },
+        { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15', sinopsis: 'Una recién llegada a una escuela católica se une a un trío de adolescentes que practican brujería y enfrentan las consecuencias de sus hechizos.' },
+        { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15', sinopsis: 'Carla, en su empeño por ganar seguidores, finge apariciones en un edificio embrujado y termina invocando una entidad real que se apodera de su vida.' },
+        { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15', sinopsis: 'Una reportera se infiltra en un culto y presencia rituales prohibidos que desatan horrores cuando los fieles ofrecen sacrificios humanos.' }
       ],
 
       genre: 'Todos',
@@ -300,6 +371,9 @@ export default {
       format: 'Todos',
       date: null,
       searchQuery: '',
+
+      modalOpen: false,
+      selectedMovie: null,
 
       page: 1,
       itemsPerPage: 12,
@@ -409,6 +483,29 @@ export default {
 
     goToMovieDetails (id) {
       this.$router.push(`/product/${id}`)
+    },
+
+    openModal (movie) {
+      this.selectedMovie = movie
+      this.modalOpen = true
+    },
+
+    closeModal () {
+      this.modalOpen = false
+      this.selectedMovie = null
+    },
+
+    getShortSynopsis (movie) {
+      if (!movie) {
+        return ''
+      }
+
+      const raw = movie.sinopsis || `${movie.genre || ''} · ${movie.duration || ''}`
+
+      const text = typeof raw === 'string' ? raw : String(raw || '')
+
+      const LIMIT = 100
+      return text.length > LIMIT ? `${text.slice(0, LIMIT).trim()}...` : text
     },
 
     showAlert (message, type) {
@@ -668,5 +765,99 @@ export default {
   .logo-link {
     font-size: 1.2rem;
   }
+}
+
+.right-modal {
+  position: fixed !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 100vh !important;
+  width: 420px !important;
+  max-width: 420px !important;
+  overflow: hidden !important;
+  z-index: 2000 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.v-dialog__content.right-modal,
+.v-dialog__content > .right-modal,
+.v-dialog__container > .right-modal,
+.v-dialog__content.right-modal > .v-card {
+  position: fixed !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 100vh !important;
+  transform: none !important;
+  margin: 0 !important;
+  display: block !important;
+}
+
+.v-dialog__content,
+.v-dialog__container {
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.right-modal .v-card {
+  height: 100vh !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Usar las clases reales que Vuetify renderiza para el texto y las acciones */
+.right-modal .v-card__text {
+  flex: 1 1 auto !important;
+  overflow: auto !important;
+  padding-bottom: 16px !important;
+}
+
+/* Las acciones quedan pegadas al fondo; sticky ayuda en navegadores para scroll */
+.right-modal .v-card__actions {
+  position: sticky !important;
+  bottom: 0 !important;
+  margin-top: 0 !important;
+  padding: 12px 16px !important;
+  background: rgba(255,255,255,0.0) !important; /* mantener fondo transparente por defecto */
+}
+
+.right-modal .modal-image {
+  width: 100% !important;
+  max-height: 40vh !important;
+  height: auto !important;
+}
+
+.right-modal .modal-image .v-image__image {
+  object-fit: contain !important;
+  background-position: center center !important;
+}
+
+/* Ajustes tipográficos del modal: aumentar tamaño y mejorar legibilidad */
+.right-modal .v-card__title,
+.right-modal .v-card-title {
+  font-size: 1.25rem !important; /* título más grande */
+  line-height: 1.2 !important;
+}
+
+.right-modal .v-card__text {
+  font-size: 1rem !important; /* texto principal ligeramente más grande */
+  line-height: 1.5 !important;
+  color: #222 !important;
+}
+
+.right-modal table td {
+  font-size: 0.98rem !important; /* tabla con texto legible */
+  padding: 8px 10px !important;
+}
+
+/* Aumentar el peso del texto de la primera columna para mantener contraste */
+.right-modal table td:first-child {
+  font-weight: 600 !important;
 }
 </style>
