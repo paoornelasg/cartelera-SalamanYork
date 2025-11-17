@@ -68,7 +68,7 @@
                   </v-chip>
                 </div>
                 <div class="mb-6">
-                  <span class="text-h6">{{ movie.duration.split(' ')[0] }}</span>
+                  <span class="text-h6">{{ movie.duration.split(' ')[0] }} min</span>
                   <span class="mx-2">•</span>
                   <span class="text-h6">{{ movie.genre.split(',')[0] }}</span>
                 </div>
@@ -145,22 +145,22 @@
         class="buttons"
       >
         <v-btn
-          color="#9bdff3"
+          color="#787777"
           @click="openAddModal"
         >
-          Add Product
+          Agregar Película
         </v-btn>
         <v-btn
-          color="#f3f19a"
+          color="#874C4C"
           @click="openEditModal"
         >
-          Edit
+          Editar
         </v-btn>
         <v-btn
           color="#ea8080"
           @click="showDeleteConfirm = true"
         >
-          Delete
+          Eliminar
         </v-btn>
       </div>
 
@@ -178,10 +178,10 @@
             mdi-check-circle
           </v-icon>
           <h3 class="mt-3">
-            Product Added!
+            Boletos añadidos!
           </h3>
           <p class="text--secondary mt-2">
-            {{ movie ? movie.title : 'Product' }} has been added to the cart.
+            Boleto(s) para ver {{ movie ? movie.title : 'Película' }} ha(n) sido añadido(s) al carrito.
           </p>
           <v-btn
             color="black"
@@ -230,73 +230,83 @@
       >
         <v-card>
           <v-card-title class="text-h6">
-            {{ isEditing ? 'Edit Product' : 'Add Product' }}
+            {{ isEditing ? 'Editar Película' : 'Añadir Película' }}
           </v-card-title>
           <v-card-text>
             <v-text-field
               v-model="form.name"
-              label="Product Name"
+              label="Nombre de la película"
               outlined
               dense
             />
             <v-textarea
               v-model="form.description"
-              label="Description"
+              label="Sinopsis"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.price"
-              label="Price"
+              v-model="form.genre"
+              label="Género (separados por coma)"
+              outlined
+              dense
+            />
+            <v-text-field
+              v-model="form.rating"
+              label="Clasificación (ej. PG-13, R)"
+              outlined
+              dense
+            />
+            <v-text-field
+              v-model="form.duration"
+              label="Duración (minutos)"
               type="number"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.stock"
-              label="Stock"
-              type="number"
+              v-model="form.director"
+              label="Director"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.category"
-              label="Category"
+              v-model="form.actors"
+              label="Actores (separados por comas)"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.brand"
-              label="Brand"
+              v-model="form.trailerUrl"
+              label="URL del tráiler (YouTube)"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.weight"
-              label="Weight"
+              v-model="form.language"
+              label="Idioma"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.dimensions"
-              label="Dimensions"
+              v-model="form.format"
+              label="Formato (ej. 2D, 3D)"
               outlined
               dense
             />
             <v-text-field
-              v-model="form.color"
-              label="Color"
+              v-model="form.releaseDate"
+              label="Fecha de estreno (YYYY-MM-DD)"
               outlined
               dense
             />
-            <v-text-field
-              v-model="form.material"
-              label="Material"
-              outlined
-              dense
+            <v-switch
+              v-model="form.isBillboard"
+              label="En cartelera"
+              inset
             />
             <v-file-input
-              label="Upload Image"
+              label="Póster de la película"
               outlined
               dense
               accept="image/*"
@@ -309,14 +319,14 @@
               text
               @click="showProductModal = false"
             >
-              Cancel
+              Cancelar
             </v-btn>
             <v-btn
               color="black"
               dark
               @click="submitProduct"
             >
-              {{ isEditing ? 'Update' : 'Add' }}
+              {{ isEditing ? 'Actualizar' : 'Añadir' }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -334,23 +344,23 @@
             mdi-alert
           </v-icon>
           <h3 class="mt-3">
-            Delete Product
+            Eliminar Película
           </h3>
           <p class="text--secondary mt-2">
-            Are you sure you want to delete this product?
+            ¿Estás seguro de que quieres eliminar esta película?
           </p>
           <v-card-actions class="justify-center mt-4">
             <v-btn
               color="grey"
               @click="showDeleteConfirm = false"
             >
-              Cancel
+              Cancelar
             </v-btn>
             <v-btn
               color="error"
               @click="confirmDelete"
             >
-              Delete
+              Eliminar
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -407,14 +417,14 @@
                   >
                     mdi-account-circle
                   </v-icon>
-                  <span class="info-name">{{ movie.director.name }}</span>
+                  <span class="info-name">{{ movie.director || 'Director desconocido' }}</span>
                 </div>
                 <h3 class="info-title">
                   ACTORES
                 </h3>
                 <div
                   v-for="actor in movie.actors"
-                  :key="actor.name + '-modal'"
+                  :key="actor + '-modal'"
                   class="info-item"
                 >
                   <v-icon
@@ -424,10 +434,15 @@
                   >
                     mdi-account-circle
                   </v-icon>
-                  <span class="info-name">{{ actor.name }}</span>
+                  <span class="info-name">{{ actor }}</span>
                 </div>
+                <p
+                  v-if="!movie.actors || !movie.actors.length"
+                  class="info-name"
+                >
+                  Sin información disponible
+                </p>
               </v-col>
-
               <v-col
                 cols="12"
                 md="8"
@@ -483,7 +498,7 @@
                       FECHA DE ESTRENO
                     </h3>
                     <p class="info-name">
-                      {{ movie.releaseDate }}
+                      {{ releaseDateText }}
                     </p>
                   </v-col>
                   <v-col cols="6">
@@ -491,7 +506,7 @@
                       GÉNERO
                     </h3>
                     <p class="info-name">
-                      {{ movie.genre }}
+                      {{ genreText }}
                     </p>
                   </v-col>
                 </v-row>
@@ -532,20 +547,15 @@ import axios from 'axios'
 import AppHeader from '~/components/PageHeader.vue'
 import PageFooter from '~/components/PageFooter.vue'
 
-const allMovies = [
-  { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', classification: 'A', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', sinopsis: 'TRON: ARES sigue a un sofisticado Programa, Ares, que es enviado desde el mundo digital al mundo real en una peligrosa misión, marcando el primer encuentro de la humanidad con seres de Inteligencia Artificial.', director: { name: 'Joachim Rønning' }, actors: [{ name: 'Jared Leto' }, { name: 'Evan Peters' }, { name: 'Greta Lee' }], trailerUrl: 'https://www.youtube.com/embed/zvahPW14Qos' },
-  { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', sinopsis: 'Finney, Ahora De 17 Años, Lucha Con Las Secuelas De Su Cautiverio Mientras Su Hermana Comienza A Recibir Llamadas En Sueños Desde El Teléfono Negro Y Visiones Inquietantes De Tres Chicos Acechados En Un Campamento De Invierno Llamado Alpine Lake.', director: { name: 'Scott Derrickson' }, actors: [{ name: 'Ethan Hawke' }, { name: 'Mason Thames' }, { name: 'Madeleine Mcgraw' }], trailerUrl: 'https://www.youtube.com/embed/YvqwkLg9o6k' },
-  { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', classification: 'B-15', format: '3D', language: 'Japonés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', sinopsis: 'Por primera vez, Chainsaw Man llega a la gran pantalla en una épica aventura cargada de acción que continúa la exitosa serie de anime. Denji trabajaba como Cazador de Demonios para los yakuza, intentando saldar la deuda que heredó de sus padres, hasta que fue traicionado y asesinado por ellos. Al borde de la muerte, su querido perro-demonio con motosierra, Pochita, hizo un pacto con él y le salvó la vida. Esto los fusionó, dando origen al imparable Chainsaw Man. Ahora, en medio de una guerra brutal entre demonios, cazadores y enemigos ocultos, una misteriosa chica llamada Reze entra en su vida, y Denji se enfrenta a la batalla más peligrosa hasta ahora, impulsado por el amor en un mundo donde la supervivencia no tiene reglas.', director: { name: 'Tatsuya Yoshihara' }, actors: [{ name: 'Kikunosuke Toya' }, { name: 'Reina Ueda' }, { name: 'Tomori Kusunoki' }], trailerUrl: 'https://www.youtube.com/embed/eRXMdJoXRGQ' },
-  { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', classification: 'B-15', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', sinopsis: 'Una profesora universitaria se encuentra en una encrucijada personal y profesional cuando una alumna estrella lanza una acusación contra uno de sus colegas y un oscuro secreto de su propio pasado amenaza con salir a la luz.', director: { name: 'Luca Guadagnino' }, actors: [{ name: 'Julia Roberts' }, { name: 'Andrew Garfield' }, { name: 'Ayo Edebiri' }], trailerUrl: 'https://www.youtube.com/embed/2yNBkz7ULtY' },
-  { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', sinopsis: 'Basada en el libro superventas, A PESAR DE TI presenta al público a Morgan Grant (Allison Williams) y su hija Clara (Mckenna Grace). Ellas exploran lo que queda tras un accidente devastador que revela una traición impactante y les obliga a afrontar secretos familiares, redefinir el amor y redescubrirse. A PESAR DE TI es una historia de crecimiento, resiliencia y autodescubrimiento tras una tragedia, también protagonizada por Dave Franco y Mason Thames, junto a Scott Eastwood y Willa Fitzgerald.', director: { name: 'Josh Boone' }, actors: [{ name: 'Allison Williams' }, { name: 'Mckenna Grace' }, { name: 'Dave Franco' }], trailerUrl: 'https://www.youtube.com/embed/tJql7yk5r00' },
-  { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-11-01', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', sinopsis: 'Representación del proceso creativo de Bruce Springsteen detrás de su álbum Nebraska de 1982, mientras grababa Born in the USA con la E Street Band. Basado en el libro de Warren Zanes.', director: { name: 'Scott Cooper' }, actors: [{ name: 'Jeremy Allen White' }, { name: 'Jeremy Strong' }, { name: 'Grace Gummer' }], trailerUrl: 'https://www.youtube.com/embed/oQXdM3J33No' },
-  { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', classification: 'B', format: 'Premium', language: 'Inglés', releaseDate: '2025-10-24', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', sinopsis: 'Un perro leal se muda con su dueño, Todd, a una casa familiar en el campo, donde descubre fuerzas sobrenaturales que acechan en las sombras. Cuando entidades oscuras amenazan a su compañero humano, el valiente animal deberá enfrentarse a ellas para proteger al ser que más ama.', director: { name: 'Ben Leonberg' }, actors: [{ name: 'Arielle Friedman' }, { name: 'Shane Jensen' }, { name: 'Larry Fessenden' }], trailerUrl: 'https://www.youtube.com/embed/q4-CRkd_74g' },
+const MOVIES_API = 'http://localhost:5020/api/movies'
+
+/* const allMovies = [
   { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', sinopsis: 'Dallas, una estudiante determinada que sueña con entrar a la mejor escuela de danza del país, se cruza con Drayton, el mariscal de campo estrella que duda sobre su futuro. La química entre ellos es innegable, pero sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.', director: { name: 'Justin Wu' }, actors: [{ name: 'Siena Agudong' }, { name: 'Noah Beck' }, { name: 'Drew Ray Tanner' }], trailerUrl: 'https://www.youtube.com/embed/-3itEzH1-EI' },
   { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', sinopsis: 'Cuando Gabriel (Keanu Reeves) un ángel guardián bien intencionado pero inepto interviene en la vida Arj (Aziz Ansari) -un desempleado que vive en su coche- intercambiando su vida con la del adinerado Jeff (Seth Rogen) descubre que la buena fortuna trae problemas en esta comedia social de enredos celestiales y tacos al pastor.​​ Gabriel desea demostrarle a Arj que la riqueza no arregla todos sus problemas…¿o sí?', director: { name: 'Aziz Ansari' }, actors: [{ name: 'Seth Rogen' }, { name: 'Sandra Oh' }, { name: 'Keanu Reeves' }], trailerUrl: 'https://www.youtube.com/embed/EuRwBSnO_wA' },
   { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', classification: 'B-15', format: '3D', language: 'Inglés', releaseDate: '1996-10-31', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', sinopsis: 'Una recién llegada a una escuela católica entabla relación con un trío de adolescentes marginadas que practican brujería y evocan hechizos y maldiciones contra quienes las enfadan.', director: { name: 'Andrew Fleming' }, actors: [{ name: 'Robin Tunney' }, { name: 'Fairuza Balk' }, { name: 'Neve Campbell' }], trailerUrl: 'https://www.youtube.com/embed/SxEqB--5ToI' },
   { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-11-07', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', sinopsis: 'Carla, una joven desesperada por pertenecer socialmente, intenta destacar en el mundo digital. Para aumentar sus seguidores, se muda a un famoso edificio embrujado. Comienza a fingir apariciones fantasmales, pero pronto invoca una verdadera entidad maligna que se apodera de su vida hasta que nadie sabrá distinguir entre lo real y lo falso.', director: { name: 'Ximena García Lecuona' }, actors: [{ name: 'Yankel Stevan' }, { name: ' Karla Coronado' }, { name: 'Julia Maqueo' }], trailerUrl: 'https://www.youtube.com/embed/SFYeLyqis_o' },
   { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', sinopsis: 'La joven reportera Si-kyung se infiltra en un culto religioso secreto. Lo que comienza como una investigación encubierta pronto se convierte en una pesadilla indescriptible, cuando es invitada a presenciar un ritual prohibido en el que cada miembro pide un deseo y ofrece un sacrificio. Uno a uno, los fieles narran la aterradora historia de cómo lo consiguieron… cada relato es más escalofriante y sangriento que el anterior. Cuando llega el turno de Si-kyung, descubre con horror que todos los sacrificios deben ser partes del cuerpo humano. Esas ofrendas no son simples pruebas de fe, sino piezas de un plan macabro: dar vida a una entidad ancestral, un ser que aguarda en las sombras para reclamar la carne y el alma de todos los presentes. El ritual ha comenzado… y con él, el despertar del mal absoluto.', director: { name: 'Won-kyung Choe' }, actors: [{ name: 'Kim Chae-eun' }, { name: 'Kim Min-seok' }, { name: 'Kwon Ah Reum' }], trailerUrl: 'https://www.youtube.com/embed/pC5NSEsMNb8' }
-]
+] */
 
 export default {
   components: {
@@ -566,14 +576,16 @@ export default {
       form: {
         name: '',
         description: '',
-        price: '',
-        stock: '',
-        category: '',
-        brand: '',
-        weight: '',
-        dimensions: '',
-        color: '',
-        material: '',
+        genre: '',
+        rating: '',
+        duration: '',
+        language: '',
+        format: '',
+        releaseDate: '',
+        director: '',
+        actors: '',
+        trailerUrl: '',
+        isBillboard: true,
         image: '',
         imageFile: null
       }
@@ -583,36 +595,95 @@ export default {
     videoSrc () {
       if (this.movie && this.movie.trailerUrl && this.showTrailerModal) {
         const base = this.movie.trailerUrl
-        if (base.includes('?')) {
-          return base + '&autoplay=1'
-        }
+        if (base.includes('?')) return base + '&autoplay=1'
         return base + '?autoplay=1'
       }
       return ''
+    },
+    releaseDateText () {
+      if (!this.movie || !this.movie.releaseDate) return ''
+      const ts = typeof this.movie.releaseDate === 'number'
+        ? this.movie.releaseDate
+        : Number(this.movie.releaseDate)
+      if (!ts) return ''
+      const d = new Date(ts)
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const year = d.getFullYear()
+      return `${day}/${month}/${year}`
+    },
+    genreText () {
+      if (!this.movie || !this.movie.genre) return ''
+      if (Array.isArray(this.movie.genre)) return this.movie.genre.join(', ')
+      return this.movie.genre
+    },
+    actorsText () {
+      if (!this.movie || !this.movie.actors) return ''
+      if (Array.isArray(this.movie.actors)) return this.movie.actors.join(', ')
+      return this.movie.actors
     }
   },
-  mounted () {
-    this.fetchProduct()
+  mounted: async function () {
+    await this.fetchProduct()
     this.checkAdmin()
-    this.fetchRelatedProducts()
+    await this.fetchRelatedProducts()
   },
   methods: {
-    fetchRelatedProducts () {
-      const all = allMovies.filter(p => p.id !== this.movie?.id)
-      this.relatedProducts = all.sort(() => 0.5 - Math.random()).slice(0, 4)
-        .map(movie => ({ ...movie, name: movie.title }))
-    },
-    fetchProduct () {
-      const id = parseInt(this.$route.params.id)
-      const foundMovie = allMovies.find(m => m.id === id)
-      if (foundMovie) {
-        this.movie = {
-          ...foundMovie,
-          name: foundMovie.title,
-          description: foundMovie.sinopsis
+      async fetchRelatedProducts () {
+        try {
+          const { data } = await axios.get(MOVIES_API)
+          const currentId = this.movie?.id
+
+          const others = (Array.isArray(data) ? data : [])
+            .filter(m => m.id !== currentId)
+
+          this.relatedProducts = others
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4)
+            .map(movie => ({
+              ...movie,
+              name: movie.title,
+              image: movie.posterUrl || movie.image || ''
+            }))
+        } catch (err) {
+          console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
+          this.relatedProducts = []
         }
+      },
+    async fetchProduct () {
+      try {
+        const id = this.$route.params.id
+        const { data } = await axios.get(`${MOVIES_API}/${id}`)
+
+        const genreStr = Array.isArray(data.genre)
+          ? data.genre.join(', ')
+          : (data.genre || '')
+
+        const durationStr = data.duration
+          ? `${data.duration} min`
+          : ''
+
+        this.movie = {
+          ...data,
+          isBillboard: !!data.isBillboard,
+          name: data.title,
+          description: data.synopsis,
+          sinopsis: data.synopsis,
+          genre: genreStr,
+          duration: durationStr,
+          classification: data.rating || '',
+          language: data.language || '',
+          format: data.format || '',
+          image: data.posterUrl || data.image || '',
+          backgroundImage: data.posterUrl || data.image || '',
+          director: data.director || '',
+          actors: Array.isArray(data.actors) ? data.actors : (data.actors || []),
+          trailerUrl: data.trailerUrl || ''
+        }
+
         this.currentImage = this.movie.image
-      } else {
+      } catch (err) {
+        console.error('Error al obtener película', err.response?.data || err.message)
         this.movie = null
       }
     },
@@ -651,13 +722,15 @@ export default {
       this.showSuccessModal = true
     },
     deleteProduct () {
-      if (confirm('Are you sure you want to delete this product?')) {
-        axios.delete(`http://localhost:5020/api/products/delete/${this.movie.id}`)
+      if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
+        axios.delete(`${MOVIES_API}/delete/${this.movie.id}`)
           .then(() => {
-            alert('Product deleted successfully.')
+            alert('Película eliminada exitosamente.')
             this.$router.push('/shop')
           })
-          .catch((_err) => {
+          .catch((err) => {
+            console.error('Error al eliminar película', err.response?.data || err.message)
+            alert('Error deleting movie')
           })
       }
     },
@@ -685,16 +758,25 @@ export default {
       this.isEditing = true
       this.form = {
         name: this.movie.title || '',
-        description: this.movie.sinopsis || '',
-        price: this.movie.price || '',
-        stock: this.movie.stock || '',
-        category: this.movie.genre || '',
-        brand: this.movie.brand || '',
-        weight: this.movie.weight || '',
-        dimensions: this.movie.dimensions || '',
-        color: this.movie.color || '',
-        material: this.movie.material || '',
-        image: this.movie.image || ''
+        description: this.movie.synopsis || this.movie.sinopsis || '',
+        genre: Array.isArray(this.movie.genre)
+          ? this.movie.genre.join(', ')
+          : (this.movie.genre || ''),
+        rating: this.movie.rating || '',
+        duration: this.movie.duration ? String(this.movie.duration) : '',
+        language: this.movie.language || '',
+        format: this.movie.format || '',
+        releaseDate: this.movie.releaseDate
+          ? new Date(this.movie.releaseDate).toISOString().substring(0, 10)
+          : '',
+        director: this.movie.director || '',
+        actors: Array.isArray(this.movie.actors)
+          ? this.movie.actors.join(', ')
+          : (this.movie.actors || ''),
+        trailerUrl: this.movie.trailerUrl || '',
+        isBillboard: !!this.movie.isBillboard,
+        image: this.movie.posterUrl || this.movie.image || '',
+        imageFile: null
       }
       this.showProductModal = true
     },
@@ -703,19 +785,76 @@ export default {
       this.form = {
         name: '',
         description: '',
-        price: '',
-        stock: '',
-        category: '',
-        brand: '',
-        weight: '',
-        dimensions: '',
-        color: '',
-        material: '',
-        image: ''
+        genre: '',
+        rating: '',
+        duration: '',
+        language: '',
+        format: '',
+        releaseDate: '',
+        director: '',
+        actors: '',
+        trailerUrl: '',
+        isBillboard: true,
+        image: '',
+        imageFile: null
       }
       this.showProductModal = true
     },
-    submitProduct () {
+    async submitProduct () {
+      try {
+        if (!this.form.name || !this.form.description) {
+          alert('Title and synopsis are required.')
+          return
+        }
+
+        const formData = new FormData()
+        formData.append('title', this.form.name)
+        formData.append('synopsis', this.form.description)
+
+        if (this.form.genre) formData.append('genre', this.form.genre)
+        if (this.form.rating) formData.append('rating', this.form.rating)
+        if (this.form.duration) formData.append('duration', this.form.duration)
+        if (this.form.language) formData.append('language', this.form.language)
+        if (this.form.format) formData.append('format', this.form.format)
+        if (this.form.releaseDate) formData.append('releaseDate', this.form.releaseDate)
+        if (this.form.director) formData.append('director', this.form.director)
+        if (this.form.actors) formData.append('actors', this.form.actors)
+        if (this.form.trailerUrl) formData.append('trailerUrl', this.form.trailerUrl)
+
+        formData.append('isBillboard', this.form.isBillboard ? 'true' : 'false')
+
+        if (this.form.imageFile) {
+          formData.append('poster', this.form.imageFile)
+        }
+
+        let url
+        let method
+
+        if (this.isEditing && this.movie && this.movie.id) {
+          url = `${MOVIES_API}/update/${this.movie.id}`
+          method = 'put'
+        } else {
+          url = `${MOVIES_API}/create`
+          method = 'post'
+        }
+
+        const { data } = await axios[method](url, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+
+        alert(this.isEditing ? 'Película actualizada correctamente.' : 'Película creada exitosamente.')
+        this.showProductModal = false
+
+        if (!this.isEditing && data?.id) {
+          this.$router.push(`/product/${data.id}`)
+        } else {
+          await this.fetchProduct()
+          await this.fetchRelatedProducts()
+        }
+      } catch (err) {
+        console.error('Error al guardar película', err.response?.data || err.message)
+        alert('Error guardando película')
+      }
     },
     onImageSelected (file) {
       this.form.imageFile = file

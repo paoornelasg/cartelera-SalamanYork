@@ -6,10 +6,14 @@ export default class Movie {
       genre = [],
       rating = 'PG',
       duration = 0,
+      language = 'Inglés',
+      format = 'Tradicional',
       posterUrl = '',
       trailerUrl = '',
-      releaseDate = null,
+      director = '',
+      actors = [],
       isBillboard = false,
+      releaseDate = null,
       createdAt = Date.now(),
       updatedAt = Date.now()
     }) {
@@ -19,10 +23,14 @@ export default class Movie {
       this.genre = genre
       this.rating = rating
       this.duration = duration
+      this.language = language
+      this.format = format
       this.posterUrl = posterUrl
       this.trailerUrl = trailerUrl
-      this.releaseDate = releaseDate
+      this.director = director
+      this.actors = actors
       this.isBillboard = isBillboard
+      this.releaseDate = releaseDate
       this.createdAt = createdAt
       this.updatedAt = updatedAt
     }

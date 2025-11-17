@@ -103,6 +103,10 @@ export default class UserService {
         )
             
         await this.userRepository.updateSessionToken(user.id, token)
+        await this.userRepository.update(user.id, {
+            loginTime: Date.now()
+        })
+
         return {
             token,
             user
@@ -115,6 +119,8 @@ export default class UserService {
             throw {message: 'Token inválido', statusCode: 400}
         }
         await this.userRepository.updateSessionToken(userId, null)
+        await this.userRepository.update(userId, { loginTime: null })
+
         await TokenService.revokeToken(token)
     }
 

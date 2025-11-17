@@ -2,18 +2,18 @@
   <v-app>
     <v-main>
       <AppHeader />
-      <ProductImage title="Cart" />
+      <ProductImage title="Carrito" />
       <div class="cart-content-container">
         <div class="cart-content-left">
           <div class="cart-content-left-header">
             <div class="col-product">
-              Product
+              Película
             </div>
             <div class="col-price">
-              Price
+              Fecha &amp; Hora
             </div>
             <div class="col-quantity">
-              Quantity
+              Boletos
             </div>
             <div class="col-subtotal">
               Subtotal
@@ -21,7 +21,7 @@
             <div class="col-delete" />
           </div>
           <div v-if="carrito.length === 0" class="empty-cart-msg">
-            Yout shopping cart is empty.
+            Tu carrito está vacío.
           </div>
 
           <div
@@ -30,24 +30,49 @@
             class="cart-content-left-item"
           >
             <div class="col-product product-info">
-              <img :src="item.image" alt="product">
-              <span>{{ item.name }}</span>
+              <img :src="item.poster || item.image" alt="movie poster">
+              <div class="product-text">
+                <span class="movie-title">
+                  {{ item.movieTitle || item.name }}
+                </span>
+                <span
+                  v-if="item.cinema"
+                  class="movie-cinema"
+                >
+                  {{ item.cinema }}
+                </span>
+                <span
+                  v-if="item.unitPrice || item.price"
+                  class="movie-unit-price"
+                >
+                  ${{ item.unitPrice || item.price }} por boleto
+                </span>
+              </div>
             </div>
 
-            <div class="col-price">
-              ${{ item.price }}
+            <div class="col-showtime showtime-column">
+              <p v-if="item.showDate">
+                {{ formatDate(item.showDate) }}
+              </p>
+              <p v-if="item.showTime">
+                {{ item.showTime }}
+              </p>
             </div>
 
             <div class="col-quantity quantity-box">
-              {{ item.quantity }}
+              {{ item.qty || item.quantity }}
             </div>
 
             <div class="col-subtotal subtotal-column">
-              ${{ item.price * item.quantity }}
+              ${{ item.subtotal || (item.unitPrice || item.price) * (item.qty || item.quantity) }}
             </div>
 
             <div class="col-delete">
-              <v-icon class="trash-icon" title="Eliminar producto" @click="confirmarEliminacion(item)">
+              <v-icon
+                class="trash-icon"
+                title="Eliminar boletos"
+                @click="confirmarEliminacion(item)"
+              >
                 mdi-delete
               </v-icon>
             </div>
@@ -55,19 +80,19 @@
 
           <div v-if="showModal" class="modal-overlay">
             <div class="modal-box">
-              <p>Are you sure you want to delete this product?</p>
+              <p>¿Estás seguro de que quieres eliminar estos boletos?</p>
               <button @click="eliminarProducto(confirmItem)">
-                Delete
+                Eliminar
               </button>
               <button @click="cancelarEliminacion">
-                Cancel
+                Cancelar
               </button>
             </div>
           </div>
         </div>
 
         <div class="cart-content-right">
-          <h3>Cart Totals</h3>
+          <h3>Reusmen de compra</h3>
 
           <div class="cart-contents">
             <p>
@@ -81,7 +106,7 @@
           </div>
 
           <button class="checkout-button" @click="checkout">
-            Check&nbsp;Out
+            Finalizar compra
           </button>
 
           <p v-if="mensaje" class="ok-msg">
@@ -125,7 +150,12 @@ export default {
   },
   computed: {
     subtotal () {
-      return this.carrito.reduce((s, it) => s + it.price * it.quantity, 0)
+      return this.carrito.reduce((s, it) => {
+        const qty = it.qty ?? it.quantity ?? 0
+        const unit = it.unitPrice ?? it.price ?? 0
+        const itemSubtotal = it.subtotal ?? unit * qty
+        return s + itemSubtotal
+      }, 0)
     },
     total () {
       return this.subtotal
@@ -139,6 +169,18 @@ export default {
     window.removeEventListener('storage', this.cargarCarrito)
   },
   methods: {
+    formatDate (value) {
+      if (!value) return ''
+      if (typeof value === 'string') {
+        return value
+      }
+      const d = new Date(value)
+      if (Number.isNaN(d.getTime())) return ''
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const year = d.getFullYear()
+      return `${day}/${month}/${year}`
+    },
     confirmarEliminacion (item) {
       this.confirmItem = item
       this.showModal = true
@@ -159,7 +201,7 @@ export default {
     },
     async checkout () {
       if (this.carrito.length === 0) {
-        this.error = 'You cannot proceed to checkout because your cart is empty.'
+        this.error = 'No puedes continuar con el pago porque tu carrito está vacío.'
         this.mensaje = ''
         return
       }
@@ -174,11 +216,11 @@ export default {
           paymentMethod: 'efectivo',
           notes: ''
         })
-        this.mensaje = 'Order successfully created!'
+        this.mensaje = '¡Tu orden se creó correctamente!'
         this.carrito = []
         localStorage.removeItem('carrito')
       } catch (err) {
-        this.error = err.response?.data?.message || 'Error while creating the order'
+        this.error = err.response?.data?.message || 'Ocurrió un error al crear la orden'
       }
     }
   }
@@ -487,6 +529,27 @@ export default {
   color: #999;
 }
 
+.product-text {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+
+.movie-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.movie-cinema {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.movie-unit-price {
+  font-size: 0.85rem;
+  color: #d4a02b;
+}
+
 @media (max-width: 768px) {
   .cart-content-container {
     flex-direction: column;
@@ -540,17 +603,17 @@ export default {
   }
 
   .col-product span::before {
-    content: "Product: ";
+    content: "Película: ";
     font-weight: 600;
   }
 
   .col-price::before {
-    content: "Price: ";
+    content: "Fecha & Hora: ";
     font-weight: 600;
   }
 
   .col-quantity::before {
-    content: "Quantity: ";
+    content: "Boletos: ";
     font-weight: 600;
   }
 

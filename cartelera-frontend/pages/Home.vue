@@ -77,7 +77,13 @@
 
     <v-main>
       <!-- Primera Seccion-->
-      <div class="main-section">
+      <CinemaHero
+        title="Cartelera de SalamanYork"
+        slogan="Las mejores películas y estrenos disponibles ahora."
+        subtitle="Descubre estrenos, preventas y funciones especiales pensadas para cinéfilos como tú."
+      />
+
+      <!-- <div class="main-section">
         <div class="main-section-content">
           <div class="main-section-text">
             <h1 class="main-section-title">
@@ -93,7 +99,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Segunda Seccion-->
       <div class="top-picks-section">
@@ -170,6 +176,60 @@
         </div>
       </div>
 
+      <!-- Películas en preventa -->
+      <div
+        class="presale-section"
+        v-if="featuredMovies.length"
+      >
+        <div class="top-picks-section-header">
+          <h2>Preventas destacadas</h2>
+          <p class="top-picks-section-text">
+            Películas que llegarán muy pronto
+          </p>
+        </div>
+
+        <v-container class="px-0">
+          <v-row dense>
+            <v-col
+              v-for="movie in featuredMovies"
+              :key="'presale-' + movie.id"
+              cols="12"
+              sm="6"
+              md="3"
+            >
+              <div class="presale-card">
+                <v-img
+                  :src="movie.image"
+                  height="220"
+                  class="presale-card-image"
+                  contain
+                />
+                <div class="presale-card-body">
+                  <h3 class="presale-card-title">
+                    {{ movie.title }}
+                  </h3>
+                  <p class="presale-card-meta">
+                    {{ movie.genre }} · {{ movie.classification }}
+                  </p>
+                  <p
+                    v-if="movie.releaseDateText"
+                    class="presale-card-date"
+                  >
+                    Estreno: {{ movie.releaseDateText }}
+                  </p>
+                  <NuxtLink
+                    :to="`/product/${movie.id}`"
+                    class="presale-card-link"
+                  >
+                    Ver detalles
+                  </NuxtLink>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </div>
+
       <!-- Tercera Seccion-->
       <div class="new-arrivals-section">
         <div class="new-arrivals-main-furniture-container">
@@ -217,14 +277,16 @@
 <script>
 import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
-/* import CartModal from '~/components/CartModal.vue' */
+import CartModal from '~/components/CartModal.vue'
 import PageHeader from '~/components/PageHeader.vue'
+import CinemaHero from '~/components/CinemaHero.vue'
 
 export default {
   components: {
     PageHeader,
-    PageFooter/* ,
-    CartModal */
+    PageFooter,
+    CartModal,
+    CinemaHero
   },
   data () {
     return {
@@ -233,7 +295,10 @@ export default {
       productoSeleccionado: {},
       showCart: false,
 
-      movies: [
+      movies: [],
+      featuredMovies: []
+
+      /*movies: [
         { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A' },
         { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
         { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15' },
@@ -246,19 +311,52 @@ export default {
         { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15' },
         { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15' },
         { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15' }
-      ]
+      ]*/
     }
   },
   mounted () {
-    axios.get('http://localhost:5020/api/products')
+    axios.get('http://localhost:5020/api/movies')
       .then((res) => {
-        // Ordena las peliculas de estreno y deja las primeras tres
-        const todos = res.data
-        this.productos = todos.slice(-3).reverse()
+        const all = Array.isArray(res.data) ? res.data : []
+
+        const formatDate = (ts) => {
+          if (!ts) return ''
+          const d = new Date(ts)
+          if (Number.isNaN(d.getTime())) return ''
+          const day = String(d.getDate()).padStart(2, '0')
+          const month = String(d.getMonth() + 1).padStart(2, '0')
+          const year = d.getFullYear()
+          return `${day}/${month}/${year}`
+        }
+
+        const mapped = all.map(m => ({
+          id: m.id,
+          title: m.title,
+          genre: Array.isArray(m.genre) ? m.genre.join(', ') : (m.genre || ''),
+          classification: m.rating || 'B',
+          duration: m.duration ? `${m.duration} min` : '',
+          image: m.posterUrl || '',
+          backgroundImage: m.posterUrl || '',
+          language: m.language || 'Inglés',
+          format: m.format || 'Tradicional',
+          releaseDate: m.releaseDate || null,
+          releaseDateText: formatDate(m.releaseDate),
+          isBillboard: !!m.isBillboard
+        }))
+
+        // Mostrar películas en cartelera
+        this.movies = mapped
+          .filter(m => m.isBillboard)
+          .sort((a, b) => (b.releaseDate || 0) - (a.releaseDate || 0))
+        // Películas en preventa
+        this.featuredMovies = mapped
+          .filter(m => !m.isBillboard)
+          .sort((a, b) => (a.releaseDate || 0) - (b.releaseDate || 0))
+          .slice(0, 4)
       })
-      .catch(() => {
-        // Si hay error al cargar productos, dejamos la lista vacía (evita uso de console.error por linter)
-        this.productos = []
+      .catch((_err) => {
+        this.movies = []
+        this.featuredMovies = []
       })
   }
 }
@@ -763,6 +861,48 @@ export default {
     width: 100vw;
     max-width: 100vw;
     overflow-x: hidden;
+  }
+
+  .presale-section {
+    padding: 40px 80px 20px;
+  }
+
+  .presale-card {
+    background-color: #1d1d1f;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .presale-card-image {
+    object-fit: cover;
+  }
+
+  .presale-card-body {
+    padding: 12px 16px 16px;
+  }
+
+  .presale-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .presale-card-meta,
+  .presale-card-date {
+    font-size: 13px;
+    color: #cccccc;
+    margin-bottom: 4px;
+  }
+
+  .presale-card-link {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffcc00;
+    text-decoration: none;
   }
 
   /* Diseño responsive */

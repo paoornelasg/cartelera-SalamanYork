@@ -336,7 +336,7 @@
 </template>
 
 <script>
-// import axios from 'axios'
+import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
 // import ProductImage from '~/components/ProductImage.vue'
 import RoseSection from '~/components/RoseSection.vue'
@@ -351,20 +351,7 @@ export default {
   },
   data () {
     return {
-      movies: [
-        { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A', sinopsis: 'TRON: ARES sigue a un sofisticado Programa, Ares, que es enviado desde el mundo digital al mundo real en una peligrosa misión, marcando el primer encuentro de la humanidad con seres de Inteligencia Artificial.' },
-        { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15', sinopsis: 'Finney, ahora de 17 años, lucha con las secuelas de su cautiverio mientras su hermana comienza a recibir llamadas en sueños desde el teléfono negro y visiones inquietantes.' },
-        { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15', sinopsis: 'Por primera vez, Chainsaw Man llega a la gran pantalla en una épica aventura cargada de acción que continúa la exitosa serie de anime. Denji y Pochita se enfrentan a una guerra brutal entre demonios mientras una misteriosa chica llamada Reze cambia el rumbo de todo.' },
-        { id: 4, title: 'Cacería De Brujas', genre: 'Terror, Suspenso', duration: '2h 19min', image: 'https://statics.cinemex.com/movie_posters/czV5cp4B5CgKL0I-360x540.jpg', releaseDate: '2025-10-31', language: 'Inglés', format: 'Tradicional', classification: 'B-15', sinopsis: 'Una profesora universitaria enfrenta una acusación que destapa oscuros secretos del pasado y pone en riesgo su carrera y su vida personal.' },
-        { id: 5, title: 'A Pesar De Ti', genre: 'Comedia, Romance', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/njJOQEPIaJ0iJ7o-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B', sinopsis: 'Basada en el libro superventas, A PESAR DE TI presenta a Morgan Grant y su hija Clara en una historia de crecimiento y resiliencia tras una tragedia que revela traiciones familiares.' },
-        { id: 6, title: 'Springsteen: Música De Ninguna Parte', genre: 'Documental, Música', duration: '2h 0min', image: 'https://statics.cinemex.com/movie_posters/1w5od7S4ry9dZP2-360x540.jpg', releaseDate: '2025-11-01', language: 'Inglés', format: 'Tradicional', classification: 'B', sinopsis: 'Representación del proceso creativo de Bruce Springsteen detrás de su álbum Nebraska de 1982, junto a la E Street Band.' },
-        { id: 7, title: 'Good Boy: Confía En Su Instinto', genre: 'Terror, Suspenso', duration: '1h 12min', image: 'https://statics.cinemex.com/movie_posters/EUrNvNXmw8rUAhi-360x540.jpg', releaseDate: '2025-10-24', language: 'Inglés', format: 'Premium', classification: 'B', sinopsis: 'Un perro leal y su dueño se enfrentan a fuerzas sobrenaturales cuando fuerzas oscuras amenazan su hogar, y el valiente animal debe proteger a su familia.' },
-        { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Tradicional', classification: 'B', sinopsis: 'Dallas, una estudiante determinada, se cruza con Drayton, una estrella deportiva, y sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.' },
-        { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', releaseDate: '2025-10-31', language: 'Español', format: 'Tradicional', classification: 'B', sinopsis: 'Gabriel, un ángel guardián inepto, intercambia la vida de un joven con la de un adinerado, demostrando que la fortuna no arregla todos los problemas.' },
-        { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15', sinopsis: 'Una recién llegada a una escuela católica se une a un trío de adolescentes que practican brujería y enfrentan las consecuencias de sus hechizos.' },
-        { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15', sinopsis: 'Carla, en su empeño por ganar seguidores, finge apariciones en un edificio embrujado y termina invocando una entidad real que se apodera de su vida.' },
-        { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15', sinopsis: 'Una reportera se infiltra en un culto y presencia rituales prohibidos que desatan horrores cuando los fieles ofrecen sacrificios humanos.' }
-      ],
+      movies: [],
 
       genre: 'Todos',
       language: 'Todos',
@@ -377,9 +364,18 @@ export default {
 
       page: 1,
       itemsPerPage: 12,
+      sortOption: 'Título (A-Z)',
+      sortItems: [
+        'Título (A-Z)',
+        'Título (Z-A)',
+        'Fecha (más reciente)',
+        'Fecha (más antigua)'
+      ],
+
       drawerFilters: false,
-      sortOption: 'Default',
-      sortItems: ['Default', 'Título (A-Z)', 'Título (Z-A)', 'Fecha (más reciente)', 'Fecha (más antigua)']
+
+      loading: false,
+      error: null
     }
   },
 
@@ -454,9 +450,39 @@ export default {
   },
 
   mounted () {
+    this.fetchMovies()
   },
 
   methods: {
+    async fetchMovies () {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await axios.get('http://localhost:5020/api/movies')
+        const data = Array.isArray(response.data) ? response.data : []
+
+        this.movies = data.map(movie => ({
+          id: movie.id,
+          title: movie.title,
+          genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || ''),
+          classification: movie.rating || 'B',
+          duration: movie.duration ? `${movie.duration} min` : '',
+          image: movie.posterUrl || '',
+          backgroundImage: movie.posterUrl || '',
+          language: movie.language || 'Inglés',
+          format: movie.format || 'Tradicional',
+          sinopsis: movie.synopsis || '',
+          releaseDate: movie.releaseDate || null
+        }))
+      } catch (err) {
+        console.error('Error al llamar /api/movies', err?.response?.data || err.message)
+        this.error = 'Error al cargar las películas'
+        this.showAlert('Error al cargar las películas', 'error')
+      } finally {
+        this.loading = false
+      }
+    },
+
     changePage (page) {
       this.page = page
       window.scrollTo({ top: 0, behavior: 'smooth' })

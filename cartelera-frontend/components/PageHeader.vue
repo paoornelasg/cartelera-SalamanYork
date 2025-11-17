@@ -27,7 +27,7 @@
       </div>
 
       <div class="header-icons-container">
-        <v-btn icon link to="/ultimateLogin">
+        <v-btn icon @click="openAccountModal">
           <v-icon color="white">
             mdi-account-alert-outline
           </v-icon>
@@ -52,6 +52,58 @@
 
     <CartModal :is-open="showCart" @update:isOpen="showCart = $event" />
 
+    <!-- Modal de cuenta -->
+    <v-dialog
+      v-model="showAccountModal"
+      max-width="400"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="headline">
+          Mi cuenta
+        </v-card-title>
+        <v-card-text>
+          <div v-if="isAuthenticated">
+            <p class="mb-2">
+              Has iniciado sesión como:
+            </p>
+            <p class="font-weight-medium">
+              {{ userName }}
+            </p>
+            <p v-if="userEmail" class="text--secondary">
+              {{ userEmail }}
+            </p>
+          </div>
+          <div v-else>
+            <p class="mb-4">
+              Aún no has iniciado sesión.
+            </p>
+            <p class="text--secondary">
+              Inicia sesión para administrar tu cuenta y tus compras.
+            </p>
+          </div>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <template v-if="isAuthenticated">
+            <v-btn text @click="closeAccountModal">
+              Cerrar
+            </v-btn>
+            <v-btn color="red darken-1" text @click="logout">
+              Cerrar sesión
+            </v-btn>
+          </template>
+          <template v-else>
+            <v-btn text @click="closeAccountModal">
+              Cerrar
+            </v-btn>
+            <v-btn color="primary" text @click="goToLogin">
+              Iniciar sesión
+            </v-btn>
+          </template>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-navigation-drawer v-model="drawer" temporary app right>
       <v-list>
         <v-list-item link to="/Home">
@@ -72,6 +124,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import CartModal from '~/components/CartModal.vue'
 
 export default {
@@ -82,7 +135,85 @@ export default {
   data () {
     return {
       showCart: false,
-      drawer: false
+      drawer: false,
+      showAccountModal: false,
+      isClient: false   
+    }
+  },
+  mounted () {
+    this.isClient = true
+  },
+  computed: {
+    isAuthenticated () {
+      if (!this.isClient || typeof window === 'undefined') return false
+
+      const token = window.localStorage.getItem('token')
+      return !!token
+    },
+    userData () {
+      if (!this.isClient || typeof window === 'undefined') return null
+
+      const raw = window.localStorage.getItem('user')
+      if (!raw) return null
+      try {
+        return JSON.parse(raw)
+      } catch (e) {
+        return null
+      }
+    },
+    userName () {
+      return this.userData?.usuario || this.userData?.name || ''
+    },
+    userEmail () {
+      return this.userData?.email || ''
+    }
+  },
+  methods: {
+    openAccountModal () {
+      this.showAccountModal = true
+    },
+    closeAccountModal () {
+      this.showAccountModal = false
+    },
+    goToLogin () {
+      this.showAccountModal = false
+      this.$router.push('/')
+    },
+    async logout () {
+      try {
+        let token = null
+        if (typeof window !== 'undefined') {
+          token = window.localStorage.getItem('token')
+        }
+
+        if (token) {
+          await axios.post('http://localhost:5020/api/auth/logout', null, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+        }
+
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('token')
+          window.localStorage.removeItem('user')
+          window.localStorage.removeItem('rol')
+        }
+
+        this.showAccountModal = false
+        this.$router.push('/')
+      } catch (err) {
+        console.error('Error al cerrar sesión:', err.response?.data || err.message)
+
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('token')
+          window.localStorage.removeItem('user')
+          window.localStorage.removeItem('rol')
+        }
+
+        this.showAccountModal = false
+        this.$router.push('/ultimateLogin')
+      }
     }
   }
 }

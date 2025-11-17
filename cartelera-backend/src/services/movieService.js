@@ -27,11 +27,39 @@ export default class MovieService {
 
         const duration = data.duration ? Number(data.duration) : 0
 
-        const releaseDate = data.releaseDate ? Number(data.releaseDate) : null
+        let genre = []
+        if (Array.isArray(data.genre)) {
+            genre = data.genre
+        } else if (typeof data.genre === 'string') {
+            genre = data.genre
+                .split(',')
+                .map(g => g.trim())
+                .filter(Boolean)
+        }
+
+        let actors = []
+        if (Array.isArray(data.actors)) {
+            actors = data.actors
+        } else if (typeof data.actors === 'string') {
+            actors = data.actors
+            .split(',')
+            .map(a => a.trim())
+            .filter(Boolean)
+        }
+
+        let releaseDate = null
+        if (data.releaseDate) {
+            const d = new Date(data.releaseDate)
+            if (!isNaN(d.getTime())) {
+                releaseDate = d.getTime()
+            }
+        }
 
         const newMovie = new Movie({
             id,
             ...data,
+            genre,
+            actors,
             duration,
             releaseDate,
             posterUrl,
@@ -57,7 +85,32 @@ export default class MovieService {
         }
 
         if (data.releaseDate !== undefined && data.releaseDate !== null) {
-            data.releaseDate = Number(data.releaseDate)
+            const d = new Date(data.releaseDate)
+            if (!isNaN(d.getTime())) {
+                data.releaseDate = d.getTime()
+            } else {
+                delete data.releaseDate
+            }
+        }
+
+        if (data.genre !== undefined) {
+            if (Array.isArray(data.genre)) {
+            } else if (typeof data.genre === 'string') {
+                data.genre = data.genre
+                    .split(',')
+                    .map(g => g.trim())
+                    .filter(Boolean)
+            }
+        }
+
+        if (data.actors !== undefined) {
+            if (Array.isArray(data.actors)) {
+            } else if (typeof data.actors === 'string') {
+                data.actors = data.actors
+                    .split(',')
+                    .map(a => a.trim())
+                    .filter(Boolean)
+            }
         }
 
         return await this.movieRepository.update(id, {
