@@ -6,7 +6,9 @@
       <section class="account-page">
         <div class="account-grid">
           <div class="panel">
-            <h2 class="section-title">Iniciar sesión</h2>
+            <h2 class="section-title">
+              Iniciar sesión
+            </h2>
             <p class="section-desc">
               Accede para comprar tus boletos, ver horarios, revisar tus compras y guardar tus películas favoritas.
             </p>
@@ -33,7 +35,7 @@
               <div class="row-opts">
                 <label class="remember-label">
                   <input v-model="recordar" type="checkbox">
-                  <span class="custom-checkbox"></span>
+                  <span class="custom-checkbox" />
                   <span>Recordarme</span>
                 </label>
 
@@ -44,12 +46,16 @@
                 Iniciar sesión
               </button>
 
-              <p v-if="error" class="msg-error">{{ error }}</p>
+              <p v-if="error" class="msg-error">
+                {{ error }}
+              </p>
             </form>
           </div>
 
           <div class="panel">
-            <h2 class="section-title">Registrarse</h2>
+            <h2 class="section-title">
+              Registrarse
+            </h2>
 
             <form class="form-styled" @submit.prevent="registrar">
               <label class="field-label">Correo electrónico</label>
@@ -72,8 +78,12 @@
                 Registrarse
               </button>
 
-              <p v-if="registroMensaje" class="msg-ok">{{ registroMensaje }}</p>
-              <p v-if="errorRegistro" class="msg-error">{{ errorRegistro }}</p>
+              <p v-if="registroMensaje" class="msg-ok">
+                {{ registroMensaje }}
+              </p>
+              <p v-if="errorRegistro" class="msg-error">
+                {{ errorRegistro }}
+              </p>
             </form>
           </div>
         </div>
@@ -81,8 +91,12 @@
 
       <v-dialog v-model="showCompleteModal" max-width="400">
         <v-card class="pa-4 text-center">
-          <v-icon color="green" size="48">mdi-check-circle</v-icon>
-          <h3 class="mt-3">Registro enviado</h3>
+          <v-icon color="green" size="48">
+            mdi-check-circle
+          </v-icon>
+          <h3 class="mt-3">
+            Registro enviado
+          </h3>
           <p class="text--secondary mt-2">
             Da clic en el botón para completar tu registro.
           </p>
@@ -94,20 +108,49 @@
 
       <v-dialog v-model="showPasswordModal" max-width="420">
         <v-card class="pa-4">
-          <h3 class="mb-2 text-center">Completar registro</h3>
+          <h3 class="mb-2 text-center">
+            Completar registro
+          </h3>
           <p class="text--secondary mb-4 text-center">
             Define una contraseña para la cuenta <strong>{{ tempEmail }}</strong>
           </p>
 
-          <v-text-field v-model="newPassword" label="Nueva contraseña" type="password" outlined dense/>
-          <v-text-field v-model="confirmPassword" label="Confirmar contraseña" type="password" outlined dense/>
-          <p v-if="completeError" class="msg-error">{{ completeError }}</p>
+          <v-text-field v-model="newPassword" label="Nueva contraseña" type="password" outlined dense />
+          <v-text-field v-model="confirmPassword" label="Confirmar contraseña" type="password" outlined dense />
+          <p v-if="completeError" class="msg-error">
+            {{ completeError }}
+          </p>
 
           <div class="text-right mt-4">
-            <v-btn color="black" dark @click="submitPassword">Enviar</v-btn>
+            <v-btn color="black" dark @click="submitPassword">
+              Enviar
+            </v-btn>
           </div>
         </v-card>
       </v-dialog>
+
+      <!-- 🔔 ALERTA GLOBAL CORREGIDA -->
+      <v-snackbar
+        v-model="alertaVisible"
+        :color="alertaColor"
+        top
+        right
+        :timeout="3000"
+        rounded="pill"
+      >
+        {{ alerta }}
+
+        <template #action="{ attrs }">
+          <v-btn
+            text
+            icon
+            v-bind="attrs"
+            @click="alertaVisible = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
 
       <RoseSection />
       <PageFooter />
@@ -144,6 +187,9 @@ export default {
       tempEmail: '',
       newPassword: '',
       confirmPassword: '',
+      alerta: '',
+      alertaColor: '',
+      alertaVisible: false,
       completeError: ''
     }
   },
@@ -157,26 +203,36 @@ export default {
           password: this.password,
           rememberMe: this.recordar
         })
+
         localStorage.setItem('token', res.data.token)
         localStorage.setItem('user', JSON.stringify(res.data.user))
-        this.$router.push('/shop')
+
+        this.mostrarAlerta('Inicio de sesión exitoso ✨', 'success')
+
+        setTimeout(() => {
+          this.$router.push('/shop')
+        }, 1000)
       } catch (err) {
-        this.error = err.response?.data?.message || 'Error al iniciar sesión'
+        const msg = err.response?.data?.message || 'Error al iniciar sesión'
+        this.mostrarAlerta(msg, 'error')
       }
     },
 
     async registrar () {
       this.registroMensaje = ''
       this.errorRegistro = ''
+
       try {
         this.tempEmail = this.nuevoCorreo
         await axios.post('http://localhost:5020/api/auth/register', {
           email: this.nuevoCorreo
         })
+
         this.showCompleteModal = true
-        this.registroMensaje = 'Hemos enviado un enlace a tu correo.'
+        this.mostrarAlerta('Registro enviado a tu correo ✨', 'success')
       } catch (err) {
-        this.errorRegistro = err.response?.data?.message || 'No se pudo registrar'
+        const msg = err.response?.data?.message || 'No se pudo registrar'
+        this.mostrarAlerta(msg, 'error')
       }
     },
 
@@ -185,25 +241,48 @@ export default {
       this.showPasswordModal = true
     },
 
+    mostrarAlerta (mensaje, tipo = 'info') {
+      this.alerta = mensaje
+
+      // Asignar colores correctos según el tipo
+      if (tipo === 'error') {
+        this.alertaColor = 'red darken-2'
+      } else if (tipo === 'success') {
+        this.alertaColor = 'green darken-1'
+      } else if (tipo === 'warning') {
+        this.alertaColor = 'orange darken-2'
+      } else {
+        this.alertaColor = 'blue darken-1'
+      }
+
+      this.alertaVisible = true
+    },
+
     async submitPassword () {
       if (this.newPassword !== this.confirmPassword) {
         this.completeError = 'Las contraseñas no coinciden'
+        this.mostrarAlerta('Las contraseñas no coinciden ❌', 'error')
         return
       }
+
       try {
         const res = await axios.post('http://localhost:5020/api/auth/complete-register', {
           email: this.tempEmail,
           password: this.newPassword
         })
+
         localStorage.setItem('user', JSON.stringify(res.data))
+
         this.showPasswordModal = false
-        this.nuevoCorreo = ''
+
         this.newPassword = ''
         this.confirmPassword = ''
         this.completeError = ''
-        alert('¡Registro completado! Ya puedes iniciar sesión.')
+
+        this.mostrarAlerta('Registro completado 🎉 Ahora puedes iniciar sesión.', 'success')
       } catch (err) {
-        this.completeError = err.response?.data?.message || 'Error al completar el registro'
+        const msg = err.response?.data?.message || 'Error al completar el registro'
+        this.mostrarAlerta(msg, 'error')
       }
     }
   }

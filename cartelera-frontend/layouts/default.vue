@@ -80,4 +80,21 @@ html, body, #__nuxt, #__layout, .v-application, .v-main {
   padding-right: 0 !important;
 }
 
+.v-carousel {
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.v-carousel .v-window__container {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.v-carousel__item {
+  width: 100vw !important;
+}
+
 </style>

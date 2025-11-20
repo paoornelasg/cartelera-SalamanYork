@@ -1,3 +1,6 @@
+<!-- eslint-disable block-spacing -->
+<!-- eslint-disable block-spacing -->
+<!-- eslint-disable block-spacing -->
 <template>
   <v-app>
     <v-main>
@@ -92,7 +95,7 @@
         </div>
 
         <div class="cart-content-right">
-          <h3>Reusmen de compra</h3>
+          <h3>Resumen de compra</h3>
 
           <div class="cart-contents">
             <p>
@@ -170,11 +173,13 @@ export default {
   },
   methods: {
     formatDate (value) {
-      if (!value) return ''
+      // eslint-disable-next-line block-spacing
+      if (!value) {return ''}
       if (typeof value === 'string') {
         return value
       }
       const d = new Date(value)
+      // eslint-disable-next-line curly
       if (Number.isNaN(d.getTime())) return ''
       const day = String(d.getDate()).padStart(2, '0')
       const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -248,7 +253,7 @@ export default {
 .cart-content-left-header {
   display: flex;
   align-items: center;
-  background: #fff4d1;
+  background: #2c2c2c;
   padding: 4px 0;
   gap: 20px;
 }
@@ -263,7 +268,7 @@ export default {
   justify-content: center;
   font-weight: 600;
   font-size: 1rem;
-  color: #444;
+  color: white;
 }
 
 .cart-content-left-header p {
@@ -286,16 +291,15 @@ export default {
   flex: 1;
   text-align: center;
   margin: 0;
-  color: #666;
 }
 
 .price {
-  color: #d4a02b;
+  color: white;
   font-weight: 600;
 }
 
 .cart-content-right {
-  background: #fff4d1;
+  background: #2c2c2c;
   width: 300px;
   padding: 2rem 1.5rem;
   display: flex;
@@ -308,6 +312,7 @@ export default {
   margin: 0 0 1rem 0;
   font-weight: 700;
   font-size: 1.5rem;
+  color: white;
 }
 
 .cart-contents {
@@ -319,11 +324,13 @@ export default {
   justify-content: space-between;
   margin: 0.3rem 0;
   font-size: 1rem;
+  color: white;
 }
 
 .cart-contents p:first-of-type .price {
   font-size: 0.8rem;
-  color: #666666;
+  color: white;
+  opacity: 0.5;
   font-weight: 400;
 }
 
@@ -333,13 +340,14 @@ export default {
   font-size: 1rem;
   border: 1px solid #111;
   border-radius: 15px;
-  background: transparent;
+  background: white;
   cursor: pointer;
+  transition: background 0.25s, transform 0.15s;
 }
 
 .checkout-button:hover {
-  background: #e8e6e6;
-  transition: 0.2s;
+  background: #f3f3f3;
+  transform: translateY(-2px);
 }
 
 .ok-msg { color: #2a952a; margin-top: 0.5rem; }
@@ -460,6 +468,7 @@ export default {
 .col-price {
   width: 15%;
   text-align: center;
+  color: white;
 }
 
 .col-quantity {
@@ -479,7 +488,6 @@ export default {
 
 .col-price,
 .col-subtotal {
-  color: #444;
   font-weight: 600;
 }
 
@@ -495,7 +503,7 @@ export default {
 .col-product { width: 30%; display: flex; align-items: center; gap: 10px; }
 .col-price { width: 15%; text-align: center; font-weight: 600; }
 .col-quantity { width: 15%; text-align: center; }
-.col-subtotal { width: 20%; text-align: center; font-weight: 600; color: #444; }
+.col-subtotal { width: 20%; text-align: center; font-weight: 600; }
 .col-delete { width: 10%; text-align: center; }
 
 .col-product img {
@@ -590,6 +598,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: white;
   }
 
   .col-product {

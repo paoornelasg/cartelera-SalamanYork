@@ -5,7 +5,9 @@
         {{ title }}
       </h1>
       <div class="breadcrumb">
-        <NuxtLink to="/cartelera">Cartelera</NuxtLink>
+        <NuxtLink to="/cartelera">
+          Cartelera
+        </NuxtLink>
         <span>›</span>
         <span class="current">{{ title }}</span>
       </div>
@@ -44,7 +46,7 @@ export default {
 /*   border: 1px solid cadetblue; */
   background-color: #f4f4f4;
   background-image: url('../public/images/HeaderImage.png');
-  opacity: 0.7;
+  opacity: 1;
   height: 420px;
   background: url('../public/images/HeaderImage.png') center/cover no-repeat;
 }

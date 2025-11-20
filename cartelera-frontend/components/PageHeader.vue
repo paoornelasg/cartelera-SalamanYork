@@ -137,24 +137,21 @@ export default {
       showCart: false,
       drawer: false,
       showAccountModal: false,
-      isClient: false   
+      isClient: false
     }
-  },
-  mounted () {
-    this.isClient = true
   },
   computed: {
     isAuthenticated () {
-      if (!this.isClient || typeof window === 'undefined') return false
+      if (!this.isClient || typeof window === 'undefined') { return false }
 
       const token = window.localStorage.getItem('token')
       return !!token
     },
     userData () {
-      if (!this.isClient || typeof window === 'undefined') return null
+      if (!this.isClient || typeof window === 'undefined') { return null }
 
       const raw = window.localStorage.getItem('user')
-      if (!raw) return null
+      if (!raw) { return null }
       try {
         return JSON.parse(raw)
       } catch (e) {
@@ -167,6 +164,9 @@ export default {
     userEmail () {
       return this.userData?.email || ''
     }
+  },
+  mounted () {
+    this.isClient = true
   },
   methods: {
     openAccountModal () {
@@ -203,6 +203,7 @@ export default {
         this.showAccountModal = false
         this.$router.push('/')
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Error al cerrar sesión:', err.response?.data || err.message)
 
         if (typeof window !== 'undefined') {

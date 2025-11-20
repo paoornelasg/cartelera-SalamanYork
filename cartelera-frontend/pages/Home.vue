@@ -104,7 +104,9 @@
       <!-- Segunda Seccion-->
       <div class="top-picks-section">
         <div class="top-picks-section-header">
-          <h2>Estrenos</h2>
+          <h2>
+            Estrenos
+          </h2>
           <p class="top-picks-section-text">
             Observa lo último en cartelera
           </p>
@@ -151,7 +153,7 @@
                         {{ movie.duration }}
                       </div>
                       <v-btn
-                        color="yellow"
+                        color="#db133b"
                         class="text-black mb-2"
                         size="large"
                         elevation="2"
@@ -178,11 +180,11 @@
 
       <!-- Películas en preventa -->
       <div
-        class="presale-section"
         v-if="featuredMovies.length"
+        class="presale-section"
       >
         <div class="top-picks-section-header">
-          <h2>Preventas destacadas</h2>
+          <h1>Preventas destacadas</h1>
           <p class="top-picks-section-text">
             Películas que llegarán muy pronto
           </p>
@@ -237,11 +239,12 @@
             <h1 class="main-section-title" style="text-align: center; white-space: nowrap; color: white;">
               Quiénes Somos
             </h1>
-            <h3>
+            <br>
+            <p>
               Vive una experiencia cinematográfica única: estrenos exclusivos, salas modernas y atención personalizada <br><br>Cada visita está pensada para que disfrutes el cine como nunca antes
-            </h3>
+            </p>
             <NuxtLink to="/about">
-              <button class="new-arrivals-section-button" style="color: white;">
+              <button class="new-arrivals-section-button">
                 Descúbrenos
               </button>
             </NuxtLink>
@@ -277,7 +280,7 @@
 <script>
 import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
-import CartModal from '~/components/CartModal.vue'
+/* import CartModal from '~/components/CartModal.vue' */
 import PageHeader from '~/components/PageHeader.vue'
 import CinemaHero from '~/components/CinemaHero.vue'
 
@@ -285,7 +288,7 @@ export default {
   components: {
     PageHeader,
     PageFooter,
-    CartModal,
+    /* CartModal, */
     CinemaHero
   },
   data () {
@@ -298,7 +301,7 @@ export default {
       movies: [],
       featuredMovies: []
 
-      /*movies: [
+      /* movies: [
         { id: 1, title: 'Tron: Ares', genre: 'Ciencia Ficción, Acción', duration: '2h 17min', image: 'https://statics.cinemex.com/movie_posters/4I2SJBNiirJV6Hi-360x540.jpg', releaseDate: '2025-10-10', language: 'Inglés', format: 'Premium', classification: 'A' },
         { id: 2, title: 'El Teléfono Negro 2', genre: 'Terror, Suspenso', duration: '1h 54min', image: 'https://statics.cinemex.com/movie_posters/ptdF3hn934zNJD3-360x540.jpg', releaseDate: '2025-10-17', language: 'Inglés', format: 'Tradicional', classification: 'B-15' },
         { id: 3, title: 'Chainsaw Man La Película: Arco de Reze', genre: 'Animación, Acción, Fantasía', duration: '1h 40min', image: 'https://statics.cinemex.com/movie_posters/UjGW90lTGlcnDEz-360x540.jpg', releaseDate: '2025-10-24', language: 'Japonés', format: '3D', classification: 'B-15' },
@@ -311,7 +314,7 @@ export default {
         { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', releaseDate: '1996-10-31', language: 'Inglés', format: '3D', classification: 'B-15' },
         { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', releaseDate: '2025-11-07', language: 'Español', format: 'Tradicional', classification: 'B-15' },
         { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', releaseDate: '2025-10-17', language: 'Español', format: 'Tradicional', classification: 'B-15' }
-      ]*/
+      ] */
     }
   },
   mounted () {
@@ -320,9 +323,9 @@ export default {
         const all = Array.isArray(res.data) ? res.data : []
 
         const formatDate = (ts) => {
-          if (!ts) return ''
+          if (!ts) { return '' }
           const d = new Date(ts)
-          if (Number.isNaN(d.getTime())) return ''
+          if (Number.isNaN(d.getTime())) { return '' }
           const day = String(d.getDate()).padStart(2, '0')
           const month = String(d.getMonth() + 1).padStart(2, '0')
           const year = d.getFullYear()
@@ -485,15 +488,6 @@ export default {
     background-color: #faf4f4;
   }
 
-  .top-picks-section {
-    height: 70vh;
-    width: 100%;
-    background-color: white;
-    padding: 2rem 1rem;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
-
   .blogs-section {
     height: auto;
     padding-bottom: 40px;
@@ -596,7 +590,7 @@ export default {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 40px 20px;
+    padding: 40px 0px;
     margin: 0;
     overflow: visible !important;
     height: auto !important;
@@ -605,10 +599,18 @@ export default {
 
   .top-picks-section h2 {
     font-weight: 500;
-    font-size: 2rem;
+    font-size: 3.5rem;
     color: black;
     text-align: center;
     margin-top: 20px;
+  }
+
+  .top-picks-section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
   }
 
   .top-picks-section-content {
@@ -715,16 +717,28 @@ export default {
   /*   border: 1px solid salmon; */
   }
 
-  .new-arrivals-section-button {
-    background-color: transparent;
-    border: 2px solid black;
-    color: black;
-    padding: 0.75rem 1.5rem;
-    cursor: pointer;
-    font-size: large;
-    font-weight: 500;
-    transition: all 0.3s ease-in-out;
-  }
+.new-arrivals-section-button {
+  border: 2px solid #000;
+  color: black;
+  background-color: white;
+  padding: 0.75rem 1.8rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: transform 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.new-arrivals-section-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 16px rgba(0,0,0,0.2);
+}
+
+.new-arrivals-section-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0px 3px 10px rgba(0,0,0,0.15);
+}
 
   .new-arrivals-section-button:hover {
     background-color: black;
@@ -901,7 +915,7 @@ export default {
   .presale-card-link {
     font-size: 13px;
     font-weight: 500;
-    color: #ffcc00;
+    color: #db133b;
     text-decoration: none;
   }
 

@@ -475,6 +475,7 @@ export default {
           releaseDate: movie.releaseDate || null
         }))
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Error al llamar /api/movies', err?.response?.data || err.message)
         this.error = 'Error al cargar las películas'
         this.showAlert('Error al cargar las películas', 'error')

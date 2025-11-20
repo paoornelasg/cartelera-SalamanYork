@@ -1,67 +1,67 @@
 <template>
-    <div class="cinema-hero" :style="backgroundStyle">
-        <div class="cinema-hero-overlay" />
+  <div class="cinema-hero" :style="backgroundStyle">
+    <div class="cinema-hero-overlay" />
 
-        <div class="cinema-hero-content">
-        <p class="cinema-hero-kicker">
-            Bienvenido a
-        </p>
+    <div class="cinema-hero-content">
+      <p class="cinema-hero-kicker">
+        Bienvenido a
+      </p>
 
-        <h1 class="cinema-hero-title">
-            {{ title }}
-        </h1>
+      <h1 class="cinema-hero-title">
+        {{ title }}
+      </h1>
 
-        <p class="cinema-hero-slogan">
-            {{ slogan }}
-        </p>
+      <p class="cinema-hero-slogan">
+        {{ slogan }}
+      </p>
 
-        <p v-if="subtitle" class="cinema-hero-subtitle">
-            {{ subtitle }}
-        </p>
+      <p v-if="subtitle" class="cinema-hero-subtitle">
+        {{ subtitle }}
+      </p>
 
-        <div class="cinema-hero-actions">
-            <NuxtLink to="/shop" class="cinema-hero-button-primary">
-            Ver cartelera
-            </NuxtLink>
-            <NuxtLink to="/about" class="cinema-hero-button-ghost">
-            Conoce el cine
-            </NuxtLink>
-        </div>
-        </div>
+      <div class="cinema-hero-actions">
+        <NuxtLink to="/shop" class="cinema-hero-button-primary">
+          Ver cartelera
+        </NuxtLink>
+        <NuxtLink to="/about" class="cinema-hero-button-ghost">
+          Conoce el cine
+        </NuxtLink>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'CinemaHero',
-    props: {
-        title: {
-        type: String,
-        default: 'Cartelera de SalamanYork'
-        },
-        slogan: {
-        type: String,
-        default: 'Las mejores películas y estrenos disponibles ahora.'
-        },
-        subtitle: {
-        type: String,
-        default: 'Estrenos, preventas y funciones especiales en un solo lugar.'
-        },
-        background: {
-        type: String,
-        default: () => '/portada.png'
-        }
+  name: 'CinemaHero',
+  props: {
+    title: {
+      type: String,
+      default: 'Cartelera de SalamanYork'
     },
-    computed: {
-        backgroundStyle () {
-        return {
-            backgroundImage: `
+    slogan: {
+      type: String,
+      default: 'Las mejores películas y estrenos disponibles ahora.'
+    },
+    subtitle: {
+      type: String,
+      default: 'Estrenos, preventas y funciones especiales en un solo lugar.'
+    },
+    background: {
+      type: String,
+      default: () => '/portada.png'
+    }
+  },
+  computed: {
+    backgroundStyle () {
+      return {
+        backgroundImage: `
             linear-gradient(120deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.9) 100%),
             url(${this.background})
             `
-        }
-        }
+      }
     }
+  }
 }
 </script>
 
