@@ -17,11 +17,7 @@ export default class MovieRepository {
     return { id, ...movie }
   }
 
-  // Eiminar película
-  async delete (id) {
-    await this.collection.doc(id).delete()
-    return { id, message: 'Película eliminada' }
-  }
+  
 
   // Obtener todas
   async getAll () {

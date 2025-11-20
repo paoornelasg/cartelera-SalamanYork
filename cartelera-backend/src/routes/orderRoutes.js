@@ -10,6 +10,16 @@ const orderRoutes = [
         path: '/cart/add',       
         handler: 'addToCart' 
     },
+    {
+        method: 'get',
+        path: '/shows/availability',
+        handler: 'getShowAvailability'
+    },
+    {
+        method: 'post', // Ruta para hacer limpieza manual de carritos expirados (postman)
+        path: '/cart/cleanup',
+        handler: 'cleanupExpiredCarts'
+    },
     { 
         method: 'get',    
         path: '/cart/user/:userId',  

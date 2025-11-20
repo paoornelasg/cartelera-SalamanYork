@@ -24,15 +24,6 @@ export default class MovieController {
     }
   }
 
-  async delete (req, res, next) {
-    try {
-      const { id } = req.params
-      const result = await this.movieService.delete(id)
-      res.json(result)
-    } catch (error) {
-      next(error)
-    }
-  }
 
   async getAll (req, res, next) {
     try {

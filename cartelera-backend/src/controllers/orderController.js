@@ -14,6 +14,19 @@ export default class OrderController {
         }
     }
 
+    async getShowAvailability (req, res, next) {
+        try {
+            const { movieId, cinema, showDate, showTime } = req.query
+            if (!movieId || !cinema || !showDate || !showTime) {
+                return res.status(400).json({ message: 'Missing query parameters' })
+            }
+            const result = await this.orderService.getShowAvailability(movieId, cinema, Number(showDate), showTime)
+            res.json(result)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
     async getCart (req, res, next) {
         try {
             const userId = req.params.userId || req.user?.id
@@ -28,6 +41,16 @@ export default class OrderController {
         try {
             const { id } = req.params
             const result = await this.orderService.updateItem(id, req.body)
+            res.json(result)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
+    async cleanupExpiredCarts (req, res, next) {
+        try {
+            const { dryRun, limit } = req.body || {}
+            const result = await this.orderService.cleanupExpiredCarts({ dryRun: Boolean(dryRun), limit: limit ? Number(limit) : undefined })
             res.json(result)
         } catch (e) {
             res.status(e.statusCode || 500).json({ message: e.message })
