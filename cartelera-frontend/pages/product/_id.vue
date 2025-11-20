@@ -76,6 +76,7 @@
                   color="blue"
                   x-large
                   class="mr-4 px-8"
+                  @click="openTicketModal"
                 >
                   Comprar boletos
                 </v-btn>
@@ -195,6 +196,181 @@
       </v-dialog>
 
       <v-dialog
+        v-model="showTicketModal"
+        width="90%"
+        max-width="1100px"
+        content-class="movie-details-dialog"
+      >
+        <v-card>
+          <v-toolbar
+            dense
+            flat
+            color="#db133b"
+            dark
+          >
+            <v-toolbar-title class="text-h6 font-weight-bold">
+              Comprar boletos — {{ movie ? movie.title : '' }}
+            </v-toolbar-title>
+            <v-spacer />
+            <v-btn text @click="showTicketModal = false">
+              Cerrar
+              <v-icon right>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </v-toolbar>
+
+          <v-card-text class="px-6 pt-6 pb-2">
+            <v-row>
+              <v-col
+                cols="12"
+                md="4"
+                class="text-center"
+              >
+                <v-img
+                  v-if="movie"
+                  :src="movie.image"
+                  aspect-ratio="2/3"
+                  class="mb-4"
+                />
+                <div v-if="movie">
+                  <h3 class="info-title">
+                    CLASIFICACIÓN
+                  </h3>
+                  <p class="info-name">
+                    {{ movie.classification }}
+                  </p>
+
+                  <h3 class="info-title">
+                    DURACIÓN
+                  </h3>
+                  <p class="info-name">
+                    {{ movie.duration }}
+                  </p>
+                </div>
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="8"
+              >
+                <h3 class="info-title">
+                  SELECCIONA TU FUNCIÓN
+                </h3>
+
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <div class="mb-2 font-weight-medium">
+                      Tipo de sala
+                    </div>
+                    <v-radio-group
+                      v-model="selectedCinema"
+                      row
+                      @change="onCinemaChange"
+                    >
+                      <v-radio label="VIP" value="VIP" />
+                      <v-radio label="Normal" value="Normal" />
+                    </v-radio-group>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <div class="mb-2 font-weight-medium">
+                      Formato
+                    </div>
+                    <v-radio-group
+                      v-model="selectedFormat"
+                      row
+                    >
+                      <v-radio label="2D" value="2D" />
+                      <v-radio label="3D" value="3D" />
+                    </v-radio-group>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-menu
+                      ref="menu"
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template #activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedDateFormatted"
+                          label="Fecha"
+                          readonly
+                          v-bind="attrs"
+                          outlined
+                          dense
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="selectedDate"
+                        :min="minDate"
+                        :max="maxDate"
+                        @input="menu = false"
+                      />
+                    </v-menu>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-select
+                      v-model="selectedTime"
+                      :items="timeOptions"
+                      label="Hora"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model.number="ticketQty"
+                      label="Cantidad"
+                      type="number"
+                      min="1"
+                      :max="availableSeats"
+                      outlined
+                      dense
+                    />
+                    <div
+                      v-if="availableSeats !== null"
+                      class="mt-2 text-caption"
+                    >
+                      Disponibles: {{ availableSeats }}
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      label="Precio unitario"
+                      :value="formatPrice(ticketUnitPrice)"
+                      readonly
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-card-actions class="px-6 pb-4">
+            <v-spacer />
+            <v-btn text @click="showTicketModal = false">
+              Cancelar
+            </v-btn>
+            <v-btn color="#db133b" dark @click="submitTicketOrder">
+              Añadir al carrito
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog
         v-model="showWarningModal"
         width="300"
         persistent
@@ -207,10 +383,10 @@
             mdi-alert-circle
           </v-icon>
           <h3 class="mt-3">
-            Missing Selection
+            Selección incompleta
           </h3>
           <p class="text--secondary mt-2">
-            Please select a size and color before adding the product to the cart.
+            Por favor completa todos los campos requeridos antes de continuar.
           </p>
           <v-btn
             color="black"
@@ -218,7 +394,7 @@
             dark
             @click="showWarningModal = false"
           >
-            Got it
+            Entendido
           </v-btn>
         </v-card>
       </v-dialog>
@@ -549,14 +725,6 @@ import PageFooter from '~/components/PageFooter.vue'
 
 const MOVIES_API = 'http://localhost:5020/api/movies'
 
-/* const allMovies = [
-  { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', sinopsis: 'Dallas, una estudiante determinada que sueña con entrar a la mejor escuela de danza del país, se cruza con Drayton, el mariscal de campo estrella que duda sobre su futuro. La química entre ellos es innegable, pero sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.', director: { name: 'Justin Wu' }, actors: [{ name: 'Siena Agudong' }, { name: 'Noah Beck' }, { name: 'Drew Ray Tanner' }], trailerUrl: 'https://www.youtube.com/embed/-3itEzH1-EI' },
-  { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', sinopsis: 'Cuando Gabriel (Keanu Reeves) un ángel guardián bien intencionado pero inepto interviene en la vida Arj (Aziz Ansari) -un desempleado que vive en su coche- intercambiando su vida con la del adinerado Jeff (Seth Rogen) descubre que la buena fortuna trae problemas en esta comedia social de enredos celestiales y tacos al pastor.​​ Gabriel desea demostrarle a Arj que la riqueza no arregla todos sus problemas…¿o sí?', director: { name: 'Aziz Ansari' }, actors: [{ name: 'Seth Rogen' }, { name: 'Sandra Oh' }, { name: 'Keanu Reeves' }], trailerUrl: 'https://www.youtube.com/embed/EuRwBSnO_wA' },
-  { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', classification: 'B-15', format: '3D', language: 'Inglés', releaseDate: '1996-10-31', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', sinopsis: 'Una recién llegada a una escuela católica entabla relación con un trío de adolescentes marginadas que practican brujería y evocan hechizos y maldiciones contra quienes las enfadan.', director: { name: 'Andrew Fleming' }, actors: [{ name: 'Robin Tunney' }, { name: 'Fairuza Balk' }, { name: 'Neve Campbell' }], trailerUrl: 'https://www.youtube.com/embed/SxEqB--5ToI' },
-  { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-11-07', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', sinopsis: 'Carla, una joven desesperada por pertenecer socialmente, intenta destacar en el mundo digital. Para aumentar sus seguidores, se muda a un famoso edificio embrujado. Comienza a fingir apariciones fantasmales, pero pronto invoca una verdadera entidad maligna que se apodera de su vida hasta que nadie sabrá distinguir entre lo real y lo falso.', director: { name: 'Ximena García Lecuona' }, actors: [{ name: 'Yankel Stevan' }, { name: ' Karla Coronado' }, { name: 'Julia Maqueo' }], trailerUrl: 'https://www.youtube.com/embed/SFYeLyqis_o' },
-  { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', sinopsis: 'La joven reportera Si-kyung se infiltra en un culto religioso secreto. Lo que comienza como una investigación encubierta pronto se convierte en una pesadilla indescriptible, cuando es invitada a presenciar un ritual prohibido en el que cada miembro pide un deseo y ofrece un sacrificio. Uno a uno, los fieles narran la aterradora historia de cómo lo consiguieron… cada relato es más escalofriante y sangriento que el anterior. Cuando llega el turno de Si-kyung, descubre con horror que todos los sacrificios deben ser partes del cuerpo humano. Esas ofrendas no son simples pruebas de fe, sino piezas de un plan macabro: dar vida a una entidad ancestral, un ser que aguarda en las sombras para reclamar la carne y el alma de todos los presentes. El ritual ha comenzado… y con él, el despertar del mal absoluto.', director: { name: 'Won-kyung Choe' }, actors: [{ name: 'Kim Chae-eun' }, { name: 'Kim Min-seok' }, { name: 'Kwon Ah Reum' }], trailerUrl: 'https://www.youtube.com/embed/pC5NSEsMNb8' }
-] */
-
 export default {
   components: {
     AppHeader,
@@ -567,6 +735,17 @@ export default {
       movie: null,
       isAdmin: false,
       relatedProducts: [],
+      showTicketModal: false,
+      selectedCinema: '',
+      selectedFormat: '',
+      selectedDate: null,
+      selectedDateFormatted: '',
+      menu: false,
+      selectedTime: '',
+      timeOptions: ['11:00', '14:00', '16:00', '18:00', '20:00'],
+      ticketQty: 1,
+      availableSeats: null,
+      ticketUnitPrice: 0,
       showSuccessModal: false,
       showWarningModal: false,
       showProductModal: false,
@@ -595,17 +774,17 @@ export default {
     videoSrc () {
       if (this.movie && this.movie.trailerUrl && this.showTrailerModal) {
         const base = this.movie.trailerUrl
-        if (base.includes('?')) return base + '&autoplay=1'
+        if (base.includes('?')) { return base + '&autoplay=1' }
         return base + '?autoplay=1'
       }
       return ''
     },
     releaseDateText () {
-      if (!this.movie || !this.movie.releaseDate) return ''
+      if (!this.movie || !this.movie.releaseDate) { return '' }
       const ts = typeof this.movie.releaseDate === 'number'
         ? this.movie.releaseDate
         : Number(this.movie.releaseDate)
-      if (!ts) return ''
+      if (!ts) { return '' }
       const d = new Date(ts)
       const day = String(d.getDate()).padStart(2, '0')
       const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -613,14 +792,51 @@ export default {
       return `${day}/${month}/${year}`
     },
     genreText () {
-      if (!this.movie || !this.movie.genre) return ''
-      if (Array.isArray(this.movie.genre)) return this.movie.genre.join(', ')
+      if (!this.movie || !this.movie.genre) { return '' }
+      if (Array.isArray(this.movie.genre)) { return this.movie.genre.join(', ') }
       return this.movie.genre
     },
     actorsText () {
-      if (!this.movie || !this.movie.actors) return ''
-      if (Array.isArray(this.movie.actors)) return this.movie.actors.join(', ')
+      if (!this.movie || !this.movie.actors) { return '' }
+      if (Array.isArray(this.movie.actors)) { return this.movie.actors.join(', ') }
       return this.movie.actors
+    },
+    minDate () {
+      const d = new Date()
+      return d.toISOString().substring(0, 10)
+    },
+    maxDate () {
+      const d = new Date()
+      d.setDate(d.getDate() + 6)
+      return d.toISOString().substring(0, 10)
+    }
+  },
+  watch: {
+    selectedCinema (newVal) {
+      this.ticketUnitPrice = newVal === 'VIP' ? 200 : 100
+      this.fetchAvailability()
+    },
+    selectedDate: {
+      handler () {
+        this.updateSelectedDateFormatted()
+        this.fetchAvailability()
+      }
+    },
+    selectedTime () {
+      this.fetchAvailability()
+    },
+    selectedFormat () {
+      this.fetchAvailability()
+    },
+    ticketQty (newVal) {
+      if (newVal > 50) {
+        this.ticketQty = 50
+      } else if (newVal < 1) {
+        this.ticketQty = 1
+      }
+      if (this.availableSeats !== null && this.ticketQty > this.availableSeats) {
+        this.ticketQty = this.availableSeats
+      }
     }
   },
   mounted: async function () {
@@ -629,27 +845,26 @@ export default {
     await this.fetchRelatedProducts()
   },
   methods: {
-      async fetchRelatedProducts () {
-        try {
-          const { data } = await axios.get(MOVIES_API)
-          const currentId = this.movie?.id
+    async fetchRelatedProducts () {
+      try {
+        const { data } = await axios.get(MOVIES_API)
+        const currentId = this.movie?.id
+        const others = (Array.isArray(data) ? data : [])
+          .filter(m => m.id !== currentId)
 
-          const others = (Array.isArray(data) ? data : [])
-            .filter(m => m.id !== currentId)
-
-          this.relatedProducts = others
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 4)
-            .map(movie => ({
-              ...movie,
-              name: movie.title,
-              image: movie.posterUrl || movie.image || ''
-            }))
-        } catch (err) {
-          console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
-          this.relatedProducts = []
-        }
-      },
+        this.relatedProducts = others
+          .sort(() => 0.5 - Math.random())
+          .slice(0, 4)
+          .map(movie => ({
+            ...movie,
+            name: movie.title,
+            image: movie.posterUrl || movie.image || ''
+          }))
+      } catch (err) {
+        console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
+        this.relatedProducts = []
+      }
+    },
     async fetchProduct () {
       try {
         const id = this.$route.params.id
@@ -685,6 +900,140 @@ export default {
       } catch (err) {
         console.error('Error al obtener película', err.response?.data || err.message)
         this.movie = null
+      }
+    },
+    openTicketModal () {
+      if (!this.movie) { return }
+      this.selectedCinema = 'Normal'
+      this.selectedDate = new Date().toISOString().substring(0, 10)
+      this.selectedDateFormatted = this.selectedDate
+      this.selectedTime = this.timeOptions && this.timeOptions.length ? this.timeOptions[0] : ''
+      this.ticketQty = 1
+      this.ticketUnitPrice = this.selectedCinema === 'VIP' ? 200 : 100
+      if (this.movie.format && this.movie.format.includes('3D')) {
+        this.selectedFormat = '3D'
+      } else {
+        this.selectedFormat = '2D'
+      }
+      this.showTicketModal = true
+      this.fetchAvailability()
+    },
+    updateSelectedDateFormatted () {
+      if (!this.selectedDate) { this.selectedDateFormatted = ''; return }
+      this.selectedDateFormatted = String(this.selectedDate)
+    },
+    onCinemaChange (val) {
+      this.ticketUnitPrice = val === 'VIP' ? 200 : 100
+    },
+    formatPrice (val) {
+      if (val == null) { return '' }
+      return `$ ${Number(val)}`
+    },
+    async submitTicketOrder () {
+      if (!this.selectedCinema || !this.selectedDate || !this.selectedTime || !this.ticketQty || this.ticketQty < 1 || !this.selectedFormat) {
+        this.showWarningModal = true
+        return
+      }
+      if (this.ticketQty > 50) {
+        alert('El máximo por función es 50 boletos')
+        return
+      }
+      if (this.availableSeats !== null && this.ticketQty > this.availableSeats) {
+        alert(`Solo quedan ${this.availableSeats} boletos disponibles para esta función`)
+        return
+      }
+
+      const storedUser = (() => {
+        try { return JSON.parse(localStorage.getItem('user') || 'null') } catch (e) { return null }
+      })()
+
+      const payload = {
+        userId: storedUser?.id || storedUser?.uid || null,
+        movieId: this.movie.id,
+        movieTitle: this.movie.title,
+        poster: this.movie.posterUrl || this.movie.image || '',
+        cinema: this.selectedCinema,
+        format: this.selectedFormat || this.movie.format || null,
+        showDate: new Date(this.selectedDate).getTime(),
+        showTime: this.selectedTime,
+        qty: Number(this.ticketQty),
+        unitPrice: Number(this.ticketUnitPrice)
+      }
+
+      try {
+        const { data: created } = await this.$axios.post('http://localhost:5020/api/orders/cart/add', payload)
+
+        this.showTicketModal = false
+        this.showSuccessModal = true
+        this.showWarningModal = false
+
+        const carrito = JSON.parse(localStorage.getItem('carrito') || '[]')
+        const incoming = {
+          id: created.id || created.ID || created.id,
+          movieId: payload.movieId,
+          name: this.movie.title,
+          movieTitle: this.movie.title,
+          image: this.movie.posterUrl || this.movie.image || '',
+          poster: this.movie.posterUrl || this.movie.image || '',
+          cinema: payload.cinema,
+          format: payload.format,
+          showDate: payload.showDate,
+          showTime: payload.showTime,
+          qty: payload.qty,
+          quantity: payload.qty,
+          unitPrice: payload.unitPrice,
+          price: payload.unitPrice,
+          subtotal: payload.qty * payload.unitPrice
+        }
+
+        const matchIndex = carrito.findIndex(it =>
+          (it.movieId === incoming.movieId || it.id === incoming.movieId || it.id === incoming.movieId) &&
+          it.cinema === incoming.cinema &&
+          String(it.showDate) === String(incoming.showDate) &&
+          it.showTime === incoming.showTime &&
+          (it.format === incoming.format)
+        )
+
+        if (matchIndex !== -1) {
+          const existing = carrito[matchIndex]
+          existing.qty = (Number(existing.qty) || Number(existing.quantity) || 0) + Number(incoming.qty)
+          existing.quantity = existing.qty
+          existing.subtotal = (existing.unitPrice || existing.price) * existing.qty
+          carrito[matchIndex] = existing
+        } else {
+          carrito.push(incoming)
+        }
+
+        localStorage.setItem('carrito', JSON.stringify(carrito))
+        window.dispatchEvent(new Event('carrito-actualizado'))
+
+        this.fetchAvailability()
+      } catch (err) {
+        console.error(err.response?.data || err.message)
+        alert(err.response?.data?.message || 'Error al añadir al carrito')
+      }
+    },
+    async fetchAvailability () {
+      if (!this.movie || !this.selectedCinema || !this.selectedDate || !this.selectedTime) {
+        this.availableSeats = null
+        return
+      }
+
+      const params = {
+        movieId: this.movie.id,
+        cinema: this.selectedCinema,
+        format: this.selectedFormat || this.movie.format || null,
+        showDate: new Date(this.selectedDate).getTime(),
+        showTime: this.selectedTime
+      }
+
+      try {
+        const client = this.$axios || axios
+        const { data } = await client.get('http://localhost:5020/api/orders/shows/availability', { params })
+        this.availableSeats = data.available
+      } catch (err) {
+        console.error('Error fetching availability', err.response?.data || err.message)
+        this.availableSeats = null
       }
     },
     increaseQty () {
@@ -811,15 +1160,15 @@ export default {
         formData.append('title', this.form.name)
         formData.append('synopsis', this.form.description)
 
-        if (this.form.genre) formData.append('genre', this.form.genre)
-        if (this.form.rating) formData.append('rating', this.form.rating)
-        if (this.form.duration) formData.append('duration', this.form.duration)
-        if (this.form.language) formData.append('language', this.form.language)
-        if (this.form.format) formData.append('format', this.form.format)
-        if (this.form.releaseDate) formData.append('releaseDate', this.form.releaseDate)
-        if (this.form.director) formData.append('director', this.form.director)
-        if (this.form.actors) formData.append('actors', this.form.actors)
-        if (this.form.trailerUrl) formData.append('trailerUrl', this.form.trailerUrl)
+        if (this.form.genre) { formData.append('genre', this.form.genre) }
+        if (this.form.rating) { formData.append('rating', this.form.rating) }
+        if (this.form.duration) { formData.append('duration', this.form.duration) }
+        if (this.form.language) { formData.append('language', this.form.language) }
+        if (this.form.format) { formData.append('format', this.form.format) }
+        if (this.form.releaseDate) { formData.append('releaseDate', this.form.releaseDate) }
+        if (this.form.director) { formData.append('director', this.form.director) }
+        if (this.form.actors) { formData.append('actors', this.form.actors) }
+        if (this.form.trailerUrl) { formData.append('trailerUrl', this.form.trailerUrl) }
 
         formData.append('isBillboard', this.form.isBillboard ? 'true' : 'false')
 
@@ -1049,7 +1398,12 @@ export default {
   text-overflow: ellipsis;
 }
 
-html, body, #__nuxt, #__layout, .v-application, .v-main {
+html,
+body,
+#__nuxt,
+#__layout,
+.v-application,
+.v-main {
   margin: 0;
   padding: 0;
   width: 100vw;

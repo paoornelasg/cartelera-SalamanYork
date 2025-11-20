@@ -1,5 +1,5 @@
 import OrderRepository from '../repositories/orderRepository.js'
-import Order from '../models/order.js'
+import Order from '../models/orderFuncion.js'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class OrderService {
@@ -10,8 +10,9 @@ export default class OrderService {
     async addToCart (data, currentUser) {
         const userId = data.userId || currentUser?.id || data.usuario || null
 
-        if (!userId || !data.movieId || !data.cinema || !data.showDate || !data.showTime || !data.qty || !data.unitPrice) {
-        throw { statusCode: 400, message: 'Faltan campos requeridos' }
+        // "!userId ||" es opcional para que los invitados puedan agregar al carrito; se requieren los otros campos
+        if (!data.movieId || !data.cinema || !data.showDate || !data.showTime || !data.qty || !data.unitPrice) {
+            throw { statusCode: 400, message: 'Faltan campos requeridos' }
         }
 
         const id = uuidv4()
@@ -24,6 +25,7 @@ export default class OrderService {
         userId,
         movieId: data.movieId,
         movieTitle: data.movieTitle || '',
+        poster: data.poster || data.image || data.moviePoster || '',
         cinema: data.cinema,
         showDate: Number(data.showDate),
         showTime: data.showTime,
@@ -64,7 +66,16 @@ export default class OrderService {
 
     async checkout (userId) {
         const items = await this.getCart(userId)
-        const updates = await Promise.all(items.map(it => this.orderRepository.update(it.id, { status: 'paid', updatedAt: Date.now() })))
-        return { ok: true, items: updates }
+        // Usa el repositorio transaccional para decrementar la disponibilidad y marcar los pedidos como pagados
+        return await this.orderRepository.processCheckout(userId, items)
+    }
+
+    async getShowAvailability (movieId, cinema, showDate, showTime) {
+        if (!movieId || !cinema || !showDate || !showTime) throw { statusCode: 400, message: 'Faltan parámetros para disponibilidad' }
+        return await this.orderRepository.getShowAvailability(movieId, cinema, showDate, showTime)
+    }
+
+    async cleanupExpiredCarts (opts = {}) {
+        return await this.orderRepository.expireOldCartItems(opts)
     }
 }
