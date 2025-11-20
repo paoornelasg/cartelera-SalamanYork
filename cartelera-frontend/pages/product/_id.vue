@@ -76,6 +76,7 @@
                   color="blue"
                   x-large
                   class="mr-4 px-8"
+                  @click="openTicketModal"
                 >
                   Comprar boletos
                 </v-btn>
@@ -195,6 +196,181 @@
       </v-dialog>
 
       <v-dialog
+        v-model="showTicketModal"
+        width="90%"
+        max-width="1100px"
+        content-class="movie-details-dialog"
+      >
+        <v-card>
+          <v-toolbar
+            dense
+            flat
+            color="#db133b"
+            dark
+          >
+            <v-toolbar-title class="text-h6 font-weight-bold">
+              Comprar boletos — {{ movie ? movie.title : '' }}
+            </v-toolbar-title>
+            <v-spacer />
+            <v-btn text @click="showTicketModal = false">
+              Cerrar
+              <v-icon right>
+                mdi-close
+              </v-icon>
+            </v-btn>
+          </v-toolbar>
+
+          <v-card-text class="px-6 pt-6 pb-2">
+            <v-row>
+              <v-col
+                cols="12"
+                md="4"
+                class="text-center"
+              >
+                <v-img
+                  v-if="movie"
+                  :src="movie.image"
+                  aspect-ratio="2/3"
+                  class="mb-4"
+                />
+                <div v-if="movie">
+                  <h3 class="info-title">
+                    CLASIFICACIÓN
+                  </h3>
+                  <p class="info-name">
+                    {{ movie.classification }}
+                  </p>
+
+                  <h3 class="info-title">
+                    DURACIÓN
+                  </h3>
+                  <p class="info-name">
+                    {{ movie.duration }}
+                  </p>
+                </div>
+              </v-col>
+
+              <v-col
+                cols="12"
+                md="8"
+              >
+                <h3 class="info-title">
+                  SELECCIONA TU FUNCIÓN
+                </h3>
+
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <div class="mb-2 font-weight-medium">
+                      Tipo de sala
+                    </div>
+                    <v-radio-group
+                      v-model="selectedCinema"
+                      row
+                      @change="onCinemaChange"
+                    >
+                      <v-radio label="VIP" value="VIP" />
+                      <v-radio label="Normal" value="Normal" />
+                    </v-radio-group>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <div class="mb-2 font-weight-medium">
+                      Formato
+                    </div>
+                    <v-radio-group
+                      v-model="selectedFormat"
+                      row
+                    >
+                      <v-radio label="2D" value="2D" />
+                      <v-radio label="3D" value="3D" />
+                    </v-radio-group>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-menu
+                      ref="menu"
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template #activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="selectedDateFormatted"
+                          label="Fecha"
+                          readonly
+                          v-bind="attrs"
+                          outlined
+                          dense
+                          v-on="on"
+                        />
+                      </template>
+                      <v-date-picker
+                        v-model="selectedDate"
+                        :min="minDate"
+                        :max="maxDate"
+                        @input="menu = false"
+                      />
+                    </v-menu>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-select
+                      v-model="selectedTime"
+                      :items="timeOptions"
+                      label="Hora"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model.number="ticketQty"
+                      label="Cantidad"
+                      type="number"
+                      min="1"
+                      :max="availableSeats"
+                      outlined
+                      dense
+                    />
+                    <div
+                      v-if="availableSeats !== null"
+                      class="mt-2 text-caption"
+                    >
+                      Disponibles: {{ availableSeats }}
+                    </div>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      label="Precio unitario"
+                      :value="formatPrice(ticketUnitPrice)"
+                      readonly
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-card-actions class="px-6 pb-4">
+            <v-spacer />
+            <v-btn text @click="showTicketModal = false">
+              Cancelar
+            </v-btn>
+            <v-btn color="#db133b" dark @click="submitTicketOrder">
+              Añadir al carrito
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog
         v-model="showWarningModal"
         width="300"
         persistent
@@ -207,10 +383,10 @@
             mdi-alert-circle
           </v-icon>
           <h3 class="mt-3">
-            Missing Selection
+            Selección incompleta
           </h3>
           <p class="text--secondary mt-2">
-            Please select a size and color before adding the product to the cart.
+            Por favor completa todos los campos requeridos antes de continuar.
           </p>
           <v-btn
             color="black"
@@ -218,7 +394,7 @@
             dark
             @click="showWarningModal = false"
           >
-            Got it
+            Entendido
           </v-btn>
         </v-card>
       </v-dialog>
@@ -559,6 +735,17 @@ export default {
       movie: null,
       isAdmin: false,
       relatedProducts: [],
+      showTicketModal: false,
+      selectedCinema: '',
+      selectedFormat: '',
+      selectedDate: null,
+      selectedDateFormatted: '',
+      menu: false,
+      selectedTime: '',
+      timeOptions: ['11:00', '14:00', '16:00', '18:00', '20:00'],
+      ticketQty: 1,
+      availableSeats: null,
+      ticketUnitPrice: 0,
       showSuccessModal: false,
       showWarningModal: false,
       showProductModal: false,
@@ -613,6 +800,43 @@ export default {
       if (!this.movie || !this.movie.actors) { return '' }
       if (Array.isArray(this.movie.actors)) { return this.movie.actors.join(', ') }
       return this.movie.actors
+    },
+    minDate () {
+      const d = new Date()
+      return d.toISOString().substring(0, 10)
+    },
+    maxDate () {
+      const d = new Date()
+      d.setDate(d.getDate() + 6)
+      return d.toISOString().substring(0, 10)
+    }
+  },
+  watch: {
+    selectedCinema (newVal) {
+      this.ticketUnitPrice = newVal === 'VIP' ? 200 : 100
+      this.fetchAvailability()
+    },
+    selectedDate: {
+      handler () {
+        this.updateSelectedDateFormatted()
+        this.fetchAvailability()
+      }
+    },
+    selectedTime () {
+      this.fetchAvailability()
+    },
+    selectedFormat () {
+      this.fetchAvailability()
+    },
+    ticketQty (newVal) {
+      if (newVal > 50) {
+        this.ticketQty = 50
+      } else if (newVal < 1) {
+        this.ticketQty = 1
+      }
+      if (this.availableSeats !== null && this.ticketQty > this.availableSeats) {
+        this.ticketQty = this.availableSeats
+      }
     }
   },
   mounted: async function () {
@@ -625,7 +849,6 @@ export default {
       try {
         const { data } = await axios.get(MOVIES_API)
         const currentId = this.movie?.id
-
         const others = (Array.isArray(data) ? data : [])
           .filter(m => m.id !== currentId)
 
@@ -677,6 +900,140 @@ export default {
       } catch (err) {
         console.error('Error al obtener película', err.response?.data || err.message)
         this.movie = null
+      }
+    },
+    openTicketModal () {
+      if (!this.movie) { return }
+      this.selectedCinema = 'Normal'
+      this.selectedDate = new Date().toISOString().substring(0, 10)
+      this.selectedDateFormatted = this.selectedDate
+      this.selectedTime = this.timeOptions && this.timeOptions.length ? this.timeOptions[0] : ''
+      this.ticketQty = 1
+      this.ticketUnitPrice = this.selectedCinema === 'VIP' ? 200 : 100
+      if (this.movie.format && this.movie.format.includes('3D')) {
+        this.selectedFormat = '3D'
+      } else {
+        this.selectedFormat = '2D'
+      }
+      this.showTicketModal = true
+      this.fetchAvailability()
+    },
+    updateSelectedDateFormatted () {
+      if (!this.selectedDate) { this.selectedDateFormatted = ''; return }
+      this.selectedDateFormatted = String(this.selectedDate)
+    },
+    onCinemaChange (val) {
+      this.ticketUnitPrice = val === 'VIP' ? 200 : 100
+    },
+    formatPrice (val) {
+      if (val == null) { return '' }
+      return `$ ${Number(val)}`
+    },
+    async submitTicketOrder () {
+      if (!this.selectedCinema || !this.selectedDate || !this.selectedTime || !this.ticketQty || this.ticketQty < 1 || !this.selectedFormat) {
+        this.showWarningModal = true
+        return
+      }
+      if (this.ticketQty > 50) {
+        alert('El máximo por función es 50 boletos')
+        return
+      }
+      if (this.availableSeats !== null && this.ticketQty > this.availableSeats) {
+        alert(`Solo quedan ${this.availableSeats} boletos disponibles para esta función`)
+        return
+      }
+
+      const storedUser = (() => {
+        try { return JSON.parse(localStorage.getItem('user') || 'null') } catch (e) { return null }
+      })()
+
+      const payload = {
+        userId: storedUser?.id || storedUser?.uid || null,
+        movieId: this.movie.id,
+        movieTitle: this.movie.title,
+        poster: this.movie.posterUrl || this.movie.image || '',
+        cinema: this.selectedCinema,
+        format: this.selectedFormat || this.movie.format || null,
+        showDate: new Date(this.selectedDate).getTime(),
+        showTime: this.selectedTime,
+        qty: Number(this.ticketQty),
+        unitPrice: Number(this.ticketUnitPrice)
+      }
+
+      try {
+        const { data: created } = await this.$axios.post('http://localhost:5020/api/orders/cart/add', payload)
+
+        this.showTicketModal = false
+        this.showSuccessModal = true
+        this.showWarningModal = false
+
+        const carrito = JSON.parse(localStorage.getItem('carrito') || '[]')
+        const incoming = {
+          id: created.id || created.ID || created.id,
+          movieId: payload.movieId,
+          name: this.movie.title,
+          movieTitle: this.movie.title,
+          image: this.movie.posterUrl || this.movie.image || '',
+          poster: this.movie.posterUrl || this.movie.image || '',
+          cinema: payload.cinema,
+          format: payload.format,
+          showDate: payload.showDate,
+          showTime: payload.showTime,
+          qty: payload.qty,
+          quantity: payload.qty,
+          unitPrice: payload.unitPrice,
+          price: payload.unitPrice,
+          subtotal: payload.qty * payload.unitPrice
+        }
+
+        const matchIndex = carrito.findIndex(it =>
+          (it.movieId === incoming.movieId || it.id === incoming.movieId || it.id === incoming.movieId) &&
+          it.cinema === incoming.cinema &&
+          String(it.showDate) === String(incoming.showDate) &&
+          it.showTime === incoming.showTime &&
+          (it.format === incoming.format)
+        )
+
+        if (matchIndex !== -1) {
+          const existing = carrito[matchIndex]
+          existing.qty = (Number(existing.qty) || Number(existing.quantity) || 0) + Number(incoming.qty)
+          existing.quantity = existing.qty
+          existing.subtotal = (existing.unitPrice || existing.price) * existing.qty
+          carrito[matchIndex] = existing
+        } else {
+          carrito.push(incoming)
+        }
+
+        localStorage.setItem('carrito', JSON.stringify(carrito))
+        window.dispatchEvent(new Event('carrito-actualizado'))
+
+        this.fetchAvailability()
+      } catch (err) {
+        console.error(err.response?.data || err.message)
+        alert(err.response?.data?.message || 'Error al añadir al carrito')
+      }
+    },
+    async fetchAvailability () {
+      if (!this.movie || !this.selectedCinema || !this.selectedDate || !this.selectedTime) {
+        this.availableSeats = null
+        return
+      }
+
+      const params = {
+        movieId: this.movie.id,
+        cinema: this.selectedCinema,
+        format: this.selectedFormat || this.movie.format || null,
+        showDate: new Date(this.selectedDate).getTime(),
+        showTime: this.selectedTime
+      }
+
+      try {
+        const client = this.$axios || axios
+        const { data } = await client.get('http://localhost:5020/api/orders/shows/availability', { params })
+        this.availableSeats = data.available
+      } catch (err) {
+        console.error('Error fetching availability', err.response?.data || err.message)
+        this.availableSeats = null
       }
     },
     increaseQty () {
@@ -1041,7 +1398,12 @@ export default {
   text-overflow: ellipsis;
 }
 
-html, body, #__nuxt, #__layout, .v-application, .v-main {
+html,
+body,
+#__nuxt,
+#__layout,
+.v-application,
+.v-main {
   margin: 0;
   padding: 0;
   width: 100vw;
