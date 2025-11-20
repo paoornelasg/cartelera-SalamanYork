@@ -549,19 +549,313 @@ import PageFooter from '~/components/PageFooter.vue'
 
 const MOVIES_API = 'http://localhost:5020/api/movies'
 
-/* const allMovies = [
-  { id: 8, title: 'Amor Fuera de Tiempo', genre: 'Romance, Drama, Fantasía', duration: '1h 39min', classification: 'B', format: 'Tradicional', language: 'Inglés', releaseDate: '2025-10-10', image: 'https://tickets-static-content.cinepolis.com/pimcore/9618/assets/Mexico/Tickets/Movies/AmorFueraDeTiempo/Es/Poster_720x1022_copia_2_/resource.jpg', sinopsis: 'Dallas, una estudiante determinada que sueña con entrar a la mejor escuela de danza del país, se cruza con Drayton, el mariscal de campo estrella que duda sobre su futuro. La química entre ellos es innegable, pero sus ambiciones opuestas ponen a prueba si el amor puede superar sus diferencias.', director: { name: 'Justin Wu' }, actors: [{ name: 'Siena Agudong' }, { name: 'Noah Beck' }, { name: 'Drew Ray Tanner' }], trailerUrl: 'https://www.youtube.com/embed/-3itEzH1-EI' },
-  { id: 9, title: 'Cuando El Cielo Se Equivoca', genre: 'Comedia, Drama', duration: '1h 38min', classification: 'B', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-31', image: 'https://statics.cinemex.com/movie_posters/SMuqdJXLQnRahiI-360x540.jpg', sinopsis: 'Cuando Gabriel (Keanu Reeves) un ángel guardián bien intencionado pero inepto interviene en la vida Arj (Aziz Ansari) -un desempleado que vive en su coche- intercambiando su vida con la del adinerado Jeff (Seth Rogen) descubre que la buena fortuna trae problemas en esta comedia social de enredos celestiales y tacos al pastor.​​ Gabriel desea demostrarle a Arj que la riqueza no arregla todos sus problemas…¿o sí?', director: { name: 'Aziz Ansari' }, actors: [{ name: 'Seth Rogen' }, { name: 'Sandra Oh' }, { name: 'Keanu Reeves' }], trailerUrl: 'https://www.youtube.com/embed/EuRwBSnO_wA' },
-  { id: 10, title: 'The Craft (Jóvenes Brujas)', genre: 'Terror, Fantasía, Drama', duration: '1h 50min', classification: 'B-15', format: '3D', language: 'Inglés', releaseDate: '1996-10-31', image: 'https://statics.cinemex.com/movie_posters/2TlcLmfOGvBEMw8-360x540.jpg', sinopsis: 'Una recién llegada a una escuela católica entabla relación con un trío de adolescentes marginadas que practican brujería y evocan hechizos y maldiciones contra quienes las enfadan.', director: { name: 'Andrew Fleming' }, actors: [{ name: 'Robin Tunney' }, { name: 'Fairuza Balk' }, { name: 'Neve Campbell' }], trailerUrl: 'https://www.youtube.com/embed/SxEqB--5ToI' },
-  { id: 11, title: 'No Me Sigas', genre: 'Terror, Suspenso', duration: '1h 29min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-11-07', image: 'https://statics.cinemex.com/movie_posters/p6DTADwW29raQN7-360x540.jpg', sinopsis: 'Carla, una joven desesperada por pertenecer socialmente, intenta destacar en el mundo digital. Para aumentar sus seguidores, se muda a un famoso edificio embrujado. Comienza a fingir apariciones fantasmales, pero pronto invoca una verdadera entidad maligna que se apodera de su vida hasta que nadie sabrá distinguir entre lo real y lo falso.', director: { name: 'Ximena García Lecuona' }, actors: [{ name: 'Yankel Stevan' }, { name: ' Karla Coronado' }, { name: 'Julia Maqueo' }], trailerUrl: 'https://www.youtube.com/embed/SFYeLyqis_o' },
-  { id: 12, title: '6 Exorcismos', genre: 'Terror', duration: '1h 44min', classification: 'B-15', format: 'Tradicional', language: 'Español', releaseDate: '2025-10-17', image: 'https://statics.cinemex.com/movie_posters/jSom2HZDQ30awWZ-360x540.jpg', sinopsis: 'La joven reportera Si-kyung se infiltra en un culto religioso secreto. Lo que comienza como una investigación encubierta pronto se convierte en una pesadilla indescriptible, cuando es invitada a presenciar un ritual prohibido en el que cada miembro pide un deseo y ofrece un sacrificio. Uno a uno, los fieles narran la aterradora historia de cómo lo consiguieron… cada relato es más escalofriante y sangriento que el anterior. Cuando llega el turno de Si-kyung, descubre con horror que todos los sacrificios deben ser partes del cuerpo humano. Esas ofrendas no son simples pruebas de fe, sino piezas de un plan macabro: dar vida a una entidad ancestral, un ser que aguarda en las sombras para reclamar la carne y el alma de todos los presentes. El ritual ha comenzado… y con él, el despertar del mal absoluto.', director: { name: 'Won-kyung Choe' }, actors: [{ name: 'Kim Chae-eun' }, { name: 'Kim Min-seok' }, { name: 'Kwon Ah Reum' }], trailerUrl: 'https://www.youtube.com/embed/pC5NSEsMNb8' }
-] */
-
 export default {
   components: {
     AppHeader,
     PageFooter
   },
+  data () {
+    return {
+      movie: null,
+      isAdmin: false,
+      relatedProducts: [],
+      showSuccessModal: false,
+      showWarningModal: false,
+      showProductModal: false,
+      showDeleteConfirm: false,
+      showTrailerModal: false,
+      isEditing: false,
+      form: {
+        name: '',
+        description: '',
+        genre: '',
+        rating: '',
+        duration: '',
+        language: '',
+        format: '',
+        releaseDate: '',
+        director: '',
+        actors: '',
+        trailerUrl: '',
+        isBillboard: true,
+        image: '',
+        imageFile: null
+      }
+    }
+  },
+  computed: {
+    videoSrc () {
+      if (this.movie && this.movie.trailerUrl && this.showTrailerModal) {
+        const base = this.movie.trailerUrl
+        if (base.includes('?')) { return base + '&autoplay=1' }
+        return base + '?autoplay=1'
+      }
+      return ''
+    },
+    releaseDateText () {
+      if (!this.movie || !this.movie.releaseDate) { return '' }
+      const ts = typeof this.movie.releaseDate === 'number'
+        ? this.movie.releaseDate
+        : Number(this.movie.releaseDate)
+      if (!ts) { return '' }
+      const d = new Date(ts)
+      const day = String(d.getDate()).padStart(2, '0')
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const year = d.getFullYear()
+      return `${day}/${month}/${year}`
+    },
+    genreText () {
+      if (!this.movie || !this.movie.genre) { return '' }
+      if (Array.isArray(this.movie.genre)) { return this.movie.genre.join(', ') }
+      return this.movie.genre
+    },
+    actorsText () {
+      if (!this.movie || !this.movie.actors) { return '' }
+      if (Array.isArray(this.movie.actors)) { return this.movie.actors.join(', ') }
+      return this.movie.actors
+    }
+  },
+  mounted: async function () {
+    await this.fetchProduct()
+    this.checkAdmin()
+    await this.fetchRelatedProducts()
+  },
+  methods: {
+    async fetchRelatedProducts () {
+      try {
+        const { data } = await axios.get(MOVIES_API)
+        const currentId = this.movie?.id
+
+        const others = (Array.isArray(data) ? data : [])
+          .filter(m => m.id !== currentId)
+
+        this.relatedProducts = others
+          .sort(() => 0.5 - Math.random())
+          .slice(0, 4)
+          .map(movie => ({
+            ...movie,
+            name: movie.title,
+            image: movie.posterUrl || movie.image || ''
+          }))
+      } catch (err) {
+        console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
+        this.relatedProducts = []
+      }
+    },
+    async fetchProduct () {
+      try {
+        const id = this.$route.params.id
+        const { data } = await axios.get(`${MOVIES_API}/${id}`)
+
+        const genreStr = Array.isArray(data.genre)
+          ? data.genre.join(', ')
+          : (data.genre || '')
+
+        const durationStr = data.duration
+          ? `${data.duration} min`
+          : ''
+
+        this.movie = {
+          ...data,
+          isBillboard: !!data.isBillboard,
+          name: data.title,
+          description: data.synopsis,
+          sinopsis: data.synopsis,
+          genre: genreStr,
+          duration: durationStr,
+          classification: data.rating || '',
+          language: data.language || '',
+          format: data.format || '',
+          image: data.posterUrl || data.image || '',
+          backgroundImage: data.posterUrl || data.image || '',
+          director: data.director || '',
+          actors: Array.isArray(data.actors) ? data.actors : (data.actors || []),
+          trailerUrl: data.trailerUrl || ''
+        }
+
+        this.currentImage = this.movie.image
+      } catch (err) {
+        console.error('Error al obtener película', err.response?.data || err.message)
+        this.movie = null
+      }
+    },
+    increaseQty () {
+      this.quantity++
+    },
+    decreaseQty () {
+      if (this.quantity > 1) { this.quantity-- }
+    },
+    addToCart () {
+      if (!this.selectedSize || !this.selectedColor) {
+        this.showWarningModal = true
+        return
+      }
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || []
+      const existente = carrito.find(p =>
+        p.id === this.movie.id &&
+        p.size === this.selectedSize &&
+        p.color === this.selectedColor
+      )
+      if (existente) {
+        existente.quantity += this.quantity
+      } else {
+        carrito.push({
+          id: this.movie.id,
+          name: this.movie.title,
+          price: this.movie.price,
+          image: this.movie.image,
+          size: this.selectedSize,
+          color: this.selectedColor,
+          quantity: this.quantity
+        })
+      }
+      localStorage.setItem('carrito', JSON.stringify(carrito))
+      window.dispatchEvent(new Event('carrito-actualizado'))
+      this.showSuccessModal = true
+    },
+    deleteProduct () {
+      if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
+        axios.delete(`${MOVIES_API}/delete/${this.movie.id}`)
+          .then(() => {
+            alert('Película eliminada exitosamente.')
+            this.$router.push('/shop')
+          })
+          .catch((err) => {
+            console.error('Error al eliminar película', err.response?.data || err.message)
+            alert('Error deleting movie')
+          })
+      }
+    },
+    checkAdmin () {
+      const userStr = localStorage.getItem('user')
+      try {
+        const user = JSON.parse(userStr)
+        this.isAdmin = user?.rol === 'admin'
+      } catch (err) {
+        this.isAdmin = false
+      }
+    },
+    generateSku (name) {
+      if (!name) { return 'SKU-00000' }
+      const base = name.replace(/\s+/g, '').substring(0, 3).toUpperCase()
+      const random = Math.floor(1000 + Math.random() * 9000)
+      return `SKU-${base}${random}`
+    },
+    generateTags (desc) {
+      if (!desc || typeof desc !== 'string') { return ['general'] }
+      const words = desc.split(/\W+/).filter(w => w.length > 4)
+      return [...new Set(words.slice(0, 3).map(w => w.toLowerCase()))]
+    },
+    openEditModal () {
+      this.isEditing = true
+      this.form = {
+        name: this.movie.title || '',
+        description: this.movie.synopsis || this.movie.sinopsis || '',
+        genre: Array.isArray(this.movie.genre)
+          ? this.movie.genre.join(', ')
+          : (this.movie.genre || ''),
+        rating: this.movie.rating || '',
+        duration: this.movie.duration ? String(this.movie.duration) : '',
+        language: this.movie.language || '',
+        format: this.movie.format || '',
+        releaseDate: this.movie.releaseDate
+          ? new Date(this.movie.releaseDate).toISOString().substring(0, 10)
+          : '',
+        director: this.movie.director || '',
+        actors: Array.isArray(this.movie.actors)
+          ? this.movie.actors.join(', ')
+          : (this.movie.actors || ''),
+        trailerUrl: this.movie.trailerUrl || '',
+        isBillboard: !!this.movie.isBillboard,
+        image: this.movie.posterUrl || this.movie.image || '',
+        imageFile: null
+      }
+      this.showProductModal = true
+    },
+    openAddModal () {
+      this.isEditing = false
+      this.form = {
+        name: '',
+        description: '',
+        genre: '',
+        rating: '',
+        duration: '',
+        language: '',
+        format: '',
+        releaseDate: '',
+        director: '',
+        actors: '',
+        trailerUrl: '',
+        isBillboard: true,
+        image: '',
+        imageFile: null
+      }
+      this.showProductModal = true
+    },
+    async submitProduct () {
+      try {
+        if (!this.form.name || !this.form.description) {
+          alert('Title and synopsis are required.')
+          return
+        }
+
+        const formData = new FormData()
+        formData.append('title', this.form.name)
+        formData.append('synopsis', this.form.description)
+
+        if (this.form.genre) { formData.append('genre', this.form.genre) }
+        if (this.form.rating) { formData.append('rating', this.form.rating) }
+        if (this.form.duration) { formData.append('duration', this.form.duration) }
+        if (this.form.language) { formData.append('language', this.form.language) }
+        if (this.form.format) { formData.append('format', this.form.format) }
+        if (this.form.releaseDate) { formData.append('releaseDate', this.form.releaseDate) }
+        if (this.form.director) { formData.append('director', this.form.director) }
+        if (this.form.actors) { formData.append('actors', this.form.actors) }
+        if (this.form.trailerUrl) { formData.append('trailerUrl', this.form.trailerUrl) }
+
+        formData.append('isBillboard', this.form.isBillboard ? 'true' : 'false')
+
+        if (this.form.imageFile) {
+          formData.append('poster', this.form.imageFile)
+        }
+
+        let url
+        let method
+
+        if (this.isEditing && this.movie && this.movie.id) {
+          url = `${MOVIES_API}/update/${this.movie.id}`
+          method = 'put'
+        } else {
+          url = `${MOVIES_API}/create`
+          method = 'post'
+        }
+
+        const { data } = await axios[method](url, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+
+        alert(this.isEditing ? 'Película actualizada correctamente.' : 'Película creada exitosamente.')
+        this.showProductModal = false
+
+        if (!this.isEditing && data?.id) {
+          this.$router.push(`/product/${data.id}`)
+        } else {
+          await this.fetchProduct()
+          await this.fetchRelatedProducts()
+        }
+      } catch (err) {
+        console.error('Error al guardar película', err.response?.data || err.message)
+        alert('Error guardando película')
+      }
+    },
+    onImageSelected (file) {
+      this.form.imageFile = file
+    },
+    confirmDelete () {
+      this.deleteProduct()
+      this.showDeleteConfirm = false
+    }
+  }
 }
 </script>
 

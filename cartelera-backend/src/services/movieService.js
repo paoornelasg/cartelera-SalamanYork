@@ -119,7 +119,9 @@ export default class MovieService {
         })
     }
 
-    
+    async delete (id) {
+        return await this.movieRepository.delete(id)
+    }
 
     async getAll () {
         return await this.movieRepository.getAll()
