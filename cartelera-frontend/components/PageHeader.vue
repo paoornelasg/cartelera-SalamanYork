@@ -37,11 +37,12 @@
             mdi-magnify
           </v-icon>
         </v-btn>
-        <v-btn icon>
+        <v-btn icon @click="showFavorites = true">
           <v-icon color="white">
             mdi-heart-outline
           </v-icon>
         </v-btn>
+
         <v-btn icon @click="showCart = true">
           <v-icon color="white">
             mdi-cart-outline
@@ -51,8 +52,11 @@
     </div>
 
     <CartModal :is-open="showCart" @update:isOpen="showCart = $event" />
+    <FavoritesModal
+      :is-open="showFavorites"
+      @close="showFavorites = false"
+    />
 
-    <!-- Modal de cuenta -->
     <v-dialog
       v-model="showAccountModal"
       max-width="400"
@@ -126,15 +130,18 @@
 <script>
 import axios from 'axios'
 import CartModal from '~/components/CartModal.vue'
+import FavoritesModal from '~/components/FavoritesModal.vue' // Importar modal de favoritos
 
 export default {
   name: 'AppHeader',
   components: {
-    CartModal
+    CartModal,
+    FavoritesModal // Componente modal de favoritos
   },
   data () {
     return {
       showCart: false,
+      showFavorites: false, // Variable para controlar el modal de favoritos
       drawer: false,
       showAccountModal: false,
       isClient: false
