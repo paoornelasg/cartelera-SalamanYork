@@ -1,10 +1,13 @@
 import OrderRepository from '../repositories/orderRepository.js'
 import Order from '../models/orderFuncion.js'
+import OrderSummary from '../models/orderSummary.js'
+import OrderSummaryRepository from '../repositories/orderSummaryRepository.js'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class OrderService {
     constructor () {
         this.orderRepository = new OrderRepository()
+        this.orderSummaryRepository = new OrderSummaryRepository()
     }
 
     async addToCart (data, currentUser) {
@@ -64,10 +67,52 @@ export default class OrderService {
         return await this.orderRepository.delete(id)
     }
 
-    async checkout (userId) {
-        const items = await this.getCart(userId)
-        // Usa el repositorio transaccional para decrementar la disponibilidad y marcar los pedidos como pagados
-        return await this.orderRepository.processCheckout(userId, items)
+    async checkout (userId, extraData = {}) {
+        const checkoutResult = await this.orderRepository.processCheckout(userId)
+
+        const {
+            billing = null,
+            totals = null,
+            paymentMethod = 'bank',
+            cart = []
+        } = extraData || {}
+
+        if (!billing || !billing.email || !Array.isArray(cart) || cart.length === 0) {
+            return checkoutResult
+        }
+
+        const summaryId = uuidv4()
+
+        const items = cart.map(item => ({
+            id: item.id || uuidv4(),
+            name: item.name,
+            price: Number(item.price),
+            quantity: Number(item.quantity),
+            movieId: item.movieId || null,
+            cinema: item.cinema || null,
+            showDate: item.showDate || null,
+            showTime: item.showTime || null
+        }))
+
+        const computedSubtotal = items.reduce((acc, it) => acc + it.price * it.quantity, 0)
+        const summaryTotals = totals || { subtotal: computedSubtotal, total: computedSubtotal }
+
+        const orderSummary = new OrderSummary({
+            id: summaryId,
+            userId,
+            items,
+            billing,
+            totals: summaryTotals,
+            paymentMethod,
+            status: 'paid'
+        })
+
+        const savedSummary = await this.orderSummaryRepository.create(summaryId, { ...orderSummary })
+
+        return {
+            ...checkoutResult,
+            orderSummaryId: savedSummary.id
+        }
     }
 
     async getShowAvailability (movieId, cinema, showDate, showTime) {

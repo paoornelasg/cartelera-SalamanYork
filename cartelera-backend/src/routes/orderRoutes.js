@@ -1,5 +1,6 @@
 import express from 'express'
 import OrderController from '../controllers/orderController.js'
+import authMiddleware from '../middlewares/authMiddleware.js'
 
 const router = express.Router()
 const controller = new OrderController()
@@ -37,13 +38,19 @@ const orderRoutes = [
     },
     { 
         method: 'post',   
-        path: '/checkout',       
+        path: '/checkout',
+        middleware: [authMiddleware],       
         handler: 'checkout' 
     }
 ]
 
 orderRoutes.forEach(r => {
-  router[r.method](r.path, controller[r.handler].bind(controller))
+    const middlewares = r.middleware || []
+    router[r.method](
+        r.path,
+        ...middlewares,
+        controller[r.handler].bind(controller)
+    )
 })
 
 export default router

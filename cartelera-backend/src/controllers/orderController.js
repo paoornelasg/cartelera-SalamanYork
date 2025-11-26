@@ -69,11 +69,24 @@ export default class OrderController {
 
     async checkout (req, res, next) {
         try {
-            const userId = req.body.userId || req.user?.id
-            const result = await this.orderService.checkout(userId)
-            res.json(result)
-        } catch (e) {
-            res.status(e.statusCode || 500).json({ message: e.message })
+            const userId = req.user?.id
+
+            if (!userId) {
+            return res.status(401).json({ message: 'Usuario no autenticado' })
+            }
+
+            const { billing, cart, totals, paymentMethod } = req.body
+
+            const result = await this.orderService.checkout(userId, {
+            billing,
+            cart,
+            totals,
+            paymentMethod
+            })
+
+            res.status(201).json(result)
+        } catch (error) {
+            next(error)
         }
     }
 }
