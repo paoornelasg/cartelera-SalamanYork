@@ -18,7 +18,7 @@
         <NuxtLink to="/shop" class="header-button">
           Cartelera
         </NuxtLink>
-        <NuxtLink to="/about" class="header-button">
+        <NuxtLink to="/aboutus" class="header-button">
           Acerca
         </NuxtLink>
         <NuxtLink to="/contact" class="header-button">
@@ -201,7 +201,8 @@ export default {
         }
 
         this.showAccountModal = false
-        this.$router.push('/')
+        // Redirigir a la página principal (index.vue) con el parámetro logout=true
+        this.$router.push('/?logout=true')
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Error al cerrar sesión:', err.response?.data || err.message)
@@ -213,7 +214,8 @@ export default {
         }
 
         this.showAccountModal = false
-        this.$router.push('/ultimateLogin')
+        // Incluso si hay error, redirigir a index con logout=true
+        this.$router.push('/?logout=true')
       }
     }
   }

@@ -1,7 +1,6 @@
 <template>
   <v-app>
     <AppHeader />
-
     <v-main>
       <v-sheet
         v-if="movie"
@@ -14,7 +13,6 @@
           cover
           class="hero-background-image"
         />
-
         <div class="carousel-content-wrapper d-flex flex-column justify-center align-center fill-height">
           <v-container
             class="fill-height hero-content"
@@ -126,7 +124,6 @@
                   cover
                   class="product-image"
                 />
-
                 <v-card-text class="pa-4 flex-grow-1">
                   <div class="related-title text-h6 mb-1">
                     {{ related.title }}
@@ -165,6 +162,7 @@
         </v-btn>
       </div>
 
+      <!-- Modal de éxito -->
       <v-dialog
         v-if="movie"
         v-model="showSuccessModal"
@@ -195,6 +193,31 @@
         </v-card>
       </v-dialog>
 
+      <!-- Snackbar para alertas -->
+      <v-snackbar
+        v-model="alertaVisible"
+        :color="alertaColor"
+        top
+        right
+        :timeout="3000"
+        rounded="pill"
+      >
+        {{ alerta }}
+        <template #action="{ attrs }">
+          <v-btn
+            text
+            icon
+            v-bind="attrs"
+            @click="alertaVisible = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
+
+      <!-- Resto de modales... continuará en parte 2 -->
+
+      <!-- Modal de compra de boletos -->
       <v-dialog
         v-model="showTicketModal"
         width="90%"
@@ -212,14 +235,16 @@
               Comprar boletos — {{ movie ? movie.title : '' }}
             </v-toolbar-title>
             <v-spacer />
-            <v-btn text @click="showTicketModal = false">
+            <v-btn
+              text
+              @click="showTicketModal = false"
+            >
               Cerrar
               <v-icon right>
                 mdi-close
               </v-icon>
             </v-btn>
           </v-toolbar>
-
           <v-card-text class="px-6 pt-6 pb-2">
             <v-row>
               <v-col
@@ -240,7 +265,6 @@
                   <p class="info-name">
                     {{ movie.classification }}
                   </p>
-
                   <h3 class="info-title">
                     DURACIÓN
                   </h3>
@@ -249,7 +273,6 @@
                   </p>
                 </div>
               </v-col>
-
               <v-col
                 cols="12"
                 md="8"
@@ -257,9 +280,11 @@
                 <h3 class="info-title">
                   SELECCIONA TU FUNCIÓN
                 </h3>
-
                 <v-row>
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <div class="mb-2 font-weight-medium">
                       Tipo de sala
                     </div>
@@ -268,12 +293,20 @@
                       row
                       @change="onCinemaChange"
                     >
-                      <v-radio label="VIP" value="VIP" />
-                      <v-radio label="Normal" value="Normal" />
+                      <v-radio
+                        label="VIP"
+                        value="VIP"
+                      />
+                      <v-radio
+                        label="Normal"
+                        value="Normal"
+                      />
                     </v-radio-group>
                   </v-col>
-
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <div class="mb-2 font-weight-medium">
                       Formato
                     </div>
@@ -281,12 +314,20 @@
                       v-model="selectedFormat"
                       row
                     >
-                      <v-radio label="2D" value="2D" />
-                      <v-radio label="3D" value="3D" />
+                      <v-radio
+                        label="2D"
+                        value="2D"
+                      />
+                      <v-radio
+                        label="3D"
+                        value="3D"
+                      />
                     </v-radio-group>
                   </v-col>
-
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <v-menu
                       ref="menu"
                       v-model="menu"
@@ -315,8 +356,10 @@
                       />
                     </v-menu>
                   </v-col>
-
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <v-select
                       v-model="selectedTime"
                       :items="timeOptions"
@@ -325,8 +368,10 @@
                       dense
                     />
                   </v-col>
-
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <v-text-field
                       v-model.number="ticketQty"
                       label="Cantidad"
@@ -343,8 +388,10 @@
                       Disponibles: {{ availableSeats }}
                     </div>
                   </v-col>
-
-                  <v-col cols="12" md="6">
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
                     <v-text-field
                       label="Precio unitario"
                       :value="formatPrice(ticketUnitPrice)"
@@ -357,19 +404,26 @@
               </v-col>
             </v-row>
           </v-card-text>
-
           <v-card-actions class="px-6 pb-4">
             <v-spacer />
-            <v-btn text @click="showTicketModal = false">
+            <v-btn
+              text
+              @click="showTicketModal = false"
+            >
               Cancelar
             </v-btn>
-            <v-btn color="#db133b" dark @click="submitTicketOrder">
+            <v-btn
+              color="#db133b"
+              dark
+              @click="submitTicketOrder"
+            >
               Añadir al carrito
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
+      <!-- Modal de advertencia -->
       <v-dialog
         v-model="showWarningModal"
         width="300"
@@ -399,6 +453,7 @@
         </v-card>
       </v-dialog>
 
+      <!-- Modal CRUD de película -->
       <v-dialog
         v-model="showProductModal"
         max-width="600px"
@@ -508,6 +563,7 @@
         </v-card>
       </v-dialog>
 
+      <!-- Modal de confirmación de eliminación -->
       <v-dialog
         v-model="showDeleteConfirm"
         width="400"
@@ -542,6 +598,7 @@
         </v-card>
       </v-dialog>
 
+      <!-- Modal de tráiler y detalles -->
       <v-dialog
         v-model="showTrailerModal"
         width="90%"
@@ -570,7 +627,6 @@
               </v-icon>
             </v-btn>
           </v-toolbar>
-
           <v-card-text v-if="movie">
             <v-row>
               <v-col
@@ -629,7 +685,6 @@
                 <p class="info-text">
                   {{ movie.sinopsis }}
                 </p>
-
                 <v-row>
                   <v-col cols="6">
                     <h3 class="info-title">
@@ -648,7 +703,6 @@
                     </p>
                   </v-col>
                 </v-row>
-
                 <v-row>
                   <v-col cols="6">
                     <h3 class="info-title">
@@ -667,7 +721,6 @@
                     </p>
                   </v-col>
                 </v-row>
-
                 <v-row>
                   <v-col cols="6">
                     <h3 class="info-title">
@@ -686,7 +739,6 @@
                     </p>
                   </v-col>
                 </v-row>
-
                 <h3 class="info-title">
                   TRÁILER
                 </h3>
@@ -700,7 +752,6 @@
                     allowfullscreen
                   />
                 </v-responsive>
-
                 <h3 class="info-title mt-4">
                   INFORMACIÓN ADICIONAL
                 </h3>
@@ -713,7 +764,6 @@
         </v-card>
       </v-dialog>
     </v-main>
-
     <PageFooter />
   </v-app>
 </template>
@@ -752,6 +802,10 @@ export default {
       showDeleteConfirm: false,
       showTrailerModal: false,
       isEditing: false,
+      // Sistema de alertas añadido
+      alerta: '',
+      alertaColor: '',
+      alertaVisible: false,
       form: {
         name: '',
         description: '',
@@ -774,17 +828,23 @@ export default {
     videoSrc () {
       if (this.movie && this.movie.trailerUrl && this.showTrailerModal) {
         const base = this.movie.trailerUrl
-        if (base.includes('?')) { return base + '&autoplay=1' }
+        if (base.includes('?')) {
+          return base + '&autoplay=1'
+        }
         return base + '?autoplay=1'
       }
       return ''
     },
     releaseDateText () {
-      if (!this.movie || !this.movie.releaseDate) { return '' }
+      if (!this.movie || !this.movie.releaseDate) {
+        return ''
+      }
       const ts = typeof this.movie.releaseDate === 'number'
         ? this.movie.releaseDate
         : Number(this.movie.releaseDate)
-      if (!ts) { return '' }
+      if (!ts) {
+        return ''
+      }
       const d = new Date(ts)
       const day = String(d.getDate()).padStart(2, '0')
       const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -792,13 +852,21 @@ export default {
       return `${day}/${month}/${year}`
     },
     genreText () {
-      if (!this.movie || !this.movie.genre) { return '' }
-      if (Array.isArray(this.movie.genre)) { return this.movie.genre.join(', ') }
+      if (!this.movie || !this.movie.genre) {
+        return ''
+      }
+      if (Array.isArray(this.movie.genre)) {
+        return this.movie.genre.join(', ')
+      }
       return this.movie.genre
     },
     actorsText () {
-      if (!this.movie || !this.movie.actors) { return '' }
-      if (Array.isArray(this.movie.actors)) { return this.movie.actors.join(', ') }
+      if (!this.movie || !this.movie.actors) {
+        return ''
+      }
+      if (Array.isArray(this.movie.actors)) {
+        return this.movie.actors.join(', ')
+      }
       return this.movie.actors
     },
     minDate () {
@@ -845,13 +913,27 @@ export default {
     await this.fetchRelatedProducts()
   },
   methods: {
+    // Método para mostrar alertas (copiado del primer script)
+    mostrarAlerta (mensaje, tipo = 'info') {
+      this.alerta = mensaje
+      if (tipo === 'error') {
+        this.alertaColor = 'red darken-2'
+      } else if (tipo === 'success') {
+        this.alertaColor = 'green darken-1'
+      } else if (tipo === 'warning') {
+        this.alertaColor = 'orange darken-2'
+      } else {
+        this.alertaColor = 'blue darken-1'
+      }
+      this.alertaVisible = true
+    },
+
     async fetchRelatedProducts () {
       try {
         const { data } = await axios.get(MOVIES_API)
         const currentId = this.movie?.id
         const others = (Array.isArray(data) ? data : [])
           .filter(m => m.id !== currentId)
-
         this.relatedProducts = others
           .sort(() => 0.5 - Math.random())
           .slice(0, 4)
@@ -862,22 +944,19 @@ export default {
           }))
       } catch (err) {
         console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
+        this.mostrarAlerta('Error al cargar películas relacionadas', 'error')
         this.relatedProducts = []
       }
     },
+
     async fetchProduct () {
       try {
         const id = this.$route.params.id
         const { data } = await axios.get(`${MOVIES_API}/${id}`)
-
         const genreStr = Array.isArray(data.genre)
           ? data.genre.join(', ')
           : (data.genre || '')
-
-        const durationStr = data.duration
-          ? `${data.duration} min`
-          : ''
-
+        const durationStr = data.duration ? `${data.duration} min` : ''
         this.movie = {
           ...data,
           isBillboard: !!data.isBillboard,
@@ -892,18 +971,23 @@ export default {
           image: data.posterUrl || data.image || '',
           backgroundImage: data.posterUrl || data.image || '',
           director: data.director || '',
-          actors: Array.isArray(data.actors) ? data.actors : (data.actors || []),
+          actors: Array.isArray(data.actors)
+            ? data.actors
+            : (data.actors || []),
           trailerUrl: data.trailerUrl || ''
         }
-
         this.currentImage = this.movie.image
       } catch (err) {
         console.error('Error al obtener película', err.response?.data || err.message)
+        this.mostrarAlerta('Error al cargar la película', 'error')
         this.movie = null
       }
     },
+
     openTicketModal () {
-      if (!this.movie) { return }
+      if (!this.movie) {
+        return
+      }
       this.selectedCinema = 'Normal'
       this.selectedDate = new Date().toISOString().substring(0, 10)
       this.selectedDateFormatted = this.selectedDate
@@ -918,33 +1002,47 @@ export default {
       this.showTicketModal = true
       this.fetchAvailability()
     },
+
     updateSelectedDateFormatted () {
-      if (!this.selectedDate) { this.selectedDateFormatted = ''; return }
+      if (!this.selectedDate) {
+        this.selectedDateFormatted = ''
+        return
+      }
       this.selectedDateFormatted = String(this.selectedDate)
     },
+
     onCinemaChange (val) {
       this.ticketUnitPrice = val === 'VIP' ? 200 : 100
     },
+
     formatPrice (val) {
-      if (val == null) { return '' }
+      if (val == null) {
+        return ''
+      }
       return `$ ${Number(val)}`
     },
+
     async submitTicketOrder () {
       if (!this.selectedCinema || !this.selectedDate || !this.selectedTime || !this.ticketQty || this.ticketQty < 1 || !this.selectedFormat) {
         this.showWarningModal = true
+        this.mostrarAlerta('Por favor completa todos los campos', 'warning')
         return
       }
       if (this.ticketQty > 50) {
-        alert('El máximo por función es 50 boletos')
+        this.mostrarAlerta('El máximo por función es 50 boletos', 'warning')
         return
       }
       if (this.availableSeats !== null && this.ticketQty > this.availableSeats) {
-        alert(`Solo quedan ${this.availableSeats} boletos disponibles para esta función`)
+        this.mostrarAlerta(`Solo quedan ${this.availableSeats} boletos disponibles para esta función`, 'warning')
         return
       }
 
       const storedUser = (() => {
-        try { return JSON.parse(localStorage.getItem('user') || 'null') } catch (e) { return null }
+        try {
+          return JSON.parse(localStorage.getItem('user') || 'null')
+        } catch (e) {
+          return null
+        }
       })()
 
       const payload = {
@@ -962,10 +1060,10 @@ export default {
 
       try {
         const { data: created } = await this.$axios.post('http://localhost:5020/api/orders/cart/add', payload)
-
         this.showTicketModal = false
         this.showSuccessModal = true
         this.showWarningModal = false
+        this.mostrarAlerta('Boletos añadidos al carrito exitosamente', 'success')
 
         const carrito = JSON.parse(localStorage.getItem('carrito') || '[]')
         const incoming = {
@@ -1006,19 +1104,19 @@ export default {
 
         localStorage.setItem('carrito', JSON.stringify(carrito))
         window.dispatchEvent(new Event('carrito-actualizado'))
-
         this.fetchAvailability()
       } catch (err) {
         console.error(err.response?.data || err.message)
-        alert(err.response?.data?.message || 'Error al añadir al carrito')
+        const msg = err.response?.data?.message || 'Error al añadir al carrito'
+        this.mostrarAlerta(msg, 'error')
       }
     },
+
     async fetchAvailability () {
       if (!this.movie || !this.selectedCinema || !this.selectedDate || !this.selectedTime) {
         this.availableSeats = null
         return
       }
-
       const params = {
         movieId: this.movie.id,
         cinema: this.selectedCinema,
@@ -1026,7 +1124,6 @@ export default {
         showDate: new Date(this.selectedDate).getTime(),
         showTime: this.selectedTime
       }
-
       try {
         const client = this.$axios || axios
         const { data } = await client.get('http://localhost:5020/api/orders/shows/availability', { params })
@@ -1036,12 +1133,17 @@ export default {
         this.availableSeats = null
       }
     },
+
     increaseQty () {
       this.quantity++
     },
+
     decreaseQty () {
-      if (this.quantity > 1) { this.quantity-- }
+      if (this.quantity > 1) {
+        this.quantity--
+      }
     },
+
     addToCart () {
       if (!this.selectedSize || !this.selectedColor) {
         this.showWarningModal = true
@@ -1070,19 +1172,21 @@ export default {
       window.dispatchEvent(new Event('carrito-actualizado'))
       this.showSuccessModal = true
     },
+
     deleteProduct () {
-      if (confirm('¿Estás seguro de que quieres eliminar esta película?')) {
-        axios.delete(`${MOVIES_API}/delete/${this.movie.id}`)
-          .then(() => {
-            alert('Película eliminada exitosamente.')
+      axios.delete(`${MOVIES_API}/delete/${this.movie.id}`)
+        .then(() => {
+          this.mostrarAlerta('Película eliminada exitosamente', 'success')
+          setTimeout(() => {
             this.$router.push('/shop')
-          })
-          .catch((err) => {
-            console.error('Error al eliminar película', err.response?.data || err.message)
-            alert('Error deleting movie')
-          })
-      }
+          }, 1000)
+        })
+        .catch((err) => {
+          console.error('Error al eliminar película', err.response?.data || err.message)
+          this.mostrarAlerta('Error al eliminar la película', 'error')
+        })
     },
+
     checkAdmin () {
       const userStr = localStorage.getItem('user')
       try {
@@ -1092,17 +1196,26 @@ export default {
         this.isAdmin = false
       }
     },
+
     generateSku (name) {
-      if (!name) { return 'SKU-00000' }
+      if (!name) {
+        return 'SKU-00000'
+      }
       const base = name.replace(/\s+/g, '').substring(0, 3).toUpperCase()
       const random = Math.floor(1000 + Math.random() * 9000)
       return `SKU-${base}${random}`
     },
+
     generateTags (desc) {
-      if (!desc || typeof desc !== 'string') { return ['general'] }
+      if (!desc || typeof desc !== 'string') {
+        return ['general']
+      }
       const words = desc.split(/\W+/).filter(w => w.length > 4)
       return [...new Set(words.slice(0, 3).map(w => w.toLowerCase()))]
     },
+
+    // Continuará en parte 3...
+
     openEditModal () {
       this.isEditing = true
       this.form = {
@@ -1129,6 +1242,7 @@ export default {
       }
       this.showProductModal = true
     },
+
     openAddModal () {
       this.isEditing = false
       this.form = {
@@ -1149,36 +1263,51 @@ export default {
       }
       this.showProductModal = true
     },
+
     async submitProduct () {
       try {
         if (!this.form.name || !this.form.description) {
-          alert('Title and synopsis are required.')
+          this.mostrarAlerta('El título y la sinopsis son requeridos', 'warning')
           return
         }
 
         const formData = new FormData()
         formData.append('title', this.form.name)
         formData.append('synopsis', this.form.description)
-
-        if (this.form.genre) { formData.append('genre', this.form.genre) }
-        if (this.form.rating) { formData.append('rating', this.form.rating) }
-        if (this.form.duration) { formData.append('duration', this.form.duration) }
-        if (this.form.language) { formData.append('language', this.form.language) }
-        if (this.form.format) { formData.append('format', this.form.format) }
-        if (this.form.releaseDate) { formData.append('releaseDate', this.form.releaseDate) }
-        if (this.form.director) { formData.append('director', this.form.director) }
-        if (this.form.actors) { formData.append('actors', this.form.actors) }
-        if (this.form.trailerUrl) { formData.append('trailerUrl', this.form.trailerUrl) }
-
+        if (this.form.genre) {
+          formData.append('genre', this.form.genre)
+        }
+        if (this.form.rating) {
+          formData.append('rating', this.form.rating)
+        }
+        if (this.form.duration) {
+          formData.append('duration', this.form.duration)
+        }
+        if (this.form.language) {
+          formData.append('language', this.form.language)
+        }
+        if (this.form.format) {
+          formData.append('format', this.form.format)
+        }
+        if (this.form.releaseDate) {
+          formData.append('releaseDate', this.form.releaseDate)
+        }
+        if (this.form.director) {
+          formData.append('director', this.form.director)
+        }
+        if (this.form.actors) {
+          formData.append('actors', this.form.actors)
+        }
+        if (this.form.trailerUrl) {
+          formData.append('trailerUrl', this.form.trailerUrl)
+        }
         formData.append('isBillboard', this.form.isBillboard ? 'true' : 'false')
-
         if (this.form.imageFile) {
           formData.append('poster', this.form.imageFile)
         }
 
         let url
         let method
-
         if (this.isEditing && this.movie && this.movie.id) {
           url = `${MOVIES_API}/update/${this.movie.id}`
           method = 'put'
@@ -1191,23 +1320,32 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
 
-        alert(this.isEditing ? 'Película actualizada correctamente.' : 'Película creada exitosamente.')
+        const mensaje = this.isEditing
+          ? 'Película actualizada correctamente'
+          : 'Película creada exitosamente'
+        this.mostrarAlerta(mensaje, 'success')
+
         this.showProductModal = false
 
         if (!this.isEditing && data?.id) {
-          this.$router.push(`/product/${data.id}`)
+          setTimeout(() => {
+            this.$router.push(`/product/${data.id}`)
+          }, 1000)
         } else {
           await this.fetchProduct()
           await this.fetchRelatedProducts()
         }
       } catch (err) {
         console.error('Error al guardar película', err.response?.data || err.message)
-        alert('Error guardando película')
+        const msg = err.response?.data?.message || 'Error al guardar la película'
+        this.mostrarAlerta(msg, 'error')
       }
     },
+
     onImageSelected (file) {
       this.form.imageFile = file
     },
+
     confirmDelete () {
       this.deleteProduct()
       this.showDeleteConfirm = false

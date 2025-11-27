@@ -129,7 +129,6 @@
         </v-card>
       </v-dialog>
 
-      <!-- 🔔 ALERTA GLOBAL CORREGIDA -->
       <v-snackbar
         v-model="alertaVisible"
         :color="alertaColor"
@@ -194,6 +193,18 @@ export default {
     }
   },
 
+  mounted () {
+    // Verificar si hay un mensaje de cierre de sesión
+    const logoutMessage = this.$route.query.logout
+    if (logoutMessage === 'true') {
+      this.mostrarAlerta('Has cerrado sesión exitosamente', 'success')
+      // Limpiar el query parameter de la URL sin recargar
+      const query = Object.assign({}, this.$route.query)
+      delete query.logout
+      this.$router.replace({ query })
+    }
+  },
+
   methods: {
     async iniciarSesion () {
       this.error = ''
@@ -207,7 +218,7 @@ export default {
         localStorage.setItem('token', res.data.token)
         localStorage.setItem('user', JSON.stringify(res.data.user))
 
-        this.mostrarAlerta('Inicio de sesión exitoso ✨', 'success')
+        this.mostrarAlerta('Inicio de sesión exitoso', 'success')
 
         setTimeout(() => {
           this.$router.push('/shop')
@@ -216,6 +227,15 @@ export default {
         const msg = err.response?.data?.message || 'Error al iniciar sesión'
         this.mostrarAlerta(msg, 'error')
       }
+    },
+
+    cerrarSesion () {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      this.mostrarAlerta('Has cerrado sesión exitosamente', 'success')
+      setTimeout(() => {
+        this.$router.push('/account')
+      }, 1000)
     },
 
     async registrar () {
@@ -229,7 +249,7 @@ export default {
         })
 
         this.showCompleteModal = true
-        this.mostrarAlerta('Registro enviado a tu correo ✨', 'success')
+        this.mostrarAlerta('Registro enviado a tu correo', 'success')
       } catch (err) {
         const msg = err.response?.data?.message || 'No se pudo registrar'
         this.mostrarAlerta(msg, 'error')
@@ -261,7 +281,7 @@ export default {
     async submitPassword () {
       if (this.newPassword !== this.confirmPassword) {
         this.completeError = 'Las contraseñas no coinciden'
-        this.mostrarAlerta('Las contraseñas no coinciden ❌', 'error')
+        this.mostrarAlerta('Las contraseñas no coinciden', 'error')
         return
       }
 
@@ -279,7 +299,7 @@ export default {
         this.confirmPassword = ''
         this.completeError = ''
 
-        this.mostrarAlerta('Registro completado 🎉 Ahora puedes iniciar sesión.', 'success')
+        this.mostrarAlerta('Registro completado. Ahora puedes iniciar sesión.', 'success')
       } catch (err) {
         const msg = err.response?.data?.message || 'Error al completar el registro'
         this.mostrarAlerta(msg, 'error')
