@@ -3,9 +3,14 @@
     <div class="cart-modal-container">
       <div class="cart-header">
         <div class="cart-header-bar">
-          <h3 class="cart-title">
-            Carrito de compras
-          </h3>
+          <div class="cart-header-left">
+            <h3 class="cart-title">
+              Carrito de compras
+            </h3>
+            <v-btn small text class="history-btn" @click="goToOrders">
+              Ver historial
+            </v-btn>
+          </div>
           <v-icon class="close-icon" @click="$emit('update:isOpen', false)">
             mdi-close
           </v-icon>
@@ -169,6 +174,13 @@ export default {
       window.dispatchEvent(new Event('carrito-actualizado'))
     },
 
+    goToOrders () {
+      this.$emit('update:isOpen', false)
+      this.$nextTick(() => {
+        this.$router.push('/orders')
+      })
+    },
+
     formatShowInfo (item) {
       const parts = []
       if (item.cinema) { parts.push(item.cinema) }
@@ -214,6 +226,20 @@ export default {
   background-color: #db133b;
   color: #ffffff;
   padding: 14px 18px;
+}
+
+.cart-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.history-btn {
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 6px 10px;
+  text-transform: none;
+  min-width: 0;
 }
 
 .cart-title {

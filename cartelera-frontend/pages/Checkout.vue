@@ -36,10 +36,35 @@
 
                 <v-col cols="12">
                   <v-text-field
-                    v-model="billing.company"
-                    label="Nombre de la empresa (opcional)"
+                    v-model="billing.cardNumber"
+                    label="Número de tarjeta"
                     outlined
                     dense
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="billing.expirationDate"
+                    label="Fecha de Expiración"
+                    outlined
+                    dense
+                    maxlength="5"
+                    placeholder="MM/AA"
+                    @input="onExpirationInput"
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="billing.securityCode"
+                    label="Codigo de Seguridad"
+                    outlined
+                    dense
+                    maxlength="3"
+                    placeholder="123"
+                    type="tel"
+                    @input="onSecurityInput"
                   />
                 </v-col>
 
@@ -50,71 +75,6 @@
                     label="País / Región"
                     outlined
                     dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="billing.address"
-                    label="Dirección"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="billing.city"
-                    label="Ciudad"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-select
-                    v-model="billing.province"
-                    :items="provinces"
-                    label="Estado / Provincia"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="billing.zip"
-                    label="Código postal"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="billing.phone"
-                    label="Teléfono"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="billing.email"
-                    label="Correo electrónico"
-                    outlined
-                    dense
-                  />
-                </v-col>
-
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="billing.notes"
-                    label="Información adicional"
-                    outlined
-                    dense
-                    rows="3"
                   />
                 </v-col>
               </v-row>
@@ -246,36 +206,29 @@
 </template>
 
 <script>
-import axios from 'axios'
 import AppHeader from '~/components/PageHeader.vue'
 import PageFooter from '~/components/PageFooter.vue'
 import RoseSection from '~/components/RoseSection.vue'
-import PageHeader from '~/components/PageHeader.vue'
+// import PageHeader from '~/components/PageHeader.vue'
 
 export default {
   components: {
     AppHeader,
     PageFooter,
-    RoseSection,
-    PageHeader
+    RoseSection
+    // PageHeader
   },
   data () {
     return {
       billing: {
         firstName: '',
         lastName: '',
-        company: '',
-        country: 'México',
-        address: '',
-        city: '',
-        province: '',
-        zip: '',
-        phone: '',
-        email: '',
-        notes: ''
+        cardNumber: '',
+        expirationDate: '',
+        securityCode: '',
+        country: 'México'
       },
       countries: ['México', 'Estados Unidos', 'Canadá'],
-      provinces: ['Guanajuato', 'CDMX', 'Jalisco', 'Nuevo León'],
       carrito: [],
       paymentMethod: 'bank',
       dialogSuccess: false,
@@ -300,59 +253,107 @@ export default {
   },
   methods: {
     async checkout () {
-        if (this.carrito.length === 0) {
+      if (this.carrito.length === 0) {
         this.errorMessage = 'Tu carrito está vacío.'
         this.dialogError = true
         return
-        }
+      }
 
-        if (!this.billing.email) {
-        this.errorMessage = 'Por favor ingresa tu correo electrónico.'
+      // Usuario debe estar autenticado
+      const rawUser = localStorage.getItem('user')
+      if (!rawUser) {
+        this.errorMessage = 'Debes iniciar sesión para completar la compra.'
         this.dialogError = true
+        this.$router.push('/')
         return
-        }
+      }
 
+      const user = JSON.parse(rawUser)
+
+      try {
+        // consulta articulos existentes del carrito en backend para evitar crear duplicados
+        const userId = user.id || user.usuario || user.uid
+
+        // Añadir token Authorization a las peticiones si existe
         const token = localStorage.getItem('token')
+        const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
 
-        if (!token) {
-        this.errorMessage = 'Usuario no autenticado. Inicia sesión para completar tu pedido.'
+        const { data: existingItems = [] } = await this.$axios.get(`/orders/cart/user/${userId}`, headers)
+
+        const upsertPromises = this.carrito.map((item) => {
+          const payload = {
+            userId,
+            movieId: item.movieId || item.id,
+            movieTitle: item.name || item.movieTitle || item.title,
+            poster: item.poster || item.image || '',
+            cinema: item.cinema || '',
+            showDate: item.showDate || Date.now(),
+            showTime: item.showTime || '',
+            qty: item.quantity || item.qty || 1,
+            unitPrice: item.price || item.unitPrice || 0
+          }
+
+          const match = existingItems.find(e =>
+            String(e.movieId) === String(payload.movieId) &&
+            String(e.cinema) === String(payload.cinema) &&
+            String(e.showDate) === String(payload.showDate) &&
+            String(e.showTime) === String(payload.showTime) &&
+            e.status === 'cart'
+          )
+
+          if (match) {
+            // actualizar cantidad si es diferente
+            if (Number(match.qty || 0) !== Number(payload.qty)) {
+              return this.$axios.put(`/orders/cart/item/${match.id}`, { qty: payload.qty, unitPrice: payload.unitPrice }, headers)
+            }
+            return Promise.resolve(match)
+          }
+
+          // Si no existe, crear nuevo
+          return this.$axios.post('/orders/cart/add', payload, headers)
+        })
+
+        await Promise.all(upsertPromises)
+
+        // Checkout en Backend: enviar billing, cart y totales
+        const payload = {
+          userId,
+          billing: this.billing,
+          cart: this.carrito,
+          totals: { subtotal: this.subtotal, total: this.total },
+          paymentMethod: this.paymentMethod
+        }
+
+        await this.$axios.post('/orders/checkout', payload, headers)
+
+        this.dialogSuccess = true
+        localStorage.removeItem('carrito')
+        this.carrito = []
+      } catch (err) {
+        console.error('Checkout failed:', err)
+        this.errorMessage = err.response?.data?.message || err.message || 'Hubo un error haciendo el checkout.'
         this.dialogError = true
-        return
-        }
+      }
+    },
 
-        try {
-            await axios.post(
-                'http://localhost:5020/api/orders/checkout',
-                {
-                billing: this.billing,
-                cart: this.carrito,
-                totals: { subtotal: this.subtotal, total: this.total },
-                paymentMethod: this.paymentMethod
-                },
-                {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-                }
-            )
+    onExpirationInput (val) {
+      let v = String(val || '')
+      // Solo digitos
+      v = v.replace(/\D/g, '')
+      if (v.length > 4) { v = v.slice(0, 4) }
+      if (v.length > 2) {
+        v = v.slice(0, 2) + '/' + v.slice(2)
+      }
+      this.billing.expirationDate = v
+    },
 
-            this.dialogSuccess = true
-            localStorage.removeItem('carrito')
-            this.carrito = []
-            } catch (err) {
-            console.error('Checkout failed:', err)
-
-            if (err.response && err.response.status === 401) {
-                this.errorMessage = err.response.data?.message || 'Usuario no autenticado.'
-            } else {
-                this.errorMessage = 'Hubo un problema al procesar tu pedido.'
-            }
-
-            this.dialogError = true
-            }
-        }
+    onSecurityInput (val) {
+      let v = String(val || '')
+      v = v.replace(/\D/g, '')
+      if (v.length > 3) { v = v.slice(0, 3) }
+      this.billing.securityCode = v
     }
+  }
 }
 </script>
 

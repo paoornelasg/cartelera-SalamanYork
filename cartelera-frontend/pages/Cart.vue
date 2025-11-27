@@ -112,6 +112,10 @@
             Finalizar compra
           </button>
 
+          <button class="history-button" @click="$router.push('/orders')">
+            Ver historial
+          </button>
+
           <p v-if="mensaje" class="ok-msg">
             {{ mensaje }}
           </p>
@@ -128,7 +132,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import AppHeader from '~/components/PageHeader.vue'
 import ProductImage from '~/components/ProductImage.vue'
 import PageFooter from '~/components/PageFooter.vue'
@@ -210,22 +214,64 @@ export default {
         this.mensaje = ''
         return
       }
+      // Se requiere que el usuario inicie sesión para guardar el carrito y continuar con el pago
+      const rawUser = localStorage.getItem('user')
+      if (!rawUser) {
+        this.error = 'Debes iniciar sesión para continuar con el pago.'
+        this.mensaje = ''
+        this.$router.push('/')
+        return
+      }
 
-      this.$router.push('/checkout')
+      const user = JSON.parse(rawUser)
 
+      // Primero, se crean elementos del carrito en el backend para este usuario
       try {
-        await axios.post('http://localhost:5020/api/orders/checkout', {
-          billing: this.billing,
-          cart: this.carrito,
-          totals: { subtotal: this.subtotal, total: this.total },
-          paymentMethod: 'efectivo',
-          notes: ''
+        const userId = user.id || user.usuario || user.uid
+
+        // Adjuntar token Authorization si existe
+        const token = localStorage.getItem('token')
+        const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+
+        const { data: existingItems = [] } = await this.$axios.get(`/orders/cart/user/${userId}`, headers)
+
+        const upsertPromises = this.carrito.map((item) => {
+          const payload = {
+            userId,
+            movieId: item.movieId || item.id,
+            movieTitle: item.movieTitle || item.name || item.title,
+            poster: item.poster || item.image || item.moviePoster || '',
+            cinema: item.cinema || '',
+            showDate: item.showDate || Date.now(),
+            showTime: item.showTime || '',
+            qty: item.qty || item.quantity || 1,
+            unitPrice: item.unitPrice || item.price || 0
+          }
+
+          const match = existingItems.find(e =>
+            String(e.movieId) === String(payload.movieId) &&
+            String(e.cinema) === String(payload.cinema) &&
+            String(e.showDate) === String(payload.showDate) &&
+            String(e.showTime) === String(payload.showTime) &&
+            e.status === 'cart'
+          )
+
+          if (match) {
+            if (Number(match.qty || 0) !== Number(payload.qty) || Number(match.unitPrice || 0) !== Number(payload.unitPrice || 0)) {
+              return this.$axios.put(`/orders/cart/item/${match.id}`, { qty: payload.qty, unitPrice: payload.unitPrice }, headers)
+            }
+            return Promise.resolve(match)
+          }
+
+          return this.$axios.post('/orders/cart/add', payload, headers)
         })
-        this.mensaje = '¡Tu orden se creó correctamente!'
-        this.carrito = []
-        localStorage.removeItem('carrito')
+
+        await Promise.all(upsertPromises)
+
+        this.mensaje = ''
+        this.$router.push('/checkout')
       } catch (err) {
-        this.error = err.response?.data?.message || 'Ocurrió un error al crear la orden'
+        this.error = err.response?.data?.message || err.message || 'Ocurrió un error al crear la orden'
       }
     }
   }
@@ -343,6 +389,16 @@ export default {
   background: white;
   cursor: pointer;
   transition: background 0.25s, transform 0.15s;
+}
+
+.history-button {
+  margin-top: 12px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid #ccc;
+  cursor: pointer;
 }
 
 .checkout-button:hover {

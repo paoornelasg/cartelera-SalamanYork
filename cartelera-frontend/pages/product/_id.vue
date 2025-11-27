@@ -928,6 +928,16 @@ export default {
       this.alertaVisible = true
     },
 
+    toLocalMidnight (dateStr) {
+      if (!dateStr) { return null }
+      const parts = String(dateStr).split('-')
+      if (parts.length !== 3) { return Date.now() }
+      const y = Number(parts[0])
+      const m = Number(parts[1]) - 1
+      const d = Number(parts[2])
+      return new Date(y, m, d).getTime()
+    },
+
     async fetchRelatedProducts () {
       try {
         const { data } = await axios.get(MOVIES_API)

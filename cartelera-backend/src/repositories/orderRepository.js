@@ -16,6 +16,29 @@ export default class OrderRepository {
         return { id, ...order }
     }
 
+    // Busca un ítem de carrito existente para el mismo usuario y función (si aún no expiró)
+    async findCartItem (userId, movieId, cinema, showDate, showTime) {
+        if (!userId) return null
+
+        let ref = this.collection
+            .where('userId', '==', userId)
+            .where('movieId', '==', movieId)
+            .where('cinema', '==', cinema)
+            .where('showDate', '==', showDate)
+            .where('showTime', '==', showTime)
+            .where('status', '==', 'cart')
+
+        const snap = await ref.get()
+        if (snap.empty) return null
+
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+
+        const expiryMs = CART_TTL_MINUTES * 60 * 1000
+        const cutoff = Date.now() - expiryMs
+        const valid = docs.filter(d => Number(d.createdAt || 0) >= cutoff)
+        return valid.length ? valid[0] : null
+    }
+
     async update (id, order) {
         await this.collection.doc(id).update(order)
         return { id, ...order }
@@ -71,12 +94,23 @@ export default class OrderRepository {
 
         const results = []
 
+        // Generar un purchaseId único para esta transacción de compra
+        const purchaseId = `purchase_${Date.now()}_${Math.random().toString(36).slice(2,8)}`
+
         await db.runTransaction(async (tx) => {
-            // para cada grupo de función, se asegura la capacidad e incrementa la cantidad vendida
-            for (const key of Object.keys(groups)) {
+            // Primero: leer todos los documentos de disponibilidad necesarios
+            const showKeys = Object.keys(groups)
+            const showSnaps = {}
+            for (const key of showKeys) {
+                const showRef = db.collection('showAvailability').doc(key)
+                showSnaps[key] = await tx.get(showRef)
+            }
+
+            // Segundo: validar disponibilidad y luego realizar las escrituras (sets/updates)
+            for (const key of showKeys) {
                 const g = groups[key]
                 const showRef = db.collection('showAvailability').doc(key)
-                const showSnap = await tx.get(showRef)
+                const showSnap = showSnaps[key]
                 let capacity = 50
                 let sold = 0
                 if (!showSnap.exists) {
@@ -99,8 +133,9 @@ export default class OrderRepository {
                 // marcar cada elemento de pedido de este grupo como pagado
                 for (const it of g.items) {
                     const orderRef = this.collection.doc(it.id)
-                    tx.update(orderRef, { status: 'paid', updatedAt: Date.now() })
-                    results.push({ id: it.id, status: 'paid' })
+                    const paidAt = Date.now()
+                    tx.update(orderRef, { status: 'paid', purchaseId, paidAt, updatedAt: paidAt })
+                    results.push({ id: it.id, status: 'paid', purchaseId, paidAt })
                 }
             }
         })

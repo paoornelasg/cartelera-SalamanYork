@@ -18,11 +18,26 @@ export default class OrderService {
             throw { statusCode: 400, message: 'Faltan campos requeridos' }
         }
 
-        const id = uuidv4()
         const qty = Number(data.qty)
         const unitPrice = Number(data.unitPrice)
         const subtotal = qty * unitPrice
 
+        // Intentar encontrar un ítem de carrito existente para la misma función y usuario
+        const existing = await this.orderRepository.findCartItem(userId, data.movieId, data.cinema, Number(data.showDate), data.showTime)
+        if (existing) {
+            // Fusionar cantidades
+            const newQty = Number(existing.qty || 0) + qty
+            const updated = {
+                ...existing,
+                qty: newQty,
+                unitPrice,
+                subtotal: newQty * unitPrice,
+                updatedAt: Date.now()
+            }
+            return await this.orderRepository.update(existing.id, updated)
+        }
+
+        const id = uuidv4()
         const order = new Order({
         id,
         userId,
@@ -68,14 +83,15 @@ export default class OrderService {
     }
 
     async checkout (userId, extraData = {}) {
-        const checkoutResult = await this.orderRepository.processCheckout(userId)
-
         const {
             billing = null,
             totals = null,
             paymentMethod = 'bank',
             cart = []
         } = extraData || {}
+
+        // Procesar checkout usando los items del carrito provistos
+        const checkoutResult = await this.orderRepository.processCheckout(userId, cart)
 
         if (!billing || !billing.email || !Array.isArray(cart) || cart.length === 0) {
             return checkoutResult
@@ -86,6 +102,7 @@ export default class OrderService {
         const items = cart.map(item => ({
             id: item.id || uuidv4(),
             name: item.name,
+            poster: item.poster || item.image || item.moviePoster || '',
             price: Number(item.price),
             quantity: Number(item.quantity),
             movieId: item.movieId || null,
@@ -118,6 +135,11 @@ export default class OrderService {
     async getShowAvailability (movieId, cinema, showDate, showTime) {
         if (!movieId || !cinema || !showDate || !showTime) throw { statusCode: 400, message: 'Faltan parámetros para disponibilidad' }
         return await this.orderRepository.getShowAvailability(movieId, cinema, showDate, showTime)
+    }
+
+    async getOrdersByUser (userId) {
+        if (!userId) return []
+        return await this.orderRepository.getByUser(userId)
     }
 
     async cleanupExpiredCarts (opts = {}) {

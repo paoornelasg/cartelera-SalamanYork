@@ -26,6 +26,11 @@ const orderRoutes = [
         path: '/cart/user/:userId',  
         handler: 'getCart' 
     },
+    {
+        method: 'get',
+        path: '/user/:userId',
+        handler: 'getOrdersByUser'
+    },
     { 
         method: 'put',    
         path: '/cart/item/:id',  
