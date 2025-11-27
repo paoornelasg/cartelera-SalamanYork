@@ -32,7 +32,13 @@
             mdi-account-alert-outline
           </v-icon>
         </v-btn>
-        <v-btn icon>
+        <SearchAutocomplete
+          ref="searchAuto"
+          v-model="searchQuery"
+          @select="goToProduct"
+          @search="onSearch"
+        />
+        <v-btn icon @click="onSearchFromButton">
           <v-icon color="white">
             mdi-magnify
           </v-icon>
@@ -131,12 +137,14 @@
 import axios from 'axios'
 import CartModal from '~/components/CartModal.vue'
 import FavoritesModal from '~/components/FavoritesModal.vue' // Importar modal de favoritos
+import SearchAutocomplete from '~/components/SearchAutocomplete.vue'
 
 export default {
   name: 'AppHeader',
   components: {
     CartModal,
-    FavoritesModal // Componente modal de favoritos
+    FavoritesModal, // Componente modal de favoritos
+    SearchAutocomplete
   },
   data () {
     return {
@@ -144,7 +152,9 @@ export default {
       showFavorites: false, // Variable para controlar el modal de favoritos
       drawer: false,
       showAccountModal: false,
-      isClient: false
+      isClient: false,
+      // valor del input enlazado con SearchAutocomplete
+      searchQuery: ''
     }
   },
   computed: {
@@ -178,6 +188,44 @@ export default {
   methods: {
     openAccountModal () {
       this.showAccountModal = true
+    },
+    async onSearch (q) {
+      const query = (q || this.searchQuery || '').trim()
+      if (!query) { return }
+      try {
+        // obtenemos coincidencias desde el backend
+        const res = await axios.get('http://localhost:5020/api/movies', { params: {} })
+        const items = res.data?.data ?? res.data ?? []
+        const matches = (Array.isArray(items) ? items : []).filter((item) => {
+          const title = (item.title || item.nombre || item.name || item.titulo || '').toString().toLowerCase()
+          return title.includes(query.toLowerCase())
+        })
+        if (matches.length === 1) {
+          const id = matches[0]._id || matches[0].id
+          if (id) {
+            this.$router.push({ path: `/product/${id}` })
+            return
+          }
+        }
+        this.$router.push({ path: '/shop', query: { q: query } })
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Error onSearch:', err.response?.data || err.message)
+        this.$router.push({ path: '/shop', query: { q: query } })
+      }
+    },
+    goToProduct (id) {
+      if (!id) { return }
+      this.searchQuery = ''
+      this.$router.push({ path: `/product/${id}` })
+    },
+    onSearchFromButton () {
+      const child = this.$refs.searchAuto
+      if (child && typeof child.emitSearch === 'function') {
+        child.emitSearch()
+        return
+      }
+      this.onSearch()
     },
     closeAccountModal () {
       this.showAccountModal = false
