@@ -208,13 +208,6 @@
             md="4"
             lg="3"
           >
-            <!--
-              Tarjeta de producto modificada para abrir el modal de detalle rapido.
-              - Antes redirigía al hacer click en la tarjeta; ahora abrimos el modal
-                con la función `openModal(movie)` para mostrar el panel derecho.
-              - El botón `.add-to-cart-btn` mantiene la redirección y usa
-                `@click.stop` para evitar que su click abra el modal.
-            -->
             <v-card class="product-card elevation-0" @click="openModal(movie)">
               <v-img
                 :src="movie.image"
@@ -243,8 +236,20 @@
                   {{ movie.title }}
                 </div>
 
-                <div class="text-body-2 text-grey-darken-2">
-                  {{ movie.genre }}
+                <div class="d-flex justify-space-between align-center">
+                  <div class="text-body-2 text-grey-darken-2">
+                    {{ movie.genre }}
+                  </div>
+                  <v-btn
+                    icon
+                    small
+                    class="ml-2"
+                    @click.stop="toggleFavorite(movie)"
+                  >
+                    <v-icon :color="movie.isFavorite ? 'red' : 'grey lighten-1'">
+                      {{ movie.isFavorite ? 'mdi-heart' : 'mdi-heart-outline' }}
+                    </v-icon>
+                  </v-btn>
                 </div>
               </v-card-text>
 
@@ -278,7 +283,6 @@
               {{ getShortSynopsis(selectedMovie) }}
             </div>
 
-            <!-- Tabla -->
             <table style="width:100%; border-collapse: collapse;">
               <tbody>
                 <tr>
@@ -317,7 +321,6 @@
             </table>
           </v-card-text>
 
-          <!-- Acciones: quedan en la parte inferior del panel -->
           <v-card-actions class="v-card__actions d-flex justify-end">
             <v-btn text @click="closeModal">
               Cerrar
@@ -383,18 +386,25 @@ export default {
     genreItems () {
       const genres = new Set(['Todos'])
       this.movies.forEach((movie) => {
-        movie.genre.split(',').map(g => g.trim()).forEach(g => genres.add(g))
+        if (movie.genre) {
+          const genresList = Array.isArray(movie.genre) ? movie.genre : movie.genre.split(', ')
+          genresList.map(g => g.trim()).forEach(g => genres.add(g))
+        }
       })
       return Array.from(genres).sort()
     },
     languageItems () {
       const languages = new Set(['Todos'])
-      this.movies.forEach(movie => languages.add(movie.language))
+      this.movies.forEach((movie) => {
+        if (movie.language) { languages.add(movie.language) }
+      })
       return Array.from(languages).sort()
     },
     formatItems () {
       const formats = new Set(['Todos'])
-      this.movies.forEach(movie => formats.add(movie.format))
+      this.movies.forEach((movie) => {
+        if (movie.format) { formats.add(movie.format) }
+      })
       return Array.from(formats).sort()
     },
 
@@ -402,7 +412,7 @@ export default {
       let filtered = [...this.movies]
 
       if (this.genre !== 'Todos') {
-        filtered = filtered.filter(movie => movie.genre.includes(this.genre))
+        filtered = filtered.filter(movie => movie.genre && movie.genre.includes(this.genre))
       }
       if (this.language !== 'Todos') {
         filtered = filtered.filter(movie => movie.language === this.language)
@@ -423,9 +433,9 @@ export default {
       } else if (this.sortOption === 'Título (Z-A)') {
         filtered.sort((a, b) => b.title.localeCompare(a.title))
       } else if (this.sortOption === 'Fecha (más reciente)') {
-        filtered.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
+        filtered.sort((a, b) => new Date(b.releaseDate || 0) - new Date(a.releaseDate || 0))
       } else if (this.sortOption === 'Fecha (más antigua)') {
-        filtered.sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate))
+        filtered.sort((a, b) => new Date(a.releaseDate || 0) - new Date(b.releaseDate || 0))
       }
 
       return filtered
@@ -451,6 +461,11 @@ export default {
 
   mounted () {
     this.fetchMovies()
+    window.addEventListener('update-hearts', this.syncFavorites)
+  },
+
+  beforeDestroy () {
+    window.removeEventListener('update-hearts', this.syncFavorites)
   },
 
   methods: {
@@ -460,6 +475,10 @@ export default {
       try {
         const response = await axios.get('http://localhost:5020/api/movies')
         const data = Array.isArray(response.data) ? response.data : []
+        let favoritesIds = []
+        if (typeof window !== 'undefined') {
+          favoritesIds = JSON.parse(localStorage.getItem('favorites') || '[]')
+        }
 
         this.movies = data.map(movie => ({
           id: movie.id,
@@ -472,7 +491,8 @@ export default {
           language: movie.language || 'Inglés',
           format: movie.format || 'Tradicional',
           sinopsis: movie.synopsis || '',
-          releaseDate: movie.releaseDate || null
+          releaseDate: movie.releaseDate || null,
+          isFavorite: favoritesIds.includes(movie.id)
         }))
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -526,17 +546,39 @@ export default {
       if (!movie) {
         return ''
       }
-
       const raw = movie.sinopsis || `${movie.genre || ''} · ${movie.duration || ''}`
-
       const text = typeof raw === 'string' ? raw : String(raw || '')
-
       const LIMIT = 100
       return text.length > LIMIT ? `${text.slice(0, LIMIT).trim()}...` : text
     },
 
     showAlert (message, type) {
       this.$store.dispatch('alert/triggerAlert', { message, type })
+    },
+    syncFavorites () {
+      const favoritesIds = JSON.parse(localStorage.getItem('favorites') || '[]')
+      this.movies = this.movies.map(movie => ({
+        ...movie,
+        isFavorite: favoritesIds.includes(movie.id)
+      }))
+    },
+
+    toggleFavorite (movie) {
+      movie.isFavorite = !movie.isFavorite
+      const msg = movie.isFavorite ? 'Añadido a favoritos' : 'Eliminado de favoritos'
+      this.showAlert(`${movie.title} - ${msg}`, 'success')
+      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]')
+
+      if (movie.isFavorite) {
+        if (!favorites.includes(movie.id)) {
+          favorites.push(movie.id)
+        }
+      } else {
+        favorites = favorites.filter(id => id !== movie.id)
+      }
+
+      localStorage.setItem('favorites', JSON.stringify(favorites))
+      window.dispatchEvent(new Event('update-hearts'))
     }
   }
 }
@@ -838,20 +880,18 @@ export default {
   flex-direction: column !important;
 }
 
-/* Usar las clases reales que Vuetify renderiza para el texto y las acciones */
 .right-modal .v-card__text {
   flex: 1 1 auto !important;
   overflow: auto !important;
   padding-bottom: 16px !important;
 }
 
-/* Las acciones quedan pegadas al fondo; sticky ayuda en navegadores para scroll */
 .right-modal .v-card__actions {
   position: sticky !important;
   bottom: 0 !important;
   margin-top: 0 !important;
   padding: 12px 16px !important;
-  background: rgba(255,255,255,0.0) !important; /* mantener fondo transparente por defecto */
+  background: rgba(255,255,255,0.0) !important;
 }
 
 .right-modal .modal-image {
@@ -865,25 +905,23 @@ export default {
   background-position: center center !important;
 }
 
-/* Ajustes tipográficos del modal: aumentar tamaño y mejorar legibilidad */
 .right-modal .v-card__title,
 .right-modal .v-card-title {
-  font-size: 1.25rem !important; /* título más grande */
+  font-size: 1.25rem !important;
   line-height: 1.2 !important;
 }
 
 .right-modal .v-card__text {
-  font-size: 1rem !important; /* texto principal ligeramente más grande */
+  font-size: 1rem !important;
   line-height: 1.5 !important;
   color: #222 !important;
 }
 
 .right-modal table td {
-  font-size: 0.98rem !important; /* tabla con texto legible */
+  font-size: 0.98rem !important;
   padding: 8px 10px !important;
 }
 
-/* Aumentar el peso del texto de la primera columna para mantener contraste */
 .right-modal table td:first-child {
   font-weight: 600 !important;
 }
