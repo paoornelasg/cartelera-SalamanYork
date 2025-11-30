@@ -90,10 +90,11 @@ export default class OrderService {
             cart = []
         } = extraData || {}
 
-        // Procesar checkout usando los items del carrito provistos
+        // Procesar checkout usando los items del carrito
         const checkoutResult = await this.orderRepository.processCheckout(userId, cart)
 
-        if (!billing || !billing.email || !Array.isArray(cart) || cart.length === 0) {
+        // Si el carrito está vacío, solo se devuelve el resultado del proceso
+        if (!Array.isArray(cart) || cart.length === 0) {
             return checkoutResult
         }
 

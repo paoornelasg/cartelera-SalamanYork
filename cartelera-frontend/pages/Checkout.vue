@@ -209,14 +209,12 @@
 import AppHeader from '~/components/PageHeader.vue'
 import PageFooter from '~/components/PageFooter.vue'
 import RoseSection from '~/components/RoseSection.vue'
-// import PageHeader from '~/components/PageHeader.vue'
 
 export default {
   components: {
     AppHeader,
     PageFooter,
     RoseSection
-    // PageHeader
   },
   data () {
     return {
@@ -226,7 +224,8 @@ export default {
         cardNumber: '',
         expirationDate: '',
         securityCode: '',
-        country: 'México'
+        country: 'México',
+        email: ''
       },
       countries: ['México', 'Estados Unidos', 'Canadá'],
       carrito: [],
@@ -239,7 +238,7 @@ export default {
   computed: {
     subtotal () {
       return this.carrito.reduce(
-        (acc, item) => acc + item.price * item.quantity,
+        (acc, item) => acc + (item.price || 0) * (item.quantity || 1),
         0
       )
     },
@@ -252,14 +251,23 @@ export default {
     this.carrito = saved ? JSON.parse(saved) : []
   },
   methods: {
+    resetBilling () {
+      this.billing = {
+        firstName: '',
+        lastName: '',
+        cardNumber: '',
+        expirationDate: '',
+        securityCode: '',
+        country: 'México',
+        email: ''
+      }
+    },
     async checkout () {
       if (this.carrito.length === 0) {
         this.errorMessage = 'Tu carrito está vacío.'
         this.dialogError = true
         return
       }
-
-      // Usuario debe estar autenticado
       const rawUser = localStorage.getItem('user')
       if (!rawUser) {
         this.errorMessage = 'Debes iniciar sesión para completar la compra.'
@@ -267,19 +275,25 @@ export default {
         this.$router.push('/')
         return
       }
-
       const user = JSON.parse(rawUser)
+      const userId = user.id || user.usuario || user.uid
+
+      // Usar email del usuario opcional
+      this.billing.email = user.email || user.correo || ''
 
       try {
-        // consulta articulos existentes del carrito en backend para evitar crear duplicados
-        const userId = user.id || user.usuario || user.uid
-
-        // Añadir token Authorization a las peticiones si existe
         const token = localStorage.getItem('token')
-        const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+        const headers = token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : {}
 
-        const { data: existingItems = [] } = await this.$axios.get(`/orders/cart/user/${userId}`, headers)
+        // Obtener carrito actual en backend
+        const { data: existingItems = [] } = await this.$axios.get(
+          `/orders/cart/user/${userId}`,
+          headers
+        )
 
+        // Sincronizar carrito local con backend
         const upsertPromises = this.carrito.map((item) => {
           const payload = {
             userId,
@@ -295,32 +309,50 @@ export default {
 
           const match = existingItems.find(e =>
             String(e.movieId) === String(payload.movieId) &&
-            String(e.cinema) === String(payload.cinema) &&
-            String(e.showDate) === String(payload.showDate) &&
-            String(e.showTime) === String(payload.showTime) &&
+            String(e.cinema || '') === String(payload.cinema || '') &&
+            String(e.showDate || '') === String(payload.showDate || '') &&
+            String(e.showTime || '') === String(payload.showTime || '') &&
             e.status === 'cart'
           )
 
           if (match) {
-            // actualizar cantidad si es diferente
             if (Number(match.qty || 0) !== Number(payload.qty)) {
-              return this.$axios.put(`/orders/cart/item/${match.id}`, { qty: payload.qty, unitPrice: payload.unitPrice }, headers)
+              return this.$axios.put(
+                `/orders/cart/item/${match.id}`,
+                { qty: payload.qty, unitPrice: payload.unitPrice },
+                headers
+              )
             }
             return Promise.resolve(match)
           }
 
-          // Si no existe, crear nuevo
           return this.$axios.post('/orders/cart/add', payload, headers)
         })
 
         await Promise.all(upsertPromises)
 
-        // Checkout en Backend: enviar billing, cart y totales
+        // Construir carrito "limpio" para el resumen
+        const summaryCart = this.carrito.map(item => ({
+          id: item.id,
+          name: item.name || item.title || item.movieTitle,
+          poster: item.poster || item.image || '',
+          price: Number(item.price || 0),
+          quantity: Number(item.quantity || item.qty || 1),
+          movieId: item.movieId || item.id,
+          cinema: item.cinema || '',
+          showDate: item.showDate || null,
+          showTime: item.showTime || ''
+        }))
+
+        // Checkout final en backend
         const payload = {
           userId,
           billing: this.billing,
-          cart: this.carrito,
-          totals: { subtotal: this.subtotal, total: this.total },
+          cart: summaryCart,
+          totals: {
+            subtotal: this.subtotal,
+            total: this.total
+          },
           paymentMethod: this.paymentMethod
         }
 
@@ -329,28 +361,32 @@ export default {
         this.dialogSuccess = true
         localStorage.removeItem('carrito')
         this.carrito = []
+        this.resetBilling()
+        this.paymentMethod = 'bank'
       } catch (err) {
         console.error('Checkout failed:', err)
-        this.errorMessage = err.response?.data?.message || err.message || 'Hubo un error haciendo el checkout.'
+        this.errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Hubo un error haciendo el checkout.'
         this.dialogError = true
       }
     },
-
     onExpirationInput (val) {
       let v = String(val || '')
-      // Solo digitos
       v = v.replace(/\D/g, '')
-      if (v.length > 4) { v = v.slice(0, 4) }
+      if (v.length > 4) v = v.slice(0, 4)
       if (v.length > 2) {
         v = v.slice(0, 2) + '/' + v.slice(2)
       }
       this.billing.expirationDate = v
     },
-
     onSecurityInput (val) {
       let v = String(val || '')
       v = v.replace(/\D/g, '')
-      if (v.length > 3) { v = v.slice(0, 3) }
+      if (v.length > 3) {
+        v = v.slice(0, 3)
+      }
       this.billing.securityCode = v
     }
   }

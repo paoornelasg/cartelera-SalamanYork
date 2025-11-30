@@ -232,13 +232,12 @@
         v-model="showSuccess"
         timeout="5000"
         color="green"
-        absolute
-        bottom
+        top
         right
       >
         {{ successMessage }}
         <v-btn text @click="showSuccess = false">
-          Cerrar
+          X
         </v-btn>
       </v-snackbar>
 
@@ -246,8 +245,7 @@
         v-model="showError"
         timeout="7000"
         color="red"
-        absolute
-        bottom
+        top
         right
       >
         {{ errorMessage }}
@@ -258,6 +256,7 @@
     </v-main>
   </v-app>
 </template>
+
 <script>
 import PageHeader from '~/components/PageHeader.vue'
 import RoseSection from '~/components/RoseSection.vue'
@@ -284,19 +283,24 @@ export default {
   },
   methods: {
     async submitForm () {
+      // limpiar mensajes y ocultar snackbars previos
       this.errorMessage = ''
       this.successMessage = ''
+      this.showError = false
+      this.showSuccess = false
 
       // Requerir que el usuario esté autenticado
       const rawUser = localStorage.getItem('user')
       if (!rawUser) {
         this.errorMessage = 'Debes iniciar sesión para enviar un mensaje.'
+        this.showError = true
         return
       }
 
       const token = localStorage.getItem('token')
       if (!token) {
-        this.errorMessage = 'Token de autenticación no encontrado. Inicia sesión de nuevo.'
+        this.errorMessage = 'Token de autenticicación no encontrado. Inicia sesión de nuevo.'
+        this.showError = true
         return
       }
 
@@ -311,20 +315,21 @@ export default {
 
       try {
         this.submitting = true
-        // console.log('Contact.submitForm - payload:', payload)
-        // console.log('Contact.submitForm - token present:', !!token)
-        const res = await this.$axios.post('/contact', payload, headers)
-        console.log('Contact.submitForm - response:', res)
-        this.successMessage = 'Mensaje enviado correctamente. Te responderemos pronto.'
+        await this.$axios.post('/contact', payload, headers)
+
+        this.successMessage = 'Tu mensaje se envió correctamente. Nuestro equipo te contactará pronto.'
         this.showSuccess = true
+
         // limpiar formulario
         this.name = ''
         this.email = ''
         this.subject = ''
         this.message = ''
       } catch (err) {
-        // console.error('Contact.submitForm - error:', err)
-        this.errorMessage = err.response?.data?.message || err.message || 'Error al enviar el mensaje.'
+        this.errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Error al enviar el mensaje.'
         this.showError = true
       } finally {
         this.submitting = false
