@@ -257,6 +257,7 @@ export default {
     AppHeader,
     PageFooter,
     RoseSection,
+    // eslint-disable-next-line vue/no-unused-components
     PageHeader
   },
   data () {
@@ -300,59 +301,59 @@ export default {
   },
   methods: {
     async checkout () {
-        if (this.carrito.length === 0) {
+      if (this.carrito.length === 0) {
         this.errorMessage = 'Tu carrito está vacío.'
         this.dialogError = true
         return
-        }
+      }
 
-        if (!this.billing.email) {
+      if (!this.billing.email) {
         this.errorMessage = 'Por favor ingresa tu correo electrónico.'
         this.dialogError = true
         return
-        }
+      }
 
-        const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token')
 
-        if (!token) {
+      if (!token) {
         this.errorMessage = 'Usuario no autenticado. Inicia sesión para completar tu pedido.'
         this.dialogError = true
         return
+      }
+
+      try {
+        await axios.post(
+          'http://localhost:5020/api/orders/checkout',
+          {
+            billing: this.billing,
+            cart: this.carrito,
+            totals: { subtotal: this.subtotal, total: this.total },
+            paymentMethod: this.paymentMethod
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+
+        this.dialogSuccess = true
+        localStorage.removeItem('carrito')
+        this.carrito = []
+      } catch (err) {
+        console.error('Checkout failed:', err)
+
+        if (err.response && err.response.status === 401) {
+          this.errorMessage = err.response.data?.message || 'Usuario no autenticado.'
+        } else {
+          this.errorMessage = 'Hubo un problema al procesar tu pedido.'
         }
 
-        try {
-            await axios.post(
-                'http://localhost:5020/api/orders/checkout',
-                {
-                billing: this.billing,
-                cart: this.carrito,
-                totals: { subtotal: this.subtotal, total: this.total },
-                paymentMethod: this.paymentMethod
-                },
-                {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-                }
-            )
-
-            this.dialogSuccess = true
-            localStorage.removeItem('carrito')
-            this.carrito = []
-            } catch (err) {
-            console.error('Checkout failed:', err)
-
-            if (err.response && err.response.status === 401) {
-                this.errorMessage = err.response.data?.message || 'Usuario no autenticado.'
-            } else {
-                this.errorMessage = 'Hubo un problema al procesar tu pedido.'
-            }
-
-            this.dialogError = true
-            }
-        }
+        this.dialogError = true
+      }
     }
+  }
 }
 </script>
 

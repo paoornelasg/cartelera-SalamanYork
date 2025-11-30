@@ -1473,94 +1473,79 @@ export default {
   width: 68%;
 }
 
-@media (max-width: 960px) {
-  .left-column {
-    border-right: none;
-    border-bottom: 2px solid #e5e5e5;
-    padding-bottom: 30px;
-    margin-bottom: 30px;
-  }
-  .right-column {
-    padding-left: 70px;
-  }
-
-  .info-text {
-    padding-right: 70px;
-  }
-  .section-divider-light {
-    width: 90%;
-  }
-}
-
-* {
-  box-sizing: border-box;
-}
-
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
-
-.section-divider {
-  margin: 40px auto;
-  border: none;
-  border-top: 1px solid #eee;
-  width: 90%;
-}
-
-.related-products-section {
-  text-align: center;
-  margin: 0 80px;
-  padding: 40px 0;
-}
-
-.section-title {
-  font-size: 1.7rem;
-  font-weight: bold;
-  margin-bottom: 30px;
-}
-
-.product-card {
+/* ---------- Forzar proporción uniforme 2:3 y recorte consistente ---------- */
+.product-card .product-image {
   width: 100%;
-  text-align: center;
-  cursor: pointer;
-}
-
-.related-title {
-  white-space: nowrap;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
-  text-overflow: ellipsis;
+  border-radius: 8px;
+  background-color: #f5f5f6; /* placeholder mientras carga */
+  display: block;
 }
 
-html,
-body,
-#__nuxt,
-#__layout,
-.v-application,
-.v-main {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  max-width: 100vw;
-  overflow-x: hidden;
-  box-sizing: border-box;
+/* Vuetify v-img genera .v-image__image con background-image — forzar cover centrado */
+.product-card .product-image .v-image__image,
+.product-card .product-image img,
+.product-card .product-image picture,
+.product-card .product-image > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;         /* recorta de forma consistente */
+  background-size: cover !important;
+  background-position: center center !important;
+  display: block !important;
 }
 
-.movie-details-dialog {
-  display: flex !important;
-  justify-content: flex-end !important;
-  align-items: flex-start !important;
+/* Hero (poster lateral): tamaño fijo responsivo con misma proporción */
+.hero-content .v-img.elevation-12 {
+  width: 240px !important;
+  max-width: 28% !important;
+  aspect-ratio: 2 / 3;
+  min-width: 160px;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #f5f5f6;
 }
 
-.movie-details-dialog .v-card {
-  margin-right: 16px;
+/* Forzar que el elemento interno del v-img también llene */
+.hero-content .v-img.elevation-12 .v-image__image,
+.hero-content .v-img.elevation-12 img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  background-size: cover !important;
+  background-position: center center !important;
 }
 
-.movie-details-dialog .v-toolbar__title {
-  padding-left: 16px;
+/* Mantener cajas iguales en grid de relacionadas */
+.related-products-section .product-card .product-image {
+  height: auto;
 }
+
+/* Evitar títulos que cambien altura del card */
+.product-card .v-card-text {
+  min-height: 72px; /* ajusta si necesitas más/menos para 1-2 líneas */
+}
+
+/* Ajustes por breakpoints */
+@media (max-width: 960px) {
+  .hero-content .v-img.elevation-12 { width: 220px !important; min-width: 140px; }
+  .product-card .product-image { aspect-ratio: 2 / 3; }
+  .product-card .product-image .v-image__image,
+  .product-card .product-image img { object-position: center top !important; }
+}
+
+@media (max-width: 768px) {
+  .hero-content .v-img.elevation-12 { width: 200px !important; min-width: 140px; }
+  .product-card .product-image { max-height: 34vh !important; }
+}
+
+@media (max-width: 420px) {
+  .hero-content .v-img.elevation-12 { width: 180px !important; min-width: 140px; }
+  .product-card .product-image { max-height: 28vh !important; }
+  /* Poner poster encima del contenido para móviles si prefieres */
+  .carousel-content-wrapper .v-row { flex-direction: column; }
+  .carousel-content-wrapper .v-col.md-4 { order: -1; margin-bottom: 10px; display:flex; justify-content:center; }
+}
+
 </style>
