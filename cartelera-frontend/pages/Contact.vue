@@ -64,8 +64,8 @@
                 class="form-field"
               />
 
-              <button class="send-button" @click="submitForm">
-                Enviar mensaje
+              <button class="send-button" @click="submitForm" :disabled="submitting">
+                {{ submitting ? 'Enviando...' : 'Enviar mensaje' }}
               </button>
 
               <div class="small-text">
@@ -224,35 +224,31 @@
         </div>
       </v-container>
 
+      <!-- Snackbar único reutilizable (misma implementación que /account) -->
+      <v-snackbar
+        v-model="alertaVisible"
+        :color="alertaColor"
+        top
+        right
+        :timeout="3000"
+        rounded="pill"
+      >
+        {{ alerta }}
+
+        <template #action="{ attrs }">
+          <v-btn
+            text
+            icon
+            v-bind="attrs"
+            @click="alertaVisible = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
+
       <RoseSection />
       <PageFooter />
-
-      <!-- Snackbars fuera de card para que no se recorten -->
-      <v-snackbar
-        v-model="showSuccess"
-        timeout="5000"
-        color="green"
-        top
-        right
-      >
-        {{ successMessage }}
-        <v-btn text @click="showSuccess = false">
-          X
-        </v-btn>
-      </v-snackbar>
-
-      <v-snackbar
-        v-model="showError"
-        timeout="7000"
-        color="red"
-        top
-        right
-      >
-        {{ errorMessage }}
-        <v-btn text @click="showError = false">
-          Cerrar
-        </v-btn>
-      </v-snackbar>
     </v-main>
   </v-app>
 </template>
@@ -275,32 +271,48 @@ export default {
       subject: '',
       message: '',
       submitting: false,
-      successMessage: '',
-      errorMessage: '',
-      showSuccess: false,
-      showError: false
+      // estado para snackbars (reemplaza showSuccess/showError)
+      alerta: '',
+      alertaColor: '',
+      alertaVisible: false
     }
   },
   methods: {
+    mostrarAlerta (mensaje, tipo = 'info') {
+      this.alerta = mensaje
+
+      if (tipo === 'error') {
+        this.alertaColor = 'red darken-2'
+      } else if (tipo === 'success') {
+        this.alertaColor = 'green darken-1'
+      } else if (tipo === 'warning') {
+        this.alertaColor = 'orange darken-2'
+      } else {
+        this.alertaColor = 'blue darken-1'
+      }
+
+      this.alertaVisible = true
+    },
+
     async submitForm () {
-      // limpiar mensajes y ocultar snackbars previos
-      this.errorMessage = ''
-      this.successMessage = ''
-      this.showError = false
-      this.showSuccess = false
+      // limpiar estados previos
+      this.submitting = false // por si acaso
+      // Validaciones básicas locales
+      if (!this.name || !this.email || !this.message) {
+        this.mostrarAlerta('Por favor completa los campos Nombre, Email y Mensaje.', 'warning')
+        return
+      }
 
       // Requerir que el usuario esté autenticado
       const rawUser = localStorage.getItem('user')
       if (!rawUser) {
-        this.errorMessage = 'Debes iniciar sesión para enviar un mensaje.'
-        this.showError = true
+        this.mostrarAlerta('Debes iniciar sesión para enviar un mensaje.', 'error')
         return
       }
 
       const token = localStorage.getItem('token')
       if (!token) {
-        this.errorMessage = 'Token de autenticicación no encontrado. Inicia sesión de nuevo.'
-        this.showError = true
+        this.mostrarAlerta('Token de autenticación no encontrado. Inicia sesión de nuevo.', 'error')
         return
       }
 
@@ -317,8 +329,7 @@ export default {
         this.submitting = true
         await this.$axios.post('/contact', payload, headers)
 
-        this.successMessage = 'Tu mensaje se envió correctamente. Nuestro equipo te contactará pronto.'
-        this.showSuccess = true
+        this.mostrarAlerta('Tu mensaje se envió correctamente. Nuestro equipo te contactará pronto.', 'success')
 
         // limpiar formulario
         this.name = ''
@@ -326,11 +337,11 @@ export default {
         this.subject = ''
         this.message = ''
       } catch (err) {
-        this.errorMessage =
+        const msg =
           err?.response?.data?.message ||
           err?.message ||
           'Error al enviar el mensaje.'
-        this.showError = true
+        this.mostrarAlerta(msg, 'error')
       } finally {
         this.submitting = false
       }
@@ -340,6 +351,7 @@ export default {
 </script>
 
 <style scoped>
+/* --- (aquí van tus estilos originales, intactos) --- */
 .main-header-container {
   display: flex;
   width: 100%;
@@ -725,5 +737,21 @@ export default {
   .small-text {
     font-size: 0.75rem;
   }
+}
+
+/* Forzar apariencia 'pill' del snackbar (si Vuetify lo sobreescribe) */
+::v-deep(.v-snack__content),
+::v-deep(.v-snackbar .v-snack__content) {
+  border-radius: 999px !important;
+  padding: 10px 18px !important;
+  min-width: 160px !important;
+  max-width: 420px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12) !important;
+  align-items: center !important;
+}
+
+::v-deep(.v-snackbar) {
+  width: auto !important;
+  justify-content: flex-end !important;
 }
 </style>

@@ -163,41 +163,28 @@
         </v-row>
       </v-container>
 
-      <!-- Modal éxito -->
-      <v-dialog v-model="dialogSuccess" max-width="400">
-        <v-card>
-          <v-card-title class="headline">
-            ¡Pedido realizado!
-          </v-card-title>
-          <v-card-text>
-            Tu pedido se ha registrado correctamente. ¡Gracias por tu compra!
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="red darken-2" text @click="dialogSuccess = false">
-              Cerrar
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <!-- Snackbar de alertas (mismo estilo que en /account) -->
+      <v-snackbar
+        v-model="alertaVisible"
+        :color="alertaColor"
+        top
+        right
+        :timeout="3000"
+        rounded="pill"
+      >
+        {{ alerta }}
 
-      <!-- Modal error -->
-      <v-dialog v-model="dialogError" max-width="400">
-        <v-card>
-          <v-card-title class="headline">
-            ¡Ups!
-          </v-card-title>
-          <v-card-text>
-            {{ errorMessage }}
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer />
-            <v-btn color="red darken-2" text @click="dialogError = false">
-              Cerrar
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+        <template #action="{ attrs }">
+          <v-btn
+            text
+            icon
+            v-bind="attrs"
+            @click="alertaVisible = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-snackbar>
 
       <RoseSection />
       <PageFooter />
@@ -230,9 +217,10 @@ export default {
       countries: ['México', 'Estados Unidos', 'Canadá'],
       carrito: [],
       paymentMethod: 'bank',
-      dialogSuccess: false,
-      dialogError: false,
-      errorMessage: ''
+      // NUEVO: estado para las alertas tipo snackbar
+      alerta: '',
+      alertaColor: '',
+      alertaVisible: false
     }
   },
   computed: {
@@ -262,19 +250,37 @@ export default {
         email: ''
       }
     },
+
+    // MISMA FUNCIÓN mostrarAlerta QUE EN EL PRIMER SCRIPT
+    mostrarAlerta (mensaje, tipo = 'info') {
+      this.alerta = mensaje
+
+      if (tipo === 'error') {
+        this.alertaColor = 'red darken-2'
+      } else if (tipo === 'success') {
+        this.alertaColor = 'green darken-1'
+      } else if (tipo === 'warning') {
+        this.alertaColor = 'orange darken-2'
+      } else {
+        this.alertaColor = 'blue darken-1'
+      }
+
+      this.alertaVisible = true
+    },
+
     async checkout () {
       if (this.carrito.length === 0) {
-        this.errorMessage = 'Tu carrito está vacío.'
-        this.dialogError = true
+        this.mostrarAlerta('Tu carrito está vacío.', 'warning')
         return
       }
+
       const rawUser = localStorage.getItem('user')
       if (!rawUser) {
-        this.errorMessage = 'Debes iniciar sesión para completar la compra.'
-        this.dialogError = true
+        this.mostrarAlerta('Debes iniciar sesión para completar la compra.', 'error')
         this.$router.push('/')
         return
       }
+
       const user = JSON.parse(rawUser)
       const userId = user.id || user.usuario || user.uid
 
@@ -358,20 +364,23 @@ export default {
 
         await this.$axios.post('/orders/checkout', payload, headers)
 
-        this.dialogSuccess = true
+        // Mostrar éxito con snackbar
+        this.mostrarAlerta('Pedido realizado. ¡Gracias por tu compra!', 'success')
+
         localStorage.removeItem('carrito')
         this.carrito = []
         this.resetBilling()
         this.paymentMethod = 'bank'
       } catch (err) {
         console.error('Checkout failed:', err)
-        this.errorMessage =
+        const msg =
           err?.response?.data?.message ||
           err?.message ||
           'Hubo un error haciendo el checkout.'
-        this.dialogError = true
+        this.mostrarAlerta(msg, 'error')
       }
     },
+
     onExpirationInput (val) {
       let v = String(val || '')
       v = v.replace(/\D/g, '')
@@ -381,6 +390,7 @@ export default {
       }
       this.billing.expirationDate = v
     },
+
     onSecurityInput (val) {
       let v = String(val || '')
       v = v.replace(/\D/g, '')
@@ -395,7 +405,7 @@ export default {
 
 <style scoped>
 .checkout-container {
-  background: #fff9f9;
+  background: white;
   padding: 24px 10px 40px;
 }
 
