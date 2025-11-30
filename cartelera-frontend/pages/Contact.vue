@@ -226,6 +226,33 @@
 
       <RoseSection />
       <PageFooter />
+
+      <!-- Snackbars fuera de card para que no se recorten -->
+      <v-snackbar
+        v-model="showSuccess"
+        timeout="5000"
+        color="green"
+        top
+        right
+      >
+        {{ successMessage }}
+        <v-btn text @click="showSuccess = false">
+          X
+        </v-btn>
+      </v-snackbar>
+
+      <v-snackbar
+        v-model="showError"
+        timeout="7000"
+        color="red"
+        top
+        right
+      >
+        {{ errorMessage }}
+        <v-btn text @click="showError = false">
+          Cerrar
+        </v-btn>
+      </v-snackbar>
     </v-main>
   </v-app>
 </template>
@@ -246,18 +273,67 @@ export default {
       name: '',
       email: '',
       subject: '',
-      message: ''
+      message: '',
+      submitting: false,
+      successMessage: '',
+      errorMessage: '',
+      showSuccess: false,
+      showError: false
     }
   },
   methods: {
-    submitForm () {
-      // eslint-disable-next-line no-console
-      console.log('Formulario enviado:', {
+    async submitForm () {
+      // limpiar mensajes y ocultar snackbars previos
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.showError = false
+      this.showSuccess = false
+
+      // Requerir que el usuario esté autenticado
+      const rawUser = localStorage.getItem('user')
+      if (!rawUser) {
+        this.errorMessage = 'Debes iniciar sesión para enviar un mensaje.'
+        this.showError = true
+        return
+      }
+
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.errorMessage = 'Token de autenticicación no encontrado. Inicia sesión de nuevo.'
+        this.showError = true
+        return
+      }
+
+      const payload = {
         name: this.name,
         email: this.email,
         subject: this.subject,
         message: this.message
-      })
+      }
+
+      const headers = { headers: { Authorization: `Bearer ${token}` } }
+
+      try {
+        this.submitting = true
+        await this.$axios.post('/contact', payload, headers)
+
+        this.successMessage = 'Tu mensaje se envió correctamente. Nuestro equipo te contactará pronto.'
+        this.showSuccess = true
+
+        // limpiar formulario
+        this.name = ''
+        this.email = ''
+        this.subject = ''
+        this.message = ''
+      } catch (err) {
+        this.errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Error al enviar el mensaje.'
+        this.showError = true
+      } finally {
+        this.submitting = false
+      }
     }
   }
 }

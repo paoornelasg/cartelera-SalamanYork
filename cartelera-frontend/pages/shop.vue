@@ -409,7 +409,8 @@ export default {
     },
 
     filteredMovies () {
-      let filtered = [...this.movies]
+      // Mostrar solo películas en cartelera
+      let filtered = this.movies.filter(movie => movie.isBillboard)
 
       if (this.genre !== 'Todos') {
         filtered = filtered.filter(movie => movie.genre && movie.genre.includes(this.genre))
@@ -480,20 +481,29 @@ export default {
           favoritesIds = JSON.parse(localStorage.getItem('favorites') || '[]')
         }
 
-        this.movies = data.map(movie => ({
-          id: movie.id,
-          title: movie.title,
-          genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || ''),
-          classification: movie.rating || 'B',
-          duration: movie.duration ? `${movie.duration} min` : '',
-          image: movie.posterUrl || '',
-          backgroundImage: movie.posterUrl || '',
-          language: movie.language || 'Inglés',
-          format: movie.format || 'Tradicional',
-          sinopsis: movie.synopsis || '',
-          releaseDate: movie.releaseDate || null,
-          isFavorite: favoritesIds.includes(movie.id)
-        }))
+        this.movies = data.map((movie) => {
+          // Normalizar isBillboard aunque venga como string
+          const isBillboard =
+            typeof movie.isBillboard === 'string'
+              ? movie.isBillboard === 'true'
+              : !!movie.isBillboard
+
+          return {
+            id: movie.id,
+            title: movie.title,
+            genre: Array.isArray(movie.genre) ? movie.genre.join(', ') : (movie.genre || ''),
+            classification: movie.rating || 'B',
+            duration: movie.duration ? `${movie.duration} min` : '',
+            image: movie.posterUrl || '',
+            backgroundImage: movie.posterUrl || '',
+            language: movie.language || 'Inglés',
+            format: movie.format || 'Tradicional',
+            sinopsis: movie.synopsis || '',
+            releaseDate: movie.releaseDate || null,
+            isBillboard,
+            isFavorite: favoritesIds.includes(movie.id)
+          }
+        })
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Error al llamar /api/movies', err?.response?.data || err.message)

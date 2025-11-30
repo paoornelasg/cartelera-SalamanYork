@@ -243,7 +243,7 @@
             <p>
               Vive una experiencia cinematográfica única: estrenos exclusivos, salas modernas y atención personalizada <br><br>Cada visita está pensada para que disfrutes el cine como nunca antes
             </p>
-            <NuxtLink to="/about">
+            <NuxtLink to="/aboutus">
               <button class="new-arrivals-section-button">
                 Descúbrenos
               </button>
@@ -280,7 +280,7 @@
 <script>
 import axios from 'axios'
 import PageFooter from '~/components/PageFooter.vue'
-/* import CartModal from '~/components/CartModal.vue' */
+import CartModal from '~/components/CartModal.vue'
 import PageHeader from '~/components/PageHeader.vue'
 import CinemaHero from '~/components/CinemaHero.vue'
 
@@ -288,7 +288,8 @@ export default {
   components: {
     PageHeader,
     PageFooter,
-    /* CartModal, */
+    // eslint-disable-next-line vue/no-unused-components
+    CartModal,
     CinemaHero
   },
   data () {
@@ -332,20 +333,28 @@ export default {
           return `${day}/${month}/${year}`
         }
 
-        const mapped = all.map(m => ({
-          id: m.id,
-          title: m.title,
-          genre: Array.isArray(m.genre) ? m.genre.join(', ') : (m.genre || ''),
-          classification: m.rating || 'B',
-          duration: m.duration ? `${m.duration} min` : '',
-          image: m.posterUrl || '',
-          backgroundImage: m.posterUrl || '',
-          language: m.language || 'Inglés',
-          format: m.format || 'Tradicional',
-          releaseDate: m.releaseDate || null,
-          releaseDateText: formatDate(m.releaseDate),
-          isBillboard: !!m.isBillboard
-        }))
+        const mapped = all.map((m) => {
+          // Normalizar el campo isBillboard para que funcione
+          const isBillboard =
+            typeof m.isBillboard === 'string'
+              ? m.isBillboard === 'true'
+              : !!m.isBillboard
+
+          return {
+            id: m.id,
+            title: m.title,
+            genre: Array.isArray(m.genre) ? m.genre.join(', ') : (m.genre || ''),
+            classification: m.rating || 'B',
+            duration: m.duration ? `${m.duration} min` : '',
+            image: m.posterUrl || '',
+            backgroundImage: m.posterUrl || '',
+            language: m.language || 'Inglés',
+            format: m.format || 'Tradicional',
+            releaseDate: m.releaseDate || null,
+            releaseDateText: formatDate(m.releaseDate),
+            isBillboard
+          }
+        })
 
         // Mostrar películas en cartelera
         this.movies = mapped

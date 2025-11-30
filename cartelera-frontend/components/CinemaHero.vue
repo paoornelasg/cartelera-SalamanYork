@@ -23,8 +23,8 @@
         <NuxtLink to="/shop" class="cinema-hero-button-primary">
           Ver cartelera
         </NuxtLink>
-        <NuxtLink to="/about" class="cinema-hero-button-ghost">
-          Conoce el cine
+        <NuxtLink to="/aboutus" class="cinema-hero-button-ghost">
+          Conoce el proyecto
         </NuxtLink>
       </div>
     </div>

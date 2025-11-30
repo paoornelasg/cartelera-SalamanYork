@@ -37,6 +37,16 @@ export default class OrderController {
         }
     }
 
+    async getOrdersByUser (req, res, next) {
+        try {
+            const userId = req.params.userId || req.user?.id
+            const items = await this.orderService.getOrdersByUser(userId)
+            res.json(items)
+        } catch (e) {
+            res.status(e.statusCode || 500).json({ message: e.message })
+        }
+    }
+
     async updateItem (req, res, next) {
         try {
             const { id } = req.params

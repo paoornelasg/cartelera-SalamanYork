@@ -1,3 +1,4 @@
+<!-- eslint-disable no-console -->
 <template>
   <v-app>
     <AppHeader />
@@ -913,7 +914,7 @@ export default {
     await this.fetchRelatedProducts()
   },
   methods: {
-    // Método para mostrar alertas (copiado del primer script)
+    // Método para mostrar alertas
     mostrarAlerta (mensaje, tipo = 'info') {
       this.alerta = mensaje
       if (tipo === 'error') {
@@ -928,20 +929,38 @@ export default {
       this.alertaVisible = true
     },
 
+    toLocalMidnight (dateStr) {
+      if (!dateStr) { return null }
+      const parts = String(dateStr).split('-')
+      if (parts.length !== 3) { return Date.now() }
+      const y = Number(parts[0])
+      const m = Number(parts[1]) - 1
+      const d = Number(parts[2])
+      return new Date(y, m, d).getTime()
+    },
+
     async fetchRelatedProducts () {
       try {
         const { data } = await axios.get(MOVIES_API)
         const currentId = this.movie?.id
         const others = (Array.isArray(data) ? data : [])
           .filter(m => m.id !== currentId)
+
         this.relatedProducts = others
           .sort(() => 0.5 - Math.random())
           .slice(0, 4)
-          .map(movie => ({
-            ...movie,
-            name: movie.title,
-            image: movie.posterUrl || movie.image || ''
-          }))
+          .map((movie) => {
+            const genreStr = Array.isArray(movie.genre)
+              ? movie.genre.join(', ')
+              : (movie.genre || '')
+
+            return {
+              ...movie,
+              name: movie.title,
+              image: movie.posterUrl || movie.image || '',
+              genre: genreStr
+            }
+          })
       } catch (err) {
         console.error('Error al cargar las películas relacionadas', err.response?.data || err.message)
         this.mostrarAlerta('Error al cargar películas relacionadas', 'error')
@@ -957,9 +976,13 @@ export default {
           ? data.genre.join(', ')
           : (data.genre || '')
         const durationStr = data.duration ? `${data.duration} min` : ''
+        const isBillboard =
+          typeof data.isBillboard === 'string'
+            ? data.isBillboard === 'true'
+            : !!data.isBillboard
         this.movie = {
           ...data,
-          isBillboard: !!data.isBillboard,
+          isBillboard,
           name: data.title,
           description: data.synopsis,
           sinopsis: data.synopsis,
@@ -1225,7 +1248,13 @@ export default {
           ? this.movie.genre.join(', ')
           : (this.movie.genre || ''),
         rating: this.movie.rating || '',
-        duration: this.movie.duration ? String(this.movie.duration) : '',
+        duration: this.movie.duration
+          ? String(
+            typeof this.movie.duration === 'string'
+              ? this.movie.duration.split(' ')[0]
+              : this.movie.duration
+          )
+          : '',
         language: this.movie.language || '',
         format: this.movie.format || '',
         releaseDate: this.movie.releaseDate
@@ -1274,6 +1303,7 @@ export default {
         const formData = new FormData()
         formData.append('title', this.form.name)
         formData.append('synopsis', this.form.description)
+
         if (this.form.genre) {
           formData.append('genre', this.form.genre)
         }
@@ -1301,20 +1331,18 @@ export default {
         if (this.form.trailerUrl) {
           formData.append('trailerUrl', this.form.trailerUrl)
         }
+
         formData.append('isBillboard', this.form.isBillboard ? 'true' : 'false')
+
         if (this.form.imageFile) {
           formData.append('poster', this.form.imageFile)
         }
 
-        let url
-        let method
-        if (this.isEditing && this.movie && this.movie.id) {
-          url = `${MOVIES_API}/update/${this.movie.id}`
-          method = 'put'
-        } else {
-          url = `${MOVIES_API}/create`
-          method = 'post'
-        }
+        const url = this.isEditing
+          ? `${MOVIES_API}/update/${this.movie.id}`
+          : MOVIES_API
+
+        const method = this.isEditing ? 'put' : 'post'
 
         const { data } = await axios[method](url, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -1333,12 +1361,10 @@ export default {
           }, 1000)
         } else {
           await this.fetchProduct()
-          await this.fetchRelatedProducts()
         }
       } catch (err) {
-        console.error('Error al guardar película', err.response?.data || err.message)
-        const msg = err.response?.data?.message || 'Error al guardar la película'
-        this.mostrarAlerta(msg, 'error')
+        console.error('Error guardando película', err.response?.data || err.message)
+        this.mostrarAlerta('Hubo un error al guardar la película', 'error')
       }
     },
 
