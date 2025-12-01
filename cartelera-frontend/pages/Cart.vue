@@ -386,7 +386,8 @@ export default {
   font-size: 1rem;
   border: 1px solid #111;
   border-radius: 15px;
-  background: white;
+  background: #db133b;
+  color: #ffffff;
   cursor: pointer;
   transition: background 0.25s, transform 0.15s;
 }
@@ -396,9 +397,16 @@ export default {
   padding: 10px 20px;
   font-size: 0.95rem;
   border-radius: 12px;
-  background: transparent;
-  border: 1px solid #ccc;
+  color: #000000;
+  background-color: #ffffff;
+  border: 1px solid #111;
   cursor: pointer;
+  transition: background 0.25s, transform 0.15s;
+}
+
+.history-button:hover {
+  background: #f3f3f3;
+  transform: translateY(-2px);
 }
 
 .checkout-button:hover {
