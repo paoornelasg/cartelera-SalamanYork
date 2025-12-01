@@ -370,6 +370,11 @@ export default {
         this.movies = []
         this.featuredMovies = []
       })
+  },
+  methods: {
+    goToMovieDetails (id) {
+      this.$router.push(`/product/${id}`)
+    }
   }
 }
 </script>

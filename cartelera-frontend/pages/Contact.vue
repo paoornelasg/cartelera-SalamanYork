@@ -25,7 +25,7 @@
               </v-card-title>
               <v-text-field
                 v-model="name"
-                label="Nombre Completo"
+                placeholder="Nombre Completo"
                 outlined
                 dense
                 class="form-field"
@@ -36,7 +36,7 @@
               </v-card-title>
               <v-text-field
                 v-model="email"
-                label="Email"
+                placeholder="Email"
                 outlined
                 dense
                 class="form-field"
@@ -47,7 +47,7 @@
               </v-card-title>
               <v-text-field
                 v-model="subject"
-                label="Asunto (opcional)"
+                placeholder="Asunto (opcional)"
                 outlined
                 dense
                 class="form-field"
@@ -58,7 +58,7 @@
               </v-card-title>
               <v-textarea
                 v-model="message"
-                label="Escribe tu mensaje aquí"
+                placeholder="Escribe tu mensaje aquí"
                 outlined
                 rows="4"
                 class="form-field"

@@ -235,7 +235,8 @@ export default {
 }
 
 .history-btn {
-  color: #ffffff;
+  color: #db133b;
+  background-color: white;
   border: 1px solid rgba(255,255,255,0.18);
   padding: 6px 10px;
   text-transform: none;
