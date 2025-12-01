@@ -382,6 +382,7 @@ export default {
 
 .checkout-button {
   margin-top: 1.3rem;
+  width: 70%;
   padding: 12px 25px;
   font-size: 1rem;
   border: 1px solid #111;
@@ -393,10 +394,11 @@ export default {
 }
 
 .history-button {
-  margin-top: 12px;
-  padding: 10px 20px;
+  margin-top: 1.3rem;
+  width: 70%;
+  padding: 12px 25px;
   font-size: 0.95rem;
-  border-radius: 12px;
+  border-radius: 15px;
   color: #000000;
   background-color: #ffffff;
   border: 1px solid #111;
