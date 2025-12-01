@@ -2,9 +2,7 @@
   <v-app>
     <AppHeader />
     <v-main>
-      <h1 class="orders-title">
-        Historial de Compras
-      </h1>
+      <ProductImage title="Historial de Compras" />
       <v-container class="orders-container" fluid>
         <div class="orders-inner">
           <div v-if="loading">
@@ -110,19 +108,6 @@ export default {
 </script>
 
 <style scoped>
-.orders-title {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: #ffffff;
-  background-color: #2c2c2c;
-  padding: 2rem;
-  margin-top: 60px;
-  width: 100%;
-  box-sizing: border-box;
-}
 
 .orders-container {
   max-width: 900px;
